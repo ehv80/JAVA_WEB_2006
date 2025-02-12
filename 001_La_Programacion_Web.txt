@@ -149,3 +149,141 @@ publicar con imágenes o sonidos. A medida que avanzó el tiempo y la red se vol
 estas necesidades se hicieron evidentes y el protocolo fue mejorando para poder transferir 
 cualquier tipo de datos, incluyendo voz, imágenes, video, etc.
 
+HTTP tiene varias características, pero la que más nos va a interesar es que 
+es un protocolo que no guarda el estado (stateless). Esto significa que no se mantiene
+una conexión constantemente entre el cliente y el servidor, sino que el cliente manda
+el pedido y corta la conexión, sin guardar información sobre pedidos anteriores. 
+De esta forma, el servidor trata cada pedido en forma independiente del anterior, 
+simplemente porque no puede saber si el pedido proviene del mismo cliente, aunque 
+haya ocurrido muy cerca en el tiempo. Esto puede sonar muy confuso. Una analogía que 
+aclara bastante las cosas es la siguiente: el servidor es una persona sentada detrás de 
+una puerta. Esta persona recibe papelitos con preguntas por debajo de la puerta, los mira,
+escribe en ellos una respuesta y los envía de vuelta, y esa es toda la comunicación que tiene
+con el mundo exterior. Esta persona no sabe quién mandó cada papelito, sólo los recibe y 
+responde. Quizá del otro lado de la puerta hay una sola persona que es la misma siempre y manda
+diferentes preguntas, o hay cientos de personas, cada cuál con sus inquietudes esperando
+ser respondidas; pero este humilde servidor no lo sabe, ni puede saberlo. Esto hace complicado
+mantener un hilo de conversación entre los clientes (quienes mandan los papelitos) y el 
+servidor (quien los recibe y responde). Por ejemplo, si una persona hace una pregunta y al 
+obtener la respuesta quiere hacer otra pregunta relacionada, tiene que formular la pregunta
+sabiendo que quién responde la tomará como si fuera una pregunta totalmente nueva.
+
+Esta problemática también hace imposible saber si alguien que acaba de mandar un papelito
+sigue estando tras la puerta o se fue hace rato. Un sitio web que se comunique con el cliente
+únicamente mediante documentos HTML a través del protocolo HTTP no tiene forma de saber (sin 
+acudir a otras técnicas de programación como applets, Flash, componentes ActiveX, etc.) si el 
+usuario sigue navegando su sitio o si se fue a otra página o cerró el navegador.
+
+Sesiones
+Esta restricción del protocolo HTTP es un impedimento muy grande. Prácticamente
+toda aplicación necesita superar este inconveniente y poder mantener un registro
+de la conversación mantenida entre el usuario y el servidor. Para ello se define el
+concepto de sesión, que se maneja de la siguiente forma:
+
+· El cliente realiza un pedido al servidor
+· El servidor responde el pedido y, a su vez, le devuelve un identificador al cliente.
+· El cliente deberá, en los sucesivos pedidos, incluir este identificador en cada pedido
+que realice al servidor.
+· El servidor, al reconocer el identificador, puede mantener un estado de pedidos de un mismo cliente.
+
+De esta forma se puede solucionar el problema que acarrea la naturaleza sin estado 
+del protocolo HTTP.
+
+Hay dos formas de lograr que el navegador incluya este identificador de sesión en 
+cada pedido al servidor. La primera es mediante el uso de cookies. Las cookies (¡galletitas!)
+son pequeños archivos con información que el servidor envía al navegador para que éste guarde,
+y que el navegador vuelve a enviar en cada pedido que realiza al servidor. De este modo, 
+el navegador puede guardar información específica sobre el sitio que está visitando, como puede ser
+el identificador de sesión, las preferencias del usuario (por ejemplo, el idioma, los colores 
+con que prefiere visualizar la página), etc.
+
+La segunda forma, llamda URL rewriting, hace que el navegador sobrescriba todos los enlaces que
+vuelven al servidor agregándoles como parámetro el identificador de sesión. Esto es, cada acción 
+que el usuario pueda hacer desde el navegador que vuelva al servidor (y que no sea un enlace externo a otro sitio),
+va a tener agregado un parámetro con el identificador, de esta forma, al hacer click sobre
+cualquiera de los links que tenga la página, estará pasando a su vez el identificador de sesión, 
+y así el servidor podrá identificarlo.
+
+Es importante destacar que todo tipo de información de estado se guarda en el servidor.
+Es éste quien mantiene los datos asociados con la sesión del usuario.
+Por ejemplo, en el clásico sistema de compra online donde hay un carrito de compras virtual,
+cada vez que un usuario agrega un producto, se agrega a la lista que ya contiene 
+el carrito del usuario, pero este carrito y su información residen en el servidor, que los
+mantiene asociados con el identificador de sesión del cliente; el cliente simplemente manda 
+pedidos y se le muestran resultados, sin saber lo que ocurre del otro lado.
+
+Pedidos HTTP
+Hemos visto que los clientes realizan pedidos mediante el protocolo HTTP a servidores web.
+Lo que no vimos hasta ahora es que los pedidos HTTP pueden ser de varios tipos (también son llamados métodos).
+La Tabla 1 muestra los diferentes tipos de pedidos que existen actualmente para
+el protocolo HTTP versión 1.1
+
+TIPO DE PEDIDO __________ DESCRIPCIÓN
+OPTIONS _________________ Se usa para preguntarle al servidor las diferentes formas de comunicación que soporta.
+GET _____________________ Pide un recurso al servidor.
+HEAD ____________________ Igual que el GET, pero el servidor sólo devuelve el encabezado de lo pedido.
+POST ____________________ Método que se usa para enviar información al servidor.
+PUT _____________________ Usado para enviar recursos al servidor.
+DELETE __________________ Borra recursos del servidor.
+TRACE ___________________ Se usa para pedir un rastreo del pedido.
+CONNECT _________________ Método reservado.
+
+Tabla 1. Los diferentes métodos que define el protocolo HTTP.
+
+Estos ocho métodos definidos en la especificación del protocolo permiten establecer
+conexiones muy avanzadas entre clientes y servidores, pero que no son usadas 
+por lo general por las aplicaciones web estándar. El método TRACE, por ejemplo,
+se usa para testear que el servidor esté recibiendo los datos correctamente y para
+depurar las conexiones. La mayoría de los servidores en producción directamente
+tienen deshabilitados muchos de estos métodos o están asociados con algún tipo de 
+directiva de seguridad que impide que cualquier usuario los ejecute. Caso 
+contrario, cualquier usuario desde algún lugar remoto del planeta podría ejecutar
+un DELETE de una página y la borraría del servidor. En este libro vamos a referirnos
+únicamente a pedidos de los tipos POST y GET. Si bien a priori POST y GET parecen 
+totalmente distintos entre sí, vamos a ver que pueden usarse con los mismos propósitos,
+aunque hay casos en los que se evidencia que uno es más idóneo que el otro.
+La especificación recomienda distintos usos para cada uno de ellos. Dice que el 
+método GET debería usarse solamente para obtener datos del servidor y que 
+POST debe usarse para enviar información al servidor, como ser una orden de compra
+o una actualización de un dato. Así y todo, podemos usar GET para enviar información
+al servidor (con ciertas limitaciones) y POST para obtenerla.
+
+Algo sobre seguridad
+El tema de seguridad en aplicaciones web excede ampliamente los contenidos de este libro.
+Aunque es una cuestión muy tratada y sobre la que se ha escrito muchísimo, vamos a dar un 
+pequeño pantallazo del tema, de su problemática y de algunas formas de mantenerlo bajo control.
+
+Los sistemas web implementan numerosos procesos en los que deben ofrecer seguridad.
+Más adelante veremos una aplicación simple pero poderosa que se utiliza para brindar seguridad
+en lo referido a autenticaciones y autorizaciones.
+
+Autenticación es el proceso que se encarga de verificar que un usuario es realmente
+quien dice que es. Es común en muchos sitios web. Cada vez que nos piden que ingresemos
+nuestro nombre de usuario y contraseña, básicamente nos están pidiendo que demostremos
+que somos el usuario dueño de la contraseña, y para esa verificación la ingresamos.
+
+Autorización consiste en verificar que un usuario dado (que suponemos ya se ha autenticado)
+tenga permisos para efectuar determinada operación. Por ejemplo, en determinado sistema
+sólo el usuario administrador podrá borrar información, de manera que cuando el servidor identifique
+que se está pidiendo borrar algo, primero deberá verificar que el usuario que está pidiendo
+el borrado sea un usuario de tipo administrador, y en ese caso autorizará la acción.
+
+Sin embargo, el principal problema de seguridad que plantean las aplicaciones web
+(al igual que toda aplicación distribuida) es el tema del transporte de datos.
+
+El protocolo HTTP, como dijimos, transporta información entre computadoras, 
+y con altísima probabilidad esta información viajará a través de muchos nodos
+por Internet hasta llegar al servidor al cuál se dirige. Esto trae muchos problemas
+de seguridad, ya que alguien puede, con relativa facilidad, tener acceso a la comunicación
+que se establece entre el cliente y el servidor y puede leer los datos que se transmiten,
+y estos datos pueden incluir números de tarjetas de crédito, claves, información confidencial, etc.
+
+La solución que se usa hoy en día (aunque en materia de seguridad informática nada es ciento por ciento
+seguro) es un protocolo llamado HTTPS. Este protocolo lo que especifica es que las comunicaciones 
+se siguen haciendo igual que con HTTP, pero antes de enviar la información el cliente, la encripta. 
+El servidor la recibe, la desencripta y luego la procesa. Así, si alguien logra interceptar la 
+comunicación, es casi imposible que pueda descifrar su contenido.
+
+Programando para la Web 
+Ahora que hemos visto de qué se trata la programación web, con sus limitaciones y 
+modelos desde un punto de vista teórico, vamos a darle un vistazo a la parte práctica.
