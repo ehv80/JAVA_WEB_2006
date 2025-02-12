@@ -1,0 +1,127 @@
+La programación Web
+La programación de aplicaciones web impone una nueva forma de pensar
+y programar aplicaciones. En este capítulo veremos qué es la 
+programación web y algunas de sus características clave.
+
+INTRODUCCIÓN AL MUNDO WEB 
+En los últimos años, Internet dejó de ser un mero divertimento para 
+pasar a ser un medio fundamental de desarrollo de negocios. Hoy en día,
+podemos hacer mucho más que visitar páginas web y chatear. Estamos 
+acostumbrados a realizar muchas de nuestras tareas cotidianas vía internet:
+pagar las cuentas, alquilar una película en el videoclub, revisar nuestros mails,
+reservar un hotel y pasajes para nuestras vacaciones, y muchas cosas más. Todo esto, 
+independientemente del lugar donde estemos y del horario.
+En este contexto, estar en Internet es condición sine qua non para cualquier empresa.
+
+En un principio, parecería suficiente con tener una mera página con información de contacto,
+en la que se muestren productos y servicios, pero enseguida se vuelve imprescindible proveer
+nuevos servicios a los potenciales clientes a través de la red de redes, para no perder competitividad
+en el mercado. Un banco ya no puede dejar de ofrecer home-banking, una línea aérea que no tenga
+página en internet donde se puedan consultar los vuelos actualizados y reservar o comprar pasajes 
+pierde mucho mercado. Y así con cualquier área de negocio que pensemos.
+
+Programar este tipo de servicios puede parecer muy complicado, y si bien hay algunas aplicaciones
+críticas, como por ejemplo, las bancarias -en donde la transferencia de efectivo no puede dar lugar
+a errores de sistemas y se requiere mucha inversión en materia de seguridad-, veremos que normalmente
+desarrollar una aplicación web segura no es más complicado que programar cualquier aplicación standalone.
+De hecho, dados los reducidos requerimientos y limitaciones de este tipo de desarrollos (que se verán más adelante)
+y la gran cantidad de software open source que hay disponible para ser usado gratuitamente, en muchos casos
+suele ser más simple hacer una aplicación web que una de escritorio.
+
+Internet
+Para poder meternos de lleno en la programación web, primero es fundamental
+entender cómo funciona, a grandes rasgos, Internet. Cuando nosotros abrimos
+un navegador y lo apuntamos hacia la página web que deseamos ver, por ejemplo,
+www.google.com, en el fondo se está generando una comunicación entre dos programas: 
+un cliente y un servidor.
+
+[ Cliente ] --- pedido ---> [ Servidor ]
+[         ] <--- respuesta -[          ]
+
+Figura 1. Al navegar por Internet básicamente estamos realizando una 
+comunicación entre dos programas.
+
+El cliente es nuestro navegador (Internet Explorer, Firefox, etc), que se comunica
+con el servidor. En este caso, el servidor es un programa que está constantemente 
+escuchando peticiones de clientes y devuelve para cada pedido una respuesta acorde.
+La respuesta es tomada por nuestro navegador y se muestra en pantalla, y de esta forma
+navegamos, de pedido en pedido, respuesta tras respuesta, continuamente.
+
+Sobre HTML
+En este libro asumiremos que las páginas que devuelve el servidor son siempre
+páginas HTML. Si bien esto ocurre en la mayoría de los casos en los sitios de Internet,
+también hay muchos sitios que trabajan con otras tecnologías, de las cuáles la más 
+común es Flash.
+
+HTML significa Hypertext Markup Language. Si lo traducimos al castellano: 
+Lenguaje de Marcado de Hipertexto. Nos alcanza con saber que HTML es un
+lenguaje que le especifica ciertos atributos a su contenido, y los navegadores web
+saben muy bién cómo mostrar este contenido formateado según esos atributos.
+Por ejemplo, un documento HTML (o página HTML) puede especificar que en cierto
+lugar del documento haya que insertar una imagen, o que cierto texto dentro de su
+contenido vaya en negrita o con determinada tipografía. O sea, no difiere mucho 
+de lo que podemos hacer con un documento de Word, de hecho, cualquier procesador
+de texto permite exportar o guardar documentos como archivos de tipo HTML.
+La diferencia entre ambos documentos radica en el contexto en que van a utilizarse
+y a que HTML es un documento escrito enteramente en texto plano. Esto significa
+que también podemos crear documentos HTML en cualquier editor de texto sencillo.
+Ahora que sabemos un poco sobre lo que es HTML, vamos a desglosar su significado.
+
+· Hypertext: se dice que un documento HTML contiene hipertexto en el sentido
+que un documento HTML puede referenciar a otro documento HTML. Cada vez que 
+un documento referencia a otro, se dice que está conectado a ese otro documento
+mediante un enlace (o link).
+
+· Markup: un documento HTML define sus secciones mediante marcas (etiquetas o tags)
+en su contenido.
+
+· Language: ¡es un Lenguaje! Los navegadores saben hablar este lenguaje y cuando
+un servidor les provee una página HTML, saben cómo mostrarla en pantalla.
+
+Páginas estáticas
+En muchos casos, el servidor es un programa que simplemente toma el pedido
+que recibe y devuelve una página (compuesta por uno o más archivos HTML, imágenes
+animaciones, etc) que está guardada en algún lugar del disco. En estos casos
+decimos que son páginas estáticas.
+
+A no ser que el administrador del sitio actualice su contenido, al ingresar en 
+la página web siempre obtendremos el mismo resultado, no importa cuándo ingresemos
+ni desde dónde. Para la gran mayoría de sistemas de negocios, este tipo de servicio
+no es muy útil, ya que se suele necesitar que devuelva una página con contenido dinámico,
+que cambie según quién pidió la página, según la fecha, etc.
+
+[ Cliente ] --- pedido imagen.gif ---> [ Servidor ] --- [ imagen.gif ]
+[         ] <--- respuesta ----------- [          ]
+
+Figura 2. El servidor de páginas estáticas siempre devuelve el mismo recurso
+para el mismo pedido.
+
+Páginas dinámicas
+Pensemos, por ejemplo, en el sistema de un banco. Si ingreso en el sitio del banco
+y quiero consultar mi saldo, debería devolverme mi saldo actual al momento
+exacto de pedirlo. Si el sitio web sólo provee contenido estático, entonces 
+deberían tener una página guardada en el disco para cada saldo posible. 
+Esto, obviamente, es impracticable. Y tampoco es viable que haya una persona que
+esté actualizando las páginas de saldos de todos los usuarios a medida que van
+realizando operaciones sobre sus cuentas. En estos casos, el servidor efectúa operaciones
+(yendo a buscar datos a una base de datos, consultando con otro servidor o accediendo
+a otro tipo de servicios de negocios) y devuelve una página dinámica; esto es,
+una página que no está guardada en ningún lugar dentro del servidor, sino 
+que fue creada en el momento para quien la pidió. El servidor accede a los datos
+variables, en este caso, el saldo del usuario, luego construye en memoria la página
+con este dato y se la devuelve al cliente, que la muestra en pantalla.
+
+[ Cliente ] --- pedido index.jsp ---> [ Servidor ] ---> [ Construye ]
+[         ] <--- respuesta ---------- [          ] <--- [           ]
+
+Figura 3. El Servidor web dinámico construye una respuesta distinta para cada pedido.
+
+La programación web entonces, consiste en escribir programas que, dada una petición web
+realizada por un cliente (navegador), procesen el pedido y generen y devuelvan un resultado.
+
+Como en todo proceso de desarrollo de software, hay mucho de reutilización. Podremos
+ver que, por ejemplo, la parte de recibir el pedido y enviar la respuesta por lo 
+general no cambia, solamente cambia la lógica de negocios de cada pedido y el 
+contenido de la respuesta generada. En este libro utilizaremos herramientas ya desarrolladas
+de código abierto que nos ayudarán en la creación de aplicaciones web.
+
