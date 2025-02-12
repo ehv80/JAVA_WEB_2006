@@ -125,3 +125,27 @@ general no cambia, solamente cambia la lógica de negocios de cada pedido y el
 contenido de la respuesta generada. En este libro utilizaremos herramientas ya desarrolladas
 de código abierto que nos ayudarán en la creación de aplicaciones web.
 
+Programación web vs. tradicional
+La programación web es un nuevo paradigma, dado que impone ciertas restricciones
+que pueden resultar confusas en un principio. Éstas restricciones se basan en que
+Internet (al menos hasta ahora) trabaja sobre el protocolo HTTP (HyperText Transfer Protocol).
+Cada vez que escribimos en un navegador http://direccion.web.com estamos indicándole explícitamente
+que se conecte usando dicho protocolo. Si no lo escribimos, por lo general el navegador se encarga
+de rellenarlo automáticamente, aunque los navegadores a menudo también implementan otros tipos de
+comunicaciones entre ellos y un servidor.
+
+Por ejemplo, Internet Explorer y Firefox soportan comunicaciones de tipo FTP
+(File Transfer Protocol), que es un protocolo para la transferencia de archivos. Para
+acceder a un determinado recurso mediante ese otro protocolo, basta con escribir la dirección
+en el navegador (por ejemplo, ftp://ftp.uba.ar) y éste sabrá automáticamente que debe
+establecer una conexión con el servidor mediante el protocolo FTP.
+
+HTTP
+El protocolo HTTP, como su nombre lo indica, fue diseñado para transferir documentos
+de hipertexto (documentos HTML). En sus orígenes, cuando Internet era ARPANET y era 
+muchísimo más pequeña de lo que es ahora, y cuando la velocidad de conexión era enormemente 
+inferior, texto plano era lo único que se transfería por ella. A nadie se le ocurría siquiera
+publicar con imágenes o sonidos. A medida que avanzó el tiempo y la red se volvió más veloz,
+estas necesidades se hicieron evidentes y el protocolo fue mejorando para poder transferir 
+cualquier tipo de datos, incluyendo voz, imágenes, video, etc.
+
