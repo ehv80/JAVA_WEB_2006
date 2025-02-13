@@ -155,20 +155,114 @@ el tipo de pedido recibido.
     
     Figura 3. Ciclo de vida de un servlet.
 
-    El tipo de pedido es uno de los que vimos en el Capítulo 1 (Tabla 1.1)
-    Como vemos, hay métodos definidos para manejar cualquier tipo de pedido.
+El tipo de pedido es uno de los que vimos en el Capítulo 1 (Tabla 1.1)
+Como vemos, hay métodos definidos para manejar cualquier tipo de pedido.
 
-    ¡Hola Mundo!
-    Veamos un ejemplo de servlet, el clásico "Hola Mundo".
+¡Hola Mundo!
+Veamos un ejemplo de servlet, el clásico "Hola Mundo".
     
-    Nota. ver el archivo: HolaMundoServlet.java 
+Nota. ver el archivo: HolaMundoServlet.java 
 
-    El servlet es invocado por el contenedor de servlets del servidor, y si el pedido
-    es de tipo POST o GET, el servlet entonces responde con una página HTML (aunque no tenga ningún
-    tipo de marca HTML, no deja de ser un documento HTML) que dice "Hola Mundo!".
+El servlet es invocado por el contenedor de servlets del servidor, y si el pedido
+es de tipo POST o GET, el servlet entonces responde con una página HTML (aunque no tenga ningún
+tipo de marca HTML, no deja de ser un documento HTML) que dice "Hola Mundo!".
 
-    Este servlet no es muy útil que digamos, ya que entrega siempre la misma cadena de texto.
-    Aunque es ejecutado como un servicio de contenido dinámico, está devolviendo contenido estático.
+Este servlet no es muy útil que digamos, ya que entrega siempre la misma cadena de texto.
+Aunque es ejecutado como un servicio de contenido dinámico, está devolviendo contenido estático.
 
-    Antes de pasar a un ejemplo un poco más útil, veamos en qué consisten las clases 
-    HttpServletRequest y HttpServletResponse. 
+Antes de pasar a un ejemplo un poco más útil, veamos en qué consisten las clases 
+HttpServletRequest y HttpServletResponse. 
+
+HttpServletRequest
+Esta clase encapsula la información que contiene el pedido del cliente. La clase
+se extiende a partir de ServletRequest, una clase que contiene opciones de pedidos
+genéricos, y la extiende con información específica del protocolo HTTP. Un Servlet 
+accede a esta clase para saber qué contenido devolver. Aunque es teóricamente posible
+implementar toda la funcionalidad de un sitio web en un solo servlet, basándose en
+parámetros del pedido, sería a costa de un código inmanejable, confuso y difícil 
+de mantener. Para evitarlo, esta clase provee métodos para acceder a parámetros, 
+encabezados, cookies y opciones de seguridad. Veamos algunos de los métodos
+(tanto de la clase HttpServletRequest como de su clase padre ServletRequest)
+que usaremos más seguido:
+
+Object getAttribute(String name)
+Enumeration getAttributeNames()
+void removeAttribute(String name)
+void setAttribute(String name, Object o)
+Locale getLocale()
+Enumeration getLocales()
+Map getParameterMap()
+Enumeration getParameterNames()
+String[] getParameterValues(String name)
+Cookie[] getCookies()
+HttpSession getSession()
+HttpSession getSession(boolean create)
+String getRequestedSessionId()
+
+Un pedido puede tener asociados objetos, llamados atributos. Estos objetos no
+son asociados al pedido por el navegador web, sino por componentes en el servidor.
+Más adelante veremos cuáles son los usos de estos atributos. Los métodos 
+getAttribute, getAttributeNames, removeAttribute y setAttribute manipulan dichos 
+atributos asociados.
+
+Los navegadores más recientes permiten al usuario definir el idioma en que 
+prefiere navegar la Web. Esto se traduce en un encabezado llamado Accept-Language
+que define el o los idiomas preferidos. Si programamos nuestras aplicaciones para
+que tomen en cuenta esta información, podremos mostrar al usuario páginas en su idioma,
+sin interacción por parte de él. Los métodos getLocale y getLocales devuelven
+el o los idiomas preferidos por el usuario, según el parámetro enviado por el navegador.
+
+Los métodos getParameterMap, getParameterNames y getParameterValues nos permiten
+interactuar con los parámetros enviados por el navegador. Estos parámetros, a diferencia
+de los atributos, sí son establecidos por el navegador cuando el usuario interactúa con
+la página, pulsando un enlace o enviando un formulario web.
+
+El método getCookies nos permite obtener las cookies que este cliente tiene alojadas
+en su computadora.
+
+Y por último, los métodos getSession y getRequestedSessionId nos sirven para tener
+acceso a la session a la cuál pertenece este pedido. Notemos que getRequestedSessionId es el
+indicador de sesión del que hablamos en el primer capítulo, y getSession nos devuelve un objeto
+HttpSession que contiene toda la información de sesión en el servidor.
+
+HttpServletResponse
+Esta interfaz define datos y métodos para manipular la información que será 
+devuelta al cliente. Un servlet recibe de parámetro una instancia de este tipo de objeto
+y es su tarea modificar este objeto según su funcionalidad para que luego la respuesta
+le sea enviada al cliente. Veamos algunos de los métodos que usaremos de esta interfaz Y
+de su superinterfaz: ServletResponse.
+
+ServletOutputStream getOutputStream()
+PrintWriter getWriter()
+void addCookie(Cookie cookie)
+void addHeader(String name, String value)
+void setHeader(String name, String value)
+boolean containsHeader(String name)
+void sendRedirect(String location)
+
+Los métodos getOutputStream() y getWriter() nos devuelven objetos en los que
+podemos escribir el contenido de la respuesta. En el primer caso un OutputStream, 
+útil para devolver contenido binario, y en el segundo caso un PrintWriter, apto 
+para devolver texto al cliente.
+
+Con addCookie(Cookie cookie) podemos enviarle una cookie al cliente, que luego
+podremos obtener e inspeccionar. Es importante notar que el usuario podría definir
+la opción de no recibir cookies en su navegador, de manera que debemos preveer
+esta situación y no escribir aplicaciones que dependan del uso de ellas.
+
+Los métodos addHeader(String name, String value) y setHeader(String name, String value)
+escriben contenido en el encabezado de la respuesta. La diferencia entre estos métodos
+consiste en que setHeader escribe el valor en el encabezado, pisando (si hubiere) un valor existente.
+En cambio, addHeader nos permite asignar múltiples valores a una misma entrada. Para evitarlo
+pisar valores, el método containsHeader(String name) nos permite saber si ya existe un valor 
+asignado como encabezado para un nombre dado. Por último, sendRedirect(String location)
+se utiliza para indicar al navegador que debe redirigirse a otra dirección web.
+
+Veamos un pequeño ejemplo. Crearemos un servlet que se fije si el pedido contiene una cookie,
+caso contrario, la agrega a la respuesta. Luego dependiendo de si cierto parámetro
+está contenido en el pedido, responderá de distinta forma, y en el idioma en que el usuario 
+lo desee.
+
+Nota: Ver el archivo TestRequestResponse.java 
+
+Probando los servlets
