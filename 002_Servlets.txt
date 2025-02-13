@@ -1,0 +1,164 @@
+Servlets
+En este capítulo veremos cómo
+es en la práctica una aplicación web Java.
+Aprenderemos qué es un Servlet, 
+configuraremos un Servidor Tomcat
+para realizar pruebas, y codificaremos
+algunos ejemplos.
+
+SERVLETS 
+Según vimos en el primer capítulo, para crear una aplicación web basta con
+desarollar un servidor que escuche pedidos y devuelva recursos.
+
+Pero es claro que el desarrollo web no consiste únicamente en eso. Sun Microsystems
+creó (dentro del contexto del Java Community Process, que permite a cualquier persona
+del mundo participar en la toma de decisiones) la Java Servlet Technology, una
+especificación que define una serie de clases, paquetes y procedimientos que se utilizan
+para la creación de Servlets, la base fundamental del desarrollo web con Java.
+
+Algo a destacar acerca de los servlets es que la tecnología Java Servlet Technology
+es una especificación. Es decir que la tecnología consta solamente de un documento,
+muy detallado, donde indica la funcionalidad que se provee y cómo deberá ser el 
+software que la implemente, pero no proporciona ningún tipo de software en concreto.
+Si bien SUN desarrolló su propia implementación, la especificación nos permite trabajar
+con cualquier implementación que queramos, en tanto y en cuanto se atenga a la especificación.
+Podemos decir que la especificación define un estándar que ha de cumplirse por los implementadores.
+
+El hecho de trabajar en base a una especificación tiene muchas ventajas, pero también 
+un problema: la especificación sólo define cómo debe comportarse el software, pero
+no limita sus capacidades. Por lo tanto, algunos implementadores le agregan muchas 
+funcionalidades a la implementación que desarrollan, de forma tal de cumplir con la 
+especificación, pero además soportar sus propios requerimientos. Esto conlleva el riesgo
+de que, si usamos funcionalidades extra de una implementación específica, después será
+más difícil migrar a cualquier otra implementación.
+
+¿Qué son los servlets?
+Un servlet es, entonces, un componente de software Java que es encargado de generar
+contenido dinámico en respuesta a pedidos HTTP. Todo servlet reside dentro de un 
+servlet container, que es una parte del servidor web. El servidor web recibe los pedidos,
+revisa su sintaxis y los deriva al servlet container, que a su vez determina qué servlet
+debe invocarse, construye los objetos correspondientes que recibirá el servlet, envía
+el pedido al servlet y éste devuelve la respuesta generada.
+
+                _____________________________
+                |   Servidor web            |
+                |                           |
+                |   [ Servlet Container ]   | 
+--- Pedidos --->|   [ Seguridad ]           |
+                |   [ Loggind ]             |
+<---Respuestas--|___________________________|
+
+Figura 1. El servlet container es un componente más dentro del servidor web.
+
+La especificación define una interfaz servlet que define los siguientes métodos:
+
+/* Cuando el contenedor crea el servlet (ya sea por un pedido o por
+ * inicialización del servidor), llama a este método para que el servlet pueda
+ * inicializar los recursos necesarios durante su vida 
+ */
+ void init(ServletConfig config);
+
+/* Método llamado cuando el contenedor decide destruir el servlet. El servlet 
+ * deberá liberar los recursos que tomó y ejecutar acciones sabiendo que será destruido
+ */
+ void destroy();
+
+/* Devuelve el objeto de configuración del servlet */
+ ServletConfig getServletConfig();
+
+/* Método de ejecución del servlet. Dado un pedido (encapsulado por un ServletRequest)
+ * y un objeto de respuesta (el objeto ServletResponse) el servlet ejecuta su lógica 
+ * en este método */
+ void service(ServletRequest req, ServletResponse res);
+
+/* Devuelve una cadena con información sobre este servlet */
+String getServletInfo();
+
+Luego nos dedicaremos a los detalles, pero podemos ver que, básicamente, un servlet
+se inicializa, se le efectúan pedidos y finalmente se destruye.
+
+La especificación es lo suficientemente amplia como para soportar servlets que 
+respondan a cualquier tipo de pedido. Nosotros vimos que para Internet, las 
+comunicaciones se realizan mediante el protocolo HTTP. Por lo tanto, es obvio
+que existen clases específicas para servlets que responde a pedidos HTTP, ya que
+son los más comunes hoy en día.
+
+            _____________________________
+            | << Interfaz >>            |
+            |    Servlet                |
+            |___________________________|
+            |___________________________|
+            |___________________________|
+                        ^
+                        |
+            ____________|________________
+            | << Abstracta >>           |
+            |    GenericServlet         |
+            |___________________________|
+            |___________________________|
+            |___________________________|
+                        ^
+                        |
+                        |
+            ____________|________________
+            | << Abstracta >>           |
+            |    HttpServlet            |
+            |___________________________|
+            |___________________________|
+            |___________________________|
+
+    Figura 2. Diagrama de clases de servlets.
+
+La clase abstracta HttpServlet define los siguientes métodos:
+
+protected void doDelete(HttpServletRequest, HttpServletResponse);
+protected void doGet(HttpServletRequest, HttpServletResponse);
+protected void doHead(HttpServletRequest, HttpServletResponse);
+protected void doOptions(HttpServletRequest, HttpServletResponse);
+protected void doPost(HttpServletRequest, HttpServletResponse);
+protected void doPut(HttpServletRequest, HttpServletResponse);
+protected void doTrace(HttpServletRequest, HttpServletResponse);
+protected void service(HttpServletRequest, HttpServletResponse);
+void service(ServletRequest req, ServletResponse res);
+protected long getLastModified(HttpServletRequest);
+
+La clase HttpServlet, es una subclase de GenericServlet, y de ella hereda
+métodos, atributos, eventos y demás propiedades.
+
+Veamos con más detalle cómo funciona un servlet, en particular un HttpServlet.
+
+· Un pedido HTTP llega al servidor.
+· El servidor interpreta el pedido y lo reenvía al servlet container.
+· EL servlet container parsea el pedido, crea los objetos correspondientes y crea o llama 
+a la instancia del servlet que ha de manejarlo.
+· El servlet asignado para manejar ese pedido es, asumamos, un HttpServlet.
+· El servlet container invoca al método service con los objetos HttpServletRequest y HttpServletResponse
+que creó como parámetros.
+· El servlet inspecciona los objetos recibidos como parámetros e invoca el método correspondiente, Según
+el tipo de pedido recibido.
+· El método se ejecuta y la respuesta es generada.
+· El servlet container envía la respuesta al cliente que originó el pedido.
+
+                    @
+                    |
+                    | init()
+                    |
+                    |       /-->| 
+                [ Iniciado ]    |service(ServletRequest req, ServletResponse res)
+                    |       \-<-|
+                    |
+                    | destroy()
+                    |
+                [ Terminado ]
+                    |
+                    @
+    
+    Figura 3. Ciclo de vida de un servlet.
+
+    El tipo de pedido es uno de los que vimos en el Capítulo 1 (Tabla 1.1)
+    Como vemos, hay métodos definidos para manejar cualquier tipo de pedido.
+
+    ¡Hola Mundo!
+    Veamos un ejemplo de servlet, el clásico "Hola Mundo".
+    Nota. ver el archivo: HolaMundoServlet.java 
+    
