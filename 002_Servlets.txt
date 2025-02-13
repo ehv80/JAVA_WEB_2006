@@ -160,5 +160,15 @@ el tipo de pedido recibido.
 
     ¡Hola Mundo!
     Veamos un ejemplo de servlet, el clásico "Hola Mundo".
-    Nota. ver el archivo: HolaMundoServlet.java 
     
+    Nota. ver el archivo: HolaMundoServlet.java 
+
+    El servlet es invocado por el contenedor de servlets del servidor, y si el pedido
+    es de tipo POST o GET, el servlet entonces responde con una página HTML (aunque no tenga ningún
+    tipo de marca HTML, no deja de ser un documento HTML) que dice "Hola Mundo!".
+
+    Este servlet no es muy útil que digamos, ya que entrega siempre la misma cadena de texto.
+    Aunque es ejecutado como un servicio de contenido dinámico, está devolviendo contenido estático.
+
+    Antes de pasar a un ejemplo un poco más útil, veamos en qué consisten las clases 
+    HttpServletRequest y HttpServletResponse. 
