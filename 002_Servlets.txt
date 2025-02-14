@@ -266,3 +266,32 @@ lo desee.
 Nota: Ver el archivo TestRequestResponse.java 
 
 Probando los servlets
+Hemos visto algunos ejemplos de servlets, pero ahora llegó el momento de verlos en acción.
+Vamos a configurar un servidor web y a realizar un pedido a los servlets para verlos ejecutándose.
+
+Para los ejemplos de este libro, vamos a utilizar las siguientes tecnologías:
+
+· Eclipse: entorno de desarrollo, versión 3.1.1. Si bien no es necesario, todo tipo de desarrollo
+se simplifica enormemente gracias a este framework.
+
+Eclipse poco a poco se va convirtiendo en la herramienta de desarollo gráfico de facto. 
+Basada en el viejo Visual Age de IBM, ahora de código abierto, es un software que emplea
+plugins en los que se puede agregar funcionalidades y soporte para muchas tareas con poco esfuerzo.
+De hecho, mediante el uso de plugins se puede utilizar Eclipse para desarrollo no sólo de Java,
+sino también de PHP y otros lenguajes.
+
+· Tomcat: servidor web y servlet container. Tomcat es un proyecto open source de muchísima calidad
+desarrollado por Apache. Usaremos la versión 5.5.12 que al momento de redacción del libro es la última
+versión estable y soporta la especificación de servlets 2.4 (que es la que seguimos en este libro). 
+Es importante notar que Tomcat necesita de un JDK versión 1.5 o superior para funcionar.
+
+Tomcat es, sin dudas, el servidor de código abierto más maduro hoy en día. Usado por una enorme cantidad
+de usuarios y empresas de todo el mundo, con muchísimo soporte tanto de la comunidad como del ámbito empresarial,
+tiene tanto prestigio que fue el servidor elegido por Sun para ser la implementación de referencia 
+de las nuevas especificaciones de servlets y JSP que va desarrollando.
+
+Apache Struts: Framework de desarrollo web creado por Apache. Es prácticamente un estándar en la industria,
+y si bien hay varias alternativas para hacer desarrollos web, este es un framework muy completo, que
+cuenta con miles de usuarios, mucho soporte y documentación.
+
+Eclipse
