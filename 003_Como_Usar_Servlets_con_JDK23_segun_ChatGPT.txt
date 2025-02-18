@@ -1,0 +1,44 @@
+Pregunta a ChatGPT: ¿Cómo hago para poder usar Servlets con Java Development Kit Versión 23?
+
+Respuesta de ChatGPT: 
+"
+Para utilizar Servlets con el Java Development Kit (JDK) versión 23, sigue estos pasos:
+
+Instalación del JDK 23: Descarga e instala la versión 23 del JDK desde el sitio oficial de Oracle. 
+Asegúrate de configurar la variable de entorno JAVA_HOME apuntando al directorio de instalación del JDK 
+y añade %JAVA_HOME%\bin al PATH del sistema.
+
+Configuración del entorno de desarrollo: Para desarrollar aplicaciones web con Servlets, 
+es recomendable utilizar un entorno de desarrollo integrado (IDE) como Eclipse o IntelliJ IDEA Ultimate Edition. 
+Este último ofrece un período de prueba de 30 días y facilita el trabajo con Servlets. 
+CODEGYM.CC
+
+Instalación de un servidor de aplicaciones: Los Servlets requieren un contenedor web para ejecutarse. 
+Apache Tomcat es una opción popular y compatible con JDK 23. Descárgalo e instálalo desde su sitio oficial. 
+CODEGYM.CC
+
+Creación de un proyecto web: En tu IDE, crea un nuevo proyecto web dinámico. 
+Asegúrate de que el proyecto esté configurado para utilizar el JDK 23 
+y que Apache Tomcat esté seleccionado como el servidor de destino.
+
+Incorporación de la biblioteca Servlet: Aunque el JDK proporciona las herramientas básicas de Java, 
+la API de Servlets se encuentra en una biblioteca separada. 
+Esta suele estar incluida en el archivo servlet-api.jar dentro del directorio lib de tu instalación de Tomcat. 
+Añade este archivo al classpath de tu proyecto para acceder a las clases e interfaces de Servlets.
+
+Desarrollo del Servlet: Crea una clase Java que extienda HttpServlet y sobrescribe los métodos doGet o doPost 
+según tus necesidades. Estos métodos manejarán las solicitudes HTTP entrantes.
+
+Configuración del Servlet: Define el mapeo de tu Servlet en el archivo web.xml ubicado en el directorio WEB-INF de tu proyecto. 
+Esto permitirá que el contenedor web dirija las solicitudes al Servlet correspondiente.
+
+Despliegue y prueba: Una vez configurado, despliega tu aplicación en Apache Tomcat 
+y accede a ella mediante un navegador web para verificar su funcionamiento.
+
+Para una guía más detallada sobre el desarrollo y despliegue de aplicaciones web con Servlets, 
+puedes consultar recursos como el siguiente: 
+GITHUB.COM
+
+Recuerda que mantener tus herramientas y bibliotecas actualizadas es esencial para garantizar la compatibilidad 
+y aprovechar las últimas mejoras en seguridad y rendimiento.
+"
