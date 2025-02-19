@@ -359,3 +359,252 @@ Bastará con abrir un navegador y escribir la dirección http://localhost:8080 p
 
 Ahora que tenemos un servlet container funcionando, vamos a ver qué tenemos que hacer para correr servlets.
 
+Crearemos un nuevo proyecto en Eclipse, del tipo "Tomcat Project", al que llamaremos "Servlets".
+Para esto iremos a File/New/Project y elegiremos el wizard Tomcat Project (ver Figura 5).
+Al resto de las opciones lo dejamos como viene por defecto.
+
+Figura 5. El proyecto de tipo "Tomcat Project" trae preconfigurada una estructura de directorios 
+para poder desplegar los servlets y configuraciones.
+
+Contextos
+Un servidor web puede tener corriendo varias aplicaciones web o contextos.
+Cada contexto puede ser tanto un sitio web completo como un módulo de una
+aplicación. Por ejemplo, muchos servidores compartidos corren una única instancia de Tomcat
+y tienen varios contextos que sirven a diferentes direcciones web. Cuando creamos el proyecto
+Tomcat en Eclipse, también definimos un contexto del mismo nombre en el Tomcat. Si hacemos
+click con el botón derecho del mouse sobre el proyecto y elegimos la opción Tomcat Project, 
+veremos que se presentan algunas opciones sobre el contexto que el proyecto define.
+"Update context definition" y "Remove context definition" agregan y quitan, respectivamente, 
+la definición del contexto que el proyecto define al servidor web. De esta forma, podemos tener
+una instancia de Tomcat corriendo y cargar y descargar contextos (aplicaciones web) del mismo
+sin necesidad de detener el servidor Tomcat.
+
+El archivo web.xml
+La especificación define que la carpeta WEB-INF es donde debe ir toda la información relativa
+a la aplicación. En particular, define que dentro de ella debe existir el archivo web.xml.
+Este archivo es el "deployment descriptor", un archivo XML que contiene toda la información de
+configuración de la aplicación.
+
+Ahora echemos un vistazo a las funcionalidades más importantes que usaremos en este libro:
+
+Nota ver el archivo: E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\WEB-INF\web.xml 
+
+Contenido del archivo web.xml:
+"
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+version="2.4">
+<display-name>A Simple Application</display-name>
+<context-param>
+<param-name>Webmaster</param-name>
+<param-value>webmaster@mycorp.com</param-value>
+</context-param>
+<filter>
+<filter-name>Image Filter</filter-name>
+<filter-class>com.acme.ImageServlet</filter-class>
+</filter>
+<filter-mapping>
+<filter-name>Image Filter</filter-name>
+<servlet-name>ImageServlet</servlet-name>
+</filter-mapping>
+<servlet>
+<servlet-name>catalog</servlet-name>
+<servlet-class>com.mycorp.CatalogServlet</servlet-class>
+<init-param>
+<param-name>catalog</param-name>
+<param-value>Spring</param-value>
+</init-param>
+</servlet>
+<servlet-mapping>
+<servlet-name>catalog</servlet-name>
+<url-pattern>/catalog/*</url-pattern>
+</servlet-mapping>
+</web-app>
+"
+
+display-name define el nombre que le queremos dar a nuestra aplicación.
+
+context-param contiene un par nombre-valor y define un parámetro de inicialización
+dentro del contexto. Pueden definirse 0 o más elementos context-param. Cualquier servlet podrá
+acceder a estos parámetros.
+
+filter y filter-mapping definen los filtros. En el capítulo de filtros veremos a funcionando
+esta configuración.
+
+servlet y servlet-mapping contienen la definición de los servlets.
+
+En servlet definimos los servlets que residirán en el contexto. Todo servlet que queramos
+usar debe estar declarado en el descriptor. Cada elemento debe contener un servlet-name,
+que es el nombre con que será referenciado el servlet dentro del contexto, y un servlet-class, que es
+el nombre completo de la clase del servlet. Opcionalmente se puede definir uno o más init-param, que,
+similarmente al elemento context-param, consiste en un par param-name y param-value, especificando
+nombre y valor del parámetro a definir, respectivamente. Estos parámetros de inicialización sólo 
+pueden ser vistos por el servlet en donde son definidos.
+
+servlet-mapping define una relación entre un servlet y un patrón de direcciones web.
+Es el que especifica qué servlet ha de cargarse según a qué dirección web (o URL Uniform Resource Locator)
+se haya accedido.
+servlet-name indica a qué servlet se le está definiendo la relación (según el nombre definido previamente
+en el elemento servlet), y url-pattern especifica el patrón de direcciones web asociado.
+
+Veamos entonces un ejemplo. Definamos un descriptor con dos servlets: 
+CompraServlet y VentaServlet. A cada uno le cargamos unos parámetros iniciales con los precios máximos
+a cuales comprar o vender y luego los asociamos a distintos patrones de direcciones web.
+
+Nota: se añade después de </servlet-mapping> y ántes de </web-app> en el archivo web.xml
+"
+<servlet>
+<!-- El servlet CompraServlet -->
+<servlet-name>compra</servlet-name>
+<servlet-class>com.users.CompraServlet</servlet-class>
+<init-param>
+<!-- Definimos la variable precioMaximo con valor 500 para el servlet CompraServlet -->
+<param-name>precioMaximo</param-name>
+<param-value>500</param-value>
+</init-param>
+</servlet>
+
+<servlet>
+<!-- El servlet VentaServlet -->
+<servlet-name>venta</servlet-name>
+<servlet-class>com.users.VentaServlet</servlet-class>
+<init-param>
+<!-- Definimos la variable precioMinimo con valor 200 para el servlet VentaServlet -->
+<param-name>precioMinimo</param-name>
+<param-value>200</param-value>
+</init-param>
+</servlet>
+
+<!-- Asociamos CompraServlet a la dirección web /compras -->
+<servlet-mapping>
+<!-- El nombre del servlet definido en este elemento debe existir como nombre en 
+alguno de los elementos "servlet" definidos previamente -->
+<servlet-name>compra</servlet-name>
+<url-pattern>/compras</url-pattern>
+</servlet-mapping>
+
+<!-- Asociamos VentaServlet a la dirección web /ventas -->
+<servlet-mapping>
+<servlet-name>venta</servlet-name>
+<url-pattern>/ventas</url-pattern>
+</servlet-mapping>
+"
+
+Vimos que en el descriptor se pueden definir parámetros de inicialización, tanto para
+el contexto en general como para cada servlet en particular. ¿Cómo podemos acceder
+a esta información desde un servlet?
+
+En la clase HttpServlet tenemos algunos métodos interesantes:
+
+getInitParameter(String str) nos devuelve un String con el valor del parámetro de inicialización
+de nombre str, o null si no existe dicho parámetro.
+
+getInitParameterNames() devuelve un Enumeration con todos los nombres de los parámetros de inicialización
+que este Servlet posee. Usando este Enumeration podemos fácilmente acceder a los parámetros, como lo 
+ejemplifica el siguiente código: 
+"
+Enumeration e = getInitParameterNames();
+while(e.hasMoreElements())
+{
+    //El nombre del próximo parámetro 
+    String paramName = (String) e.nextElement();
+    //El valor del parámetro
+    String paramValue = getInitParameter(paramName);
+}
+"
+
+A su vez, usando el método getServletContext() podemos acceder a una clase ServletContext 
+que encapsula los datos que posee el contexto al que pertenece el servlet. Algunos de los métodos
+de la clase ServletContext son:
+
+Object getAttribute(String name)
+Enumeration getAttributeNames()
+void removeAttribute(String name)
+void setAttribute(String name, Object object)
+InputStream getResourceAsStream(String path)
+String getInitParameter(String name)
+Enumeration getInitParameterNames()
+
+getInitParameter(String name) y getInitParameterNames() se comportan del mismo modo
+que los métodos de la clase HttpServlet que vimos previamente.
+
+getAttribute(String name), getAttributeNames(), removeAttribute(String name) y 
+setAttribute(String name, Object object) sirven para obtener, quitar y agregar objetos
+al contexto asociados a un nombre, como si fuera un diccionario. Esto hace las veces
+de diccionario global accesible para cualquier servlet del contexto.
+
+Interactuando con el servlet
+Para poder crear una aplicación web, es menester que podamos brindar interacción con el usuario.
+El servlet debe poder recibir información de entrada, procesarla y devolver una respuesta acorde.
+¿Cómo enviarle datos al servlet? Básicamente hay dos formas, dependiendo de si usamos GET o POST 
+como tipo de pedido HTTP (o ambos). Recordemos que GET en teoría se usaba únicamente para pedir un
+recurso, sin embargo, podemos usarlo para enviar cierto tipo limitado de información al servidor.
+
+Un pedido GET no es ni más ni menos que una dirección web enviada al servidor (como vimos en el Capítulo 1).
+Cuando escribimos en el navegador una dirección web, estamos generando un pedido GET. Podemos también
+agregarle parámetros al pedido, y éstos serán recibidos por el servidor. Para enviar parámetros, debemos agregar,
+luego de la dirección web, el "query string", que se construye de la siguiente forma:
+
+· un '?' indicando que comienza la sección de parámetros;
+· un par nombre y valor, separados por un '=';
+· en caso de que haya más de un parámetro, éstos se separan mediante un '&'
+
+Por ejemplo, si quiero pasar los parámetros "nombre" y "edad", con valores "Juan" y "16" respectivamente,
+la dirección web resultante sería:
+http://<sitio>/<recurso>?nombre=Juan&edad=16
+
+El protocolo HTTP no impone ninguna restricción al largo de las direcciones web que pueden ser enviadas,
+sin embargo, los servidores sí. Aunque existen servidores que aceptan tamaños más grandes, por compatibilidad
+se recomienda que el tamaño total no supere los 256 caracteres.
+
+Un pedido POST se crea utilizando formularios HTML. Al enviarse el formulario a la dirección especificada en 
+el tag <form> (asumiendo que METHOD="POST"), el navegador crea un pedido HTTP POST y lo envía a esa dirección.
+Veamos un ejemplo:
+
+<form method="post" action="miServlet">
+    Nombre: <input type="text" name="nombre"><br/>
+    Edad: <input type="text" name="edad"><br/>
+    <input type="submit">
+</form>
+
+La clase HttpServletRequest abstrae el tipo de pedido que recibió el servlet, y sus métodos
+getParameter(String name), getParameterMap(), getParameterNames() y getParameterValues(String name)
+sirven tanto para pedidos GET como para POST.
+
+Un ejemplo completo
+Vamos a desarollar un ejemplo completo que abarque todo lo que vimos en el capítulo.
+Desarrollaremos un juego de El Ahorcado. La página HTML mostrará las letras elegidas, 
+las acertadas, y las chances restantes.
+
+El servlet deberá hacer uso de la sesión para guardar qué letras ya arriesgó el usuario
+y sobre qué palabra está adivinando (habrá varias). El número de chances será un parámetro de inicialización.
+
+Veamos el código fuente del archivo 
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\src\AhorcadoServlet.java
+
+Como vemos, el juego usa mucho la sesión para guardar las letras que el usuario fue arriesgando. 
+El juego va contando las letras arriesgadas por el jugador y cuando superan el máximo número permitido,
+avisa al usuario que perdió.
+
+Sin embargo, no está realizada la funcionalidad para cuando el usuario acierta la palabra completa y gana.
+¡Es un buen ejercicio para el lector!
+
+Problemática de los servlets
+Los servlets son la piedra fundamental en el desarrollo de aplicaciones web con Java, y es muy importante
+que sepamos qué son y cómo funcionan.
+
+Sin embargo, los servlets no son la herramienta más adecuada para el desarrollo web. Hacer una aplicación
+entera sólo usando servlets es lento, engorroso y resulta muy difícil de mantener. Los servlets plantean
+una problemática fundamental: no separan la presentación del contenido.
+
+Hemos visto que en el servlet tenemos que imprimir el resultado completo, y esto incluye contenido HTML y 
+contenido propio de la aplicación. Esto dificulta las cosas. Si quisiéramos cambiar el diseño gráfico de 
+la aplicación, tendríamos que tocar código fuente y recompilar.
+
+Pero lo más importante, un diseñador gráfico que generalmente no sabe programar Java tendría que
+modificar el contenido del servlet para agregarle diseño, potencialmente dañando el código y generando problemas.
+
+En el próximo capítulo veremos una alternativa para esto, Java Server Pages.

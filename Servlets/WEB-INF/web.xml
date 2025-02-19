@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+version="2.4">
+<display-name>A Simple Application</display-name>
+<context-param>
+<param-name>Webmaster</param-name>
+<param-value>webmaster@mycorp.com</param-value>
+</context-param>
+<filter>
+<filter-name>Image Filter</filter-name>
+<filter-class>com.acme.ImageServlet</filter-class>
+</filter>
+<filter-mapping>
+<filter-name>Image Filter</filter-name>
+<servlet-name>ImageServlet</servlet-name>
+</filter-mapping>
+<servlet>
+<servlet-name>catalog</servlet-name>
+<servlet-class>com.mycorp.CatalogServlet</servlet-class>
+<init-param>
+<param-name>catalog</param-name>
+<param-value>Spring</param-value>
+</init-param>
+</servlet>
+<servlet-mapping>
+<servlet-name>catalog</servlet-name>
+<url-pattern>/catalog/*</url-pattern>
+</servlet-mapping>
+
+<servlet>
+<!-- El servlet CompraServlet -->
+<servlet-name>compra</servlet-name>
+<servlet-class>com.users.CompraServlet</servlet-class>
+<init-param>
+<!-- Definimos la variable precioMaximo con valor 500 para el servlet CompraServlet -->
+<param-name>precioMaximo</param-name>
+<param-value>500</param-value>
+</init-param>
+</servlet>
+
+<servlet>
+<!-- El servlet VentaServlet -->
+<servlet-name>venta</servlet-name>
+<servlet-class>com.users.VentaServlet</servlet-class>
+<init-param>
+<!-- Definimos la variable precioMinimo con valor 200 para el servlet VentaServlet -->
+<param-name>precioMinimo</param-name>
+<param-value>200</param-value>
+</init-param>
+</servlet>
+
+<!-- Asociamos CompraServlet a la dirección web /compras -->
+<servlet-mapping>
+<!-- El nombre del servlet definido en este elemento debe existir como nombre en 
+alguno de los elementos "servlet" definidos previamente -->
+<servlet-name>compra</servlet-name>
+<url-pattern>/compras</url-pattern>
+</servlet-mapping>
+
+<!-- Asociamos VentaServlet a la dirección web /ventas -->
+<servlet-mapping>
+<servlet-name>venta</servlet-name>
+<url-pattern>/ventas</url-pattern>
+</servlet-mapping>
+
+</web-app>
