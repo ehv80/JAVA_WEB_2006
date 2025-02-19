@@ -295,3 +295,67 @@ y si bien hay varias alternativas para hacer desarrollos web, este es un framewo
 cuenta con miles de usuarios, mucho soporte y documentación.
 
 Eclipse
+Eclipse se puede bajar de https://www.eclipse.org/downloads. En este libro usaremos
+la versión 3.1.1. No ahondaremos mucho sobre las características de Eclipse en sí, 
+que son muchísimas, sino que simplemente explicaremos los conceptos de desarrollo web
+mediante su uso. Una vez que hemos descargado Eclipse (hay versiones para Windows y Linux) 
+lo instalamos, y quedará creada una carpeta en la que encontraremos el archivo ejecutable.
+Eclipse no genera entradas en el registro de Windows ni crea archivos en otro lugar que no
+sea la carpeta en la que se encuentra su instalación.
+
+Componentes de la Interfaz gráfica de Eclipse:
+
+(1) Tomcat: botones para arrancar, detener y reiniciar Tomcat. Estos botones son provistos por el
+plugin Sysdeo.
+
+(2) Ejecución: botones para correr aplicaciones, depurarlas y ejecutar aplicaciones externas.
+
+(3) Panel: los paneles son configurables y podemos agregar y quitar cuantas ventanas queramos.
+En este caso tenemos una vista de la aplicación actual.
+
+(4) Código: vista del código fuente, usando un editor que resalta la sintaxis propia de Java.
+
+(5) Panel: el panel inferior suele ser usado para mostrar mensajes de la aplicación. 
+En este caso vemos la consola de salida de Tomcat.
+
+(6) Vistas: estos botones permiten intercambiar las distintas vistas posibles. 
+La vista Java es la más apropiada para el desarrollo de código.
+
+Instalar Tomcat
+Vamos a usar Tomcat como servidor web y servlet container. La instalación de Tomcat
+es sencilla, y vamos a integrarlo con Eclipse.
+
+Instalar Tomcat
+
+[1] Descargue Tomcat de http://apache.mesi.com.ar/tomcat/tomcat-5/v5.5.12/bin/apache-tomcat-5.5.12.zip 
+Si el enlace no funciona, busque algún otro servidor activo en la página de descargas de Tomcat 5.5:
+http://tomcat.apache.org/download-55.cgi#5.5.12 
+
+[2] Descomprima el contenido del archivo. Supongamos, a modo de ejemplo, que lo descomprime en C:\tomcat-5.5.12
+
+[3] Para poder usar Tomcat con Eclipse, debe instalarle un plugin a Eclipse.
+En la dirección http://www.sysdeo.com/eclipse/tomcatplugin podrá bajar la versión 3.1 final.
+Este archivo es un Zip que contiene una carpeta llamada com.sysdeo.eclipse.tomcat_3.1.0. 
+Esta carpeta es el plugin de Eclipse. Para instalarla, sólo basta copiarla (o moverla) dentro
+de la carpeta plugins de Eclipse.
+Ejemplo: si descomprimió Eclipse en C:\eclipse, entonces debe copiar (o mover) la carpeta del plugin
+a C:\eclipse\plugins\com.sysdeo.eclipse.tomcat_3.1.0.
+
+[4] Una vez instalado el plugin Sysdeo, solo basta iniciar (o reiniciar) Eclipse para que los cambios
+tomen efecto.
+
+Configuración y ejecución de Tomcat desde Eclipse PASO A PASO
+
+[1] Acceda al panel de control de Eclipse yendo a Window/Preferences
+
+[2] Seleccione la opción Tomcat en el arbol para ver las opciones del plugin.
+Debe seleccionar Version 5.x como versión de Tomcat e ingresar la carpeta de Instalación de Tomcat,
+por ejemplo: C:\tomcat-5.5.12
+
+[3] Inicie la ejecución de Tomcat haciendo click en el botón correspondiente (Start Tomcat)
+
+Una vez arrancado el servidor, por defecto estará configurado para escuchar pedidos en el puerto 8080.
+Bastará con abrir un navegador y escribir la dirección http://localhost:8080 para ver a Tomcat corriendo. 
+
+Ahora que tenemos un servlet container funcionando, vamos a ver qué tenemos que hacer para correr servlets.
+
