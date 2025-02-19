@@ -1,0 +1,47 @@
+Pregunta a ChatGPT: 
+¿Cómo añado el archivo servlet-api.jar que está dentro del directorio lib de mi instalación de Tomcat 
+al archivo classpath de mi proyecto web dinámico de Eclipse?
+
+Respuesta de ChatGPT:
+Para añadir el archivo servlet-api.jar al classpath de tu proyecto web dinámico en Eclipse, 
+sigue estos pasos:
+
+Método 1: Agregar manualmente la biblioteca
+Abrir tu proyecto
+
+Inicia Eclipse y abre tu proyecto web dinámico.
+Acceder a las propiedades del proyecto
+
+Haz clic derecho sobre el nombre del proyecto en el Explorador de proyectos.
+Selecciona Properties.
+Agregar la biblioteca de Servlets
+
+En la ventana de Propiedades, dirígete a Java Build Path en el panel izquierdo.
+Ve a la pestaña Libraries.
+Haz clic en Add External JARs….
+Seleccionar servlet-api.jar desde Tomcat
+
+Busca la carpeta donde tienes instalado Apache Tomcat (ejemplo: C:\apache-tomcat-10.0.XX\lib).
+Selecciona el archivo servlet-api.jar y haz clic en Abrir.
+Aplicar y cerrar
+
+Haz clic en Apply and Close para guardar los cambios.
+
+Método 2: Usar la biblioteca del servidor Tomcat en Eclipse (Recomendado)
+Si tienes Tomcat configurado en Eclipse, puedes evitar añadir manualmente el .jar:
+
+Abrir las propiedades del proyecto
+
+Haz clic derecho en tu proyecto y selecciona Properties.
+Ir a las bibliotecas del proyecto
+
+En el panel izquierdo, selecciona Java Build Path.
+Ve a la pestaña Libraries y haz clic en Add Library….
+Agregar la biblioteca de Servlets de Tomcat
+
+Selecciona Server Runtime y haz clic en Next.
+Selecciona tu versión de Apache Tomcat y presiona Finish.
+Aplicar y cerrar
+
+Haz clic en Apply and Close.
+✅ ¡Listo! Ahora tu proyecto podrá compilar y ejecutar Servlets correctamente. 
