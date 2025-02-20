@@ -52,7 +52,7 @@ version="2.4">
 </init-param>
 </servlet>
 
-<!-- Asociamos CompraServlet a la dirección web /compras -->
+<!-- Asociamos CompraServlet a la direcciï¿½n web /compras -->
 <servlet-mapping>
 <!-- El nombre del servlet definido en este elemento debe existir como nombre en 
 alguno de los elementos "servlet" definidos previamente -->
@@ -60,10 +60,28 @@ alguno de los elementos "servlet" definidos previamente -->
 <url-pattern>/compras</url-pattern>
 </servlet-mapping>
 
-<!-- Asociamos VentaServlet a la dirección web /ventas -->
+<!-- Asociamos VentaServlet a la direcciï¿½n web /ventas -->
 <servlet-mapping>
 <servlet-name>venta</servlet-name>
 <url-pattern>/ventas</url-pattern>
+</servlet-mapping>
+
+
+<servlet>
+<!-- El servlet AhorcadoServlet -->
+<servlet-name>ahorcadoservlet</servlet-name>
+<servlet-class>AhorcadoServlet</servlet-class>
+<init-param>
+<!-- Definimos la variable maxIntentos con valor 6 para el servlet AhorcadoSrvlet -->
+<param-name>maxIntentos</param-name>
+<param-value>6</param-value>
+</init-param>
+</servlet>
+
+<!-- Asociamos AhorcadoServlet a la direcciï¿½n web  /ahorcadoservlet -->
+<servlet-mapping>
+<servlet-name>ahorcadoservlet</servlet-name>
+<url-pattern>/ahorcadoservlet</url-pattern>
 </servlet-mapping>
 
 </web-app>
