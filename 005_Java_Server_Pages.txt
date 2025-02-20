@@ -18,3 +18,39 @@ veamos un fragmento de una página web con mucho diseño gráfico embebida en un
 Nota: ver el archivo 
 E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\src\ServletConDisenio.Java
 
+Este código es muy dificultoso de leer y de mantener. Tenemos que escapar cada comilla del código HTML
+en el código Java con \" y se complica su lectura. Además, si el diseñador gráfico quisiera cambiar
+algo del diseño, estaría modificando código fuente y tendría que reiniciar el servidor para que tome los cambios.
+
+Por estos motivos, Sun desarrolló JavaServer Pages.
+
+JAVASERVER PAGES 
+JavaServer Pages, como su nombre lo indica, son páginas. Esta tecnología propone un cambio al modo
+en que se desarrollan páginas web con Java. En vez de escribir un servlet que al ejecutarse devuelva
+el contenido (tanto estático como dinámico), lo que propone es crear una página web con el contenido estático
+y el dinámico. Esto a priori suena igual que un servlet, ¿dónde radica la diferencia? La mejor forma de entender
+de qué se trata JavaServer Pages es con un ejemplo.
+
+Nota ver el archivo:
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\jsp\fecha.jsp
+
+"
+<%-- fecha.jsp  --%>
+
+<html>
+	<head>
+		<title>Fecha en JSP</title>
+	</head>
+	<body>
+		Hola!<br/>
+		La fecha de hoy es <b><%= new java.util.Date() %></b>
+	</body>
+</html>
+"
+
+Si creamos este archivo con nombre fecha.jsp en la carpeta raíz de nuestro proyecto Tomcat
+en el Eclipse, arrancamos el servidor Tomcat y apuntamos el navegador a 
+http://localhost:8080/Servlets/fecha.jsp (asumiendo que nuestro proyecto se llama Servlets)
+veremos algo similar a la Figura 1.
+
+
