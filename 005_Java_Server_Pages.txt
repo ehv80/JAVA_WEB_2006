@@ -1,0 +1,20 @@
+JavaServer Pages
+Habiendo conocido la base del desarrollo
+de aplicaciones web con Java,
+los servlets, hemos visto que su aplicación
+puede tornarse un poco difícil para
+grandes aplicaciones. En este capítulo
+veremos una alternativa más sencilla:
+JavaServer Pages (JSP).
+
+¿POR QUÉ NO SERVLETS?
+En el capítulo 2 vimos con detalle cómo crear páginas web dinámicas usando servlets.
+La principal dificultad de los servlets es que mezclan presentación con contenido.
+Un diseñador gráfico tendría que tocar código fuente Java para poder aplicarle diseño 
+a la página que queremos crear, y a su vez, un programador tendría que tocar código 
+lleno de elementos de diseño que dificultan el desarrollo. Para ilustrar este concepto,
+veamos un fragmento de una página web con mucho diseño gráfico embebida en un servlet.
+
+Nota: ver el archivo 
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\src\ServletConDisenio.Java
+
