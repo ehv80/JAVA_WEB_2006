@@ -53,4 +53,162 @@ en el Eclipse, arrancamos el servidor Tomcat y apuntamos el navegador a
 http://localhost:8080/Servlets/fecha.jsp (asumiendo que nuestro proyecto se llama Servlets)
 veremos algo similar a la Figura 1.
 
+Nota: con los navegadores actuales no funciona bien. 
 
+Como vemos, una página JavaServer Pages (en adelante, página JSP) tiene contenido estático (HTML)
+y contenido dinámico. En este capítulo vamos a ver en detalle cómo crear y definir el contenido dinámico
+de una página JSP; por ahora concentrémonos en el ejemplo en la línea:
+
+La fecha de hoy es <b><%= new java.util.Date() %></b>
+
+Vemos que el contenido estático es simplemente código HTML, y el contenido dinámico se diferencia mediante
+ciertos tags. Al igual que HTML, las páginas JSP definen ciertos tags específicos para determinar sentencias
+propias, marcadores de contenido, de código Java, etc.
+
+Antes de meternos de lleno en cómo programar páginas JSP, es importante aclarar algo acerca del 
+funcionamiento de esta tecnología. JavaServer Pages surgió como una especificación (al igual que los Servlets)
+en base a las necesidades de simplificar el desarrollo de aplicaciones web. Esta simplificación, con respecto
+a los servlets, es lograda sin embargo, detrás de escena, ¡una página JSP es un servlet!
+
+Cuando accedemos a una página JSP por primera vez, un traductor se encarga de transformarla en un servlet, 
+se compila y luego se ejecuta. Por eso notaremos que al acceder a un JSP por primera vez o luego de haberlo modificado,
+toma más tiempo que otras veces en devolvernos la página; esto es porque se está transformando y compilando.
+
+La buena noticia es que el servlet generado se puede acceder fácilmente aunque, al ser código generado,
+es de muy difícil lectura. Por defecto los servlets generados se guardan en la carpeta work.
+
+La mala noticia es que si la página JSP no está bien programada y al ejecutarla se genera una excepción, 
+esta ocurre en el servlet generado, que es en definitiva el que se ejecuta. El error nos informará la línea
+y la excepción  arrojada, pero del servlet y este tipo de errores suelen ser confusos porque muchas veces
+no reflejan realmente lo que produjo la excepción. La versión 2.0 de JavaServer Pages, que es la que
+usaremos en este libro, trae muchas mejoras al respecto.
+
+SINTAXIS JSP
+
+Vamos a definir algo de sintaxis JSP y luego veremos algunos ejemplos.
+
+Comentarios
+JSP acepta dos tipos de comentarios. ¿Suena extraño? ¡Lo es!
+
+Nuevamente, un ejemplo para ilustrar; luego, las explicaciones pertinentes. Veamos un Código con comentarios:
+
+Nota: ver el archivo 
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\jsp\PaginaConComentarios.jsp
+
+"
+<%-- PaginaConComentarios.jsp --%>
+<html>
+	<head>
+		<title>Página con comentarios</title>
+	</head>
+	<body>
+		<!-- Inicia sección de tabla de datos -->
+		<table>
+		...
+		</table>
+		<%-- Guardar resultado en la base de datos --%>
+		<%-- ... --%>
+	</body>
+</html>
+"
+
+El primer tipo de comentario <!-- --> es un comentario a nivel de HTML
+y el segundo <%-- --%> es un comentario JSP.
+
+El primer tipo de comentario, al ser HTML, es enviado junto con el resto de la respuesta al cliente.
+El segundo tipo de comentario es del código JSP, por eso no es incluído en la respuesta.
+Si accedemos a esta página JSP y vemos su código fuente HTML veríamos algo parecido a  esto:
+"
+<html>
+	<head>
+		<title>Página con comentarios</title>
+	</head>
+	<body>
+		<!-- Inicia sección de tabla de datos -->
+		<table>
+		...
+		</table>
+	</body>
+</html>
+"
+
+En resumen:
+<!-- Comentario HTML -->
+
+<%-- Comentario JSP --%>
+
+Fragmento de código
+Para introducir código Java en una página JSP, hemos de utilizar los tags
+<% código Java %>
+Recordemos que este código terminará siendo embebido dentro del servlet resultante, por lo que el código
+debe compilar al igual que cualquier programa Java, no olvidar los ; finales, etc.
+
+Declaraciones
+Podemos declarar métodos y variables que serán utilizadas luego en la página usando los tags 
+<%! declaraciones Java %>
+
+Estas declaraciones serán insertadas al comienzo de la clase (es decir, no importa realmente en qué lugar de 
+la página JSP las declaremos), por lo que serán variables y métodos de instancia.
+
+Expresiones
+En JSP una expresión es una porción de código que se evalúa y su resultado se imprime.
+Los tags de utilización son <%= expresión %>
+Un detalle muy importante a notar es que el contenido de esta expresión no debe finalizarse con ;.
+
+Un ejemplo integrador
+Veamos un ejemplo que utilice los tags vistos hasta ahora.
+
+Nota: ver el archivo:
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\jsp\NumerosDeFibonacci.jsp
+
+"
+<%-- NumerosDeFibonacci.jsp --%>
+<html>
+	<head>
+		<title>N&uacute;meros de Fibonacci</title>
+	</head>
+	<body>
+	
+	<%-- Declaramos el método fibonacci --%>
+	<%!
+		private int fibonacci(int n)
+		{
+			if(n == 0)
+			{
+				return 0;
+			}
+			if(n == 1)
+			{
+				return 1;
+			}
+			else
+			{
+				return (fibonacci(n-1) + fibonacci(n-2));
+			}
+		}
+	%>
+	
+	Los primeros 10 n%uacute;meros de Fibonacci:<br/><br/>
+	<%
+		for(int i=0; i < 10; i++)
+		{
+	%>
+		fibonacci(<% i %>) = <% fibonacci(i) %><br/>
+	<%		
+		}
+	%>
+	
+	</body>
+</html>
+"
+
+Al acceder a la página, vemos el resultado como en la Figura 2.
+Nota: No funciona bien en los navegadores actuales
+sólo muestra todo el código escrito.
+
+Al haber declarado el método usando los tags de declaración, sabemos que podemos llamarlo
+desde cualquier lugar de página y estará accesible. No ocurre lo mismo en la siguiente línea
+fibonacci(<% i %>) = <% fibonacci(i) %><br/>
+La variable i, es accesible solamente porque está dentro del ciclo for que fue definido previamente.
+
+Variables implícitas
