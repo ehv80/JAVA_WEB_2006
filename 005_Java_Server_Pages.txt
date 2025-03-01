@@ -212,3 +212,214 @@ fibonacci(<% i %>) = <% fibonacci(i) %><br/>
 La variable i, es accesible solamente porque está dentro del ciclo for que fue definido previamente.
 
 Variables implícitas
+Al programar servlets, teníamos acceso a una serie de variables que necesitábamos para poder
+interactuar con el entorno y con los parámetros de entrada y salida, como el pedido originario 
+(HttpServletRequest), el resultado de salida (HttpServletResponse), la sesión (mediante el pedido), etc.
+Hasta ahora no hemos visto cómo acceder a estas variables en una página JSP. Como una página JSP
+termina siendo en definitiva un servlet, tenemos acceso a ciertas variables implícitas que podemos
+asummir que existen y están instanciadas. En la Tabla 1 tenemos un listado de las variables y su tipo.
+
+VARIABLES IMPLÍCITAS EN JSP
+request _______________ subclase de ServletRequest 
+response ______________ subclase de ServletResponse 
+pageContext ___________ PageContext 
+session _______________ HttpSession 
+application ___________ ServletContext 
+out ___________________ JspWriter 
+config ________________ ServletConfig 
+page __________________ Object 
+exception _____________ Throwable 
+
+Tabla 1. Variables implícitas en JSP.
+
+· request y response: son los objetos que recibe el servlet como parámetros para su ejecución.
+· pageContext: contiene información sobre el contexto donde se ejecuta la página JSP, y provee
+acceso a variables de contexto.
+· session: es el resultado de ejecutar pageContext.getSession().
+· application: es el resultado de ejecutar pageContext.getServletContext().
+· out: es el resultado de ejecutar pageContext.getSession().
+· config: es el resultado de ejecutar pageContext.getSession().
+· page: es el servlet resultante luego de ser transformado; esta variable no suele ser usada en páginas JSP.
+· exception: es definida solamente cuando la página JSP es declarada como isErrorPage. 
+Más adelante veremos sobre esto.
+
+Directivas de página
+Un tag especial que se aplica a las páginas JSP es el tag <%@ page %>.
+Este tag define dentro una serie de atributos que se usan para configurar la página.
+Los atributos configurables son los siguientes:
+
+· language: JavaServer Pages es una especificación que, en teoría, permite cualquier
+lenguaje en su contenido. Hoy día sólo Java es soportado, por lo que este atributo 
+no tiene mucho sentido de ser explicitado. Valor por defecto: Java.
+
+· extends: podemos definir qué clase ha de extender el servlet resultante. Por defecto,
+el servlet container es el que define qué clase ha de extender, por lo tanto, no se recomienda
+cambiar este valor.
+
+· import: con este atributo podemos importar tantas clases o paquetes como queramos para ser utilizados
+dentro de la página. Podemos definir todas las clases y paquetes dentro de una sola sentencia import,
+separándolas por comas, o declarar varias sentencias import.
+
+· session: mediante este atributo definimos si el usuario va a tener acceso a la sesión o no (valores true / false).
+Valor por defecto: true. Si declaramos este atributo con valor false, no tendremos acceso a la variable implícita session.
+
+· buffer: la variable implícita out (de tipo JspWriter) contiene un buffer interno para manejar el contenido que se
+va devolviendo al navegador. Con este atributo definimos el tamaño del búfer (en kilobytes) o none si no queremos
+búfer de salida. Valor por defecto: 8Kb.
+
+· autoFlush: si este atributo es true, entonces al llenarse el búfer de salida los datos serán automáticamente
+enviados al cliente. Si es false y el búfer se llena, se produce una excepción. Notemos que no es posible definir este
+atributo como false si también definimos el tamaño del búfer como none. Valor por defecto: true.
+
+· isThreadSafe: mediante este atributo estamos declarando si esta página es segura para el acceso multi-threaded.
+Si especificamos este atributo como true, entonces el servlet container puede mandar varios pedidos concurrentes a 
+esta página; caso contrario, serializará los pedidos mandando de a uno por vez. Valor por defecto: true.
+
+· info: en este atributo podemos especificar un texto que será devuelto mediante el método getServletInfo().
+
+· errorPage: aquí podemos definir una página para manejo de errores. Si una excepción ocurre durante la ejecución
+de esta página, entonces se redirige el pedido a la página de error que está declarada en esta variable.
+
+· isErrorPage: con este atributo distinguimos las páginas de error. Las páginas de error tienen acceso a la variable 
+implícita exception que contiene la excepción ocurrida.
+
+· contentType: este atributo identifica el tipo de contenido MIME que estamos devolviendo. Opcionalmente podemos
+definir también el mapa de caracteres que usamos para codificar. Valor por defecto: text/html;charset=ISO-8859-1.
+
+· pageEncoding: aquí podemos definir el mapa de caracteres de la codificación de la página. Valor por defecto: ISO-8859-1.
+
+· isELIgnored: JSP 2.0 incorpora soporte para EL (Expression Language o Lenguaje de Expresiones). Al ser una sintaxis nueva,
+por compatibilidad podemos optar por pedirle al traductor que ignore esta sintaxis. Valor por defecto: false.
+
+Ejemplos de directivas de página:
+
+<%@ page import="java.util.*" errorPage="error.jsp" contentType="text/plain" %>
+
+<%@ page info="JSP que maneja el panel de control" isELIgnored="true" %>
+
+<%@ page buffer="none" autoFlush="false" %> ¡INCORRECTO!
+
+JSP y JavaBeans
+JavaServer Pages fue diseñada teniendo presente la integración con JavaBeans. 
+Ya desde la versión 1.0 se definían los tags que se usan para instanciar y acceder a JavaBeans.
+Para los lectores no familiarizados con los JavaBeans, una pequeña introducción.
+
+JavaBeans
+Los componentes JavaBeans no son más que clases Java que siguen ciertas convenciones. 
+No es necesario que extiendan alguna clase ni que implementen ninguna interfaz, simplemente
+deben proveer métodos para poder acceder a sus propiedades de una manera estándar. Si una clase Java
+cualquiera cumple con estas condiciones, la clase puede ser considerada un JavaBean. Estas convenciones
+no son excluyentes, la clase puede, además de los métodos que acceden a las propiedades, definir
+cualquier cantidad de métodos propios, extender cualquier clase e implementar cualquier interfaz.
+Veamos las convenciones:
+
+· Dada una propiedad, podemos definirla como de lectura y/o de escritura.
+· Una propiedad no necesariamente debe estar respaldada por una variable de instancia, 
+basta con que implemente los métodos requeridos.
+· Si una propiedad es de lectura, entonces debe definir un método getter para accederla.
+Este método debe ser público y de la forma public [tipo] get[nombre de la propiedad]().
+· Si una propiedad es de escritura, entonces debe definir un método setter para escribirla.
+Este método debe ser público y de la forma public void set[nombre de la propiedad]( [tipo] nombre).
+· Además, un componente JavaBean debe proveer un constructor que no tome parámetro alguno.
+
+Notemos que los nombres de los métodos accesores deben ser camel-case, o sea, seguir la convención
+de mayúsculas que Java propone. Si queremos implementar un getter sobre una propiedad de nombre peso 
+entonces el método deberá llamarse getPeso (notar la P mayúscula).
+
+Veamos un ejemplo sobre los métodos getter y setter para aclarar la sintaxis abstracta que hemos definido.
+Supongamos tenemos la propiedad de tipo String de nombre description. Queremos que esta propiedad pueda leerse
+y escribirse, entonces debemos implementar estos dos métodos:
+
+public String getDescription(){ ... }
+
+public void setDescription(String str) { ... }
+
+Si la propiedad es de tipo booleano (ya sea del primitivo boolean o de la clase Boolean), el método accesor (getter)
+debe llamarse isPropiedad(); en cualquier otro caso: getPropiedad().
+
+Por lo general, las propiedades de los componentes JavaBeans están relacionadas una a una con variables de instancia,
+pero esto no es necesario. Veamos un ejemplo completo de un componente JavaBean: 
+
+Nota: ver el archivo: 
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\src\Circunferencia.java 
+
+"
+/* 
+* Circunferencia.java
+*/
+
+//comentado para evitar error en tiempo de ejecución paquete y clase no encontrado
+//package capitulo3;
+
+public class Circunferencia
+{
+	/* Radio */
+	private double radio;
+	
+	/* Posición del centro de la circunferencia */
+	private int x,y;
+	
+	/* Hueco o lleno */
+	private boolean hueco;
+	
+	/* Constructor sin parámetros */
+	public Circunferencia()
+	{
+		super();
+	}
+	
+	public int getX()
+	{
+		return this.x;
+	}
+	
+	public void setX(int x)
+	{
+		this.x = x;
+	}
+	
+	public int getY()
+	{
+		return this.y;
+	}
+	
+	public void setY(int y)
+	{
+		this.y = y;
+	}
+	
+	public void setRadio(double r)
+	{
+		this.radio = r;
+	}
+	
+	public double getArea()
+	{
+		return (Math.PI * radio * radio);
+	}
+	
+	public boolean isHueco()
+	{
+		return this.hueco;
+	}
+	
+	/* Para establecer el área nueva y ser consistentes debemos modificar el radio
+	 * @param el área nueva que queremos para la circunferencia
+	 */
+	public void setArea(double area)
+	{
+		radio = Math.sqrt(area/Math.PI);
+	}
+}
+"
+
+En el ejemplo definimos una clase llamada Circunferencia. La clase tiene variables de instancia que a su vez
+son propiedades del componente JavaBean.
+
+Las variables x e y que identifican la posición de la circunferencia en el plano son tanto de lectura como de
+escritura, por lo que hemos definido métodos getter y setter. El radio es una propiedad de sólo escritura, por lo que
+definimos sólo un método setter. Tenemos una propiedad booleana, cuyo método getter empieza con is. A su vez,
+tenemos la propiedad area, que según vemos, es de lectura y escritura, y esta propiedad no está
+directamente relacionada con una variable de instancia. 
+
+Scopes
