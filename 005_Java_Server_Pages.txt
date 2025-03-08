@@ -423,3 +423,36 @@ tenemos la propiedad area, que según vemos, es de lectura y escritura, y esta p
 directamente relacionada con una variable de instancia. 
 
 Scopes
+Antes de ver cómo interactuar con JavaBeans desde un JSP, veamos primero los tipos de alcance (scopes) que existen 
+y su utilización. Cuando definimos un JavaBean desde un JSP, como veremos luego, debemos darle un alcance. Este 
+alcance también puede ser pensado como visibilidad. Se define un componente con cierto alcance, y puede ser visto 
+por otros objetos que están en el mismo alcance que el componente. Los tipos de alcane son: 
+
+TIPOS DE ALCANCE 
+application _________________ El objeto es visible desde todo el contexto.
+session _____________________ El objeto permanece en la sesión del usuario.
+request _____________________ El objeto es accesible desde cualquier componente que tenga acceso al pedido.
+page ________________________ El objeto  solamente puede ser accedido por la página JSP que lo creó.
+
+Tabla 2. Scopes 
+
+Usando JavaBeans desde un JSP
+JSP define ciertos tags específicos para la interacción con JavaBeans. La idea es delegar todo tipo de lógica 
+de negocios en los JavaBeans y limitar la funcionalidad de las páginas JSP a la interacción con el usuario, manejo de 
+excepciones, redirección a páginas, etc. De esta forma, tenemos componentes reusables (la principal cualidad deseable
+de un JavaBean) a través de la aplicación web.
+
+Básicamente la interacción con un JavaBean se reduce a:
+
+· Crearlo u obtener una instancia
+· Acceder a propiedades 
+· Escribir propiedades 
+
+jsp:useBean tiene un doble propósito. Sirve tanto para crear un Bean como para acceder a uno ya creado.
+Si el Bean ya existe en el scope, se obtiene una referencia, y si no existe, se lo crea. La sintaxis es:
+
+<jsp:useBean id="beanName"
+scope="page|request|session|application"
+class="package.class" [ type="package.class" ] />
+
+Otra forma
