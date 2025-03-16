@@ -455,4 +455,128 @@ Si el Bean ya existe en el scope, se obtiene una referencia, y si no existe, se 
 scope="page|request|session|application"
 class="package.class" [ type="package.class" ] />
 
-Otra forma
+Otra forma, seteando atributos al crear (o localizar) directamente, es:
+
+<jsp:useBean id="beanName"
+scope="page|request|session|application"
+class="package.class" [ type="package.class" ]>
+<jsp:setProperty ... />
+<jsp:setProperty ... />
+...
+</jsp:useBean>
+
+La segunda forma usa un tag que veremos luego, que se utiliza para escribir propiedades a un Bean.
+
+id es el nombre del JavaBean. Esto es análogo al nombre de una variable. En el caso de que el JavaBean
+se cree, se creará con ese nombre; si ya existe un JavaBean de ese nombre (en el scope definido), se 
+devuelve una referencia a ese JavaBean.
+
+scope define el alcance del JavaBean, según lo definido previamente. Si no especificamos este atributo,
+el valor por defecto es page.
+
+class es el nombre de la clase que este JavaBean ha de instanciar. Como todo JavaBean provee un constructor
+sin parámetros, siempre podremos crear un JavaBean sin necesidad de contar con otro dato que no sea el nombre de
+la clase a instanciar.
+
+type determina el tipo del JavaBean a instanciar. Esto puede sonar confuso. ¿No estamos declarando la clase a instanciar
+en el atributo class? El atributo type es opcional, si no lo definimos, el tipo del JavaBean será el mismo que la clase
+que se instancia. Sin embargo, podemos querer que el tipo sea una superclase del JavaBean instanciado, o una interfaz que
+se implemente.
+
+Ejemplos: 
+
+<jsp:useBean id="circ1" class="Circunferencia" />
+
+<jsp:useBean id="circ2" scope="session" class="Circunferencia" type="FiguraGeometrica" />
+
+Veamos el código generado para el primer ejemplo. Un detalle a notar es que cada implementación es libre de generar el
+código que quiera al traducir un JSP a servlet, sin embargo, sí o sí tiene que ser consistente con lo que pide la especificación.
+En nuestro caso particular, Jasper 2, el componente de Tomcat encargado de traducir los JSP, generó la siguiente porción de código:
+
+Circunferencia circ1 = null;
+synchronized (_jspx_page_context) {
+	circ1 = (Circunferencia) _jspx_page_context.getAttribute("circ1", PageContext.PAGE_SCOPE);
+	if(circ1 == null) {
+		circ1 = new Circunferencia();
+		_jspx_page_context.setAttribute("circ1", circ1, PageContext.PAGE_SCOPE);
+	}
+}
+
+Como vemos, el código hace exactamente lo esperado. Declara una variable de tipo Circunferencia, de nombre circ1, 
+e intenta obtenerla del scope de página. En caso de que no exista, el JavaBean es creado y guardado en dicho scope.
+
+jsp:getProperty se usa para obtener una propiedad de un JavaBean. Su sintaxis es muy sencilla:
+
+<jsp:getProperty name="beanName" property="propertyName" />
+
+name debe ser un JavaBean ya creado u obtenido previamente mediante jsp:useBean.
+property es el nombre de la propiedad que deseamos acceder.
+
+Ejemplos:
+<jsp:getProperty name="circ1" property="x" />
+<jsp:getProperty name="circ2" property="area" />
+
+jsp:setProperty es utilizado para escribir propiedades del JavaBean. Su sintaxis es un tanto complicada, veámosla con detalle:
+
+<jsp:setProperty name="beanName"
+	{ property="*" | 
+	  property="propertyName" [ param="parameterName ] |
+	  property="propertyName"
+	  value="{String | '${' Expression '}' | <%= expression %> }"   
+	}
+/>
+
+name: debe ser un JavaBean ya creado u obtenido previamente mediante jsp:useBean.
+
+property: es el nombre de la propiedad que vamos a escribir, o "*" para indicar todas las propiedades
+del mismo nombre que un parámetro del request.
+
+param: es el nombre del parámetro del request que tiene el valor que hay que asignarle a la propiedad.
+
+value: es el valor, ya sea constante o en forma de expresión, a asignarle a la propiedad.
+
+Veamos unos ejemplos clarificadores:
+
+<!-- Establecemos en 5 el valor de la propiedad x del JavaBean circ1 -->
+<jsp:setProperty name="circ1" property="x" value="5" />
+
+<!-- Cambiamos el valor de la propiedad y de circ1 al resultado de la expresión -->
+<jsp:setProperty name="circ1" property="y" value="<%= Math.sqrt(49) %>" />
+
+<!-- Seteamos el valor de la propiedad radio de circ1 al valor del parámetro del mismo nombre (radio) -->
+<jsp:setProperty name"circ1" property="radio" />
+
+<!-- Cambiamos el valor de la propiedad radio de circ1 al valor del parámetro 'ratio' -->
+<jsp:setProperty name="circ1" property="radio" param="ratio" />
+
+<!-- Cambiamos todos los valores de las propiedades del JavaBean circ1 a los valores de los parámetros del mismo nombre -->
+<jsp:setProperty name="circ1" property="*" />
+
+En el último ejemplo, para cada parámetro que contenga el request, intentará escribir el valor del parámetro
+en un propiedad del mismo nombre, si existiera.
+
+Inclusión de páginas
+Intentando apuntar a la reutilización de código (y también páginas), podemos incluir otros Documentos
+(sean JSP, HTML o lo que queramos) dentro de una página JSP. La idea básica es abstraer funcionalidades y lograr
+una mayor modularización del sistema. Típicamente, los encabezados, pies de páginas, firmas, etc son implementados como 
+páginas incluídas. Un ejemplo más complicado es la seguridad de la página. Si queremos verificar en cada pedido de cada
+página que el usuario esté autenticado y autorizado a su vez para ver la página en cuestión, entonces en toda página JSP
+incluiremos la funcionalidad de verificar la seguridad.
+
+JSP provee dos formas de incluir contenido: inclusión estática e inclusión dinámica.
+
+EL primer tipo es equivalente a insertar código, ya sea estático (una página HTML, por ejemplo) o dinámico (un JSP)
+en el documento. Al traducirse la página a servlet se inserta el contenido. La sintaxis es: 
+
+<%@ include file="archivo" %>
+
+El segundo tipo también permite incluir cualquier tipo de documento (estático o dinámico), aunque tiene más sentido
+al incluir página dinámicas. Este tipo de inclusión se procesa durante la ejecución del JSP. Cuando un pedido llega
+al JSP, éste es redirigido a cada documento incluido del segundo tipo, se procesa y el resultado es entonces incluido 
+en el documento que lo incluye. La sintaxis para inclusiones del segundo tipo es:
+
+<jsp:include page="includePage" />
+
+Figura 3. El include del primer tipo suele ser más apropiado para contenido estático o que no dependa del entorno.
+
+Un ejemplo completo
