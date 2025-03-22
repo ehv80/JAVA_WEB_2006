@@ -723,3 +723,56 @@ E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\j
 
 </html>
 "
+
+Problemas de usar sólo JSP
+Al igual que con los Servlets, usar sólo JSP para desarrollar un sitio complejo no es muy eficiente.
+Mezclar código Java junto con el contenido web puede resultar en código difícil de leer y mantener, como en el 
+siguiente ejemplo: 
+"
+<% 
+
+int total = 0;
+for(int i=0; i < productos.size; i++)
+{
+	Producto pr = (Producto) productos.elementAt(i);
+	total += pr.getPrecio();
+}
+
+%>
+
+<span class="producto">
+Producto <%= pr.getNombre() %>
+</span>
+
+<%
+
+if(pr.getTipo() == "A") {
+
+%>
+El producto tiene un <b>10%</b> de descuento
+
+<%
+}
+else {
+%>
+El producto tiene un <b>15%</b> de descuento
+
+<% 
+}
+}
+if(precio > 1000) {
+
+%>
+"
+
+Este tipo de código puede ser mejorado considerablemente si movemos la lógica de negocios a un JavaBean.
+También puede ayudar mucho usar EL (expression Language), un Lenguaje que sirve para acceder a variables,
+expresar ciclos, condiciones, etc, sin necesidad de insertar código Java en el JSP. Sin embargo, tenemos el 
+problema del control de flujo, y hay ciertos problemas que simplemente hacen el código difícil de entender 
+y mantener. El Control de Flujo invariablemente implica código dentro de un JSP, y tener el control de flujo
+de la aplicación disperso en las páginas agrega complejidad al sistema.
+
+En el próximo capítulo veremos cómo usar una combinación de Servlets y JSP para resolver estos problemas, 
+planteando un nuevo paradigma, y veremos un framework que nos va a ayudar mucho: Struts.
+
+
