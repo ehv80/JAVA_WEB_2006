@@ -1,0 +1,178 @@
+PROGRAMACIÓN WEB JAVA CAPÍTULO 4 STRUTS
+STRUTS
+En los capítulos anteriores aprendimos
+a usar Servlets y JavaServer Pages
+para construir aplicaciones web 
+con Java como Lenguaje de Programación.
+También comprendimos que usando
+sólo Servlets o sólo JSP tendríamos
+complicaciones para desarrollos 
+complejos. En este capítulo haremos
+una introducción a Struts, una potente
+herramienta de desarrollo web.
+
+INTRODUCCIÓN A STRUTS
+EL desarrollo de aplicaciones web usando JSP o Servlets es conocido como Model 1.
+Bajo este primer paradigma, accedíamos directamente a páginas o servlets, éstos procesaban información
+y devolvían un resultado. 
+
+Esta forma de desarrollo arrastra problemas tales como la mezcla de la lógica con contenido, un flujo de 
+la aplicación bastante confuso, una reutilización de código que se torna dificultosa y, en definitiva, 
+nos queda una aplicación difícil de mantener tanto para los programadores como para los diseñadores.
+
+Para remediar esto se propuso usar Servlets para el control de flujo y JSP para generar el HTML resultante.
+A esta conjunción de tecnologías se la conoce como Model 2. Este nuevo modelo es el resultado de una adaptación
+del patrón de diseño Model-View-Controller. 
+
+Este paradigma propone separar el modelo, la vista y el controlador en tres componentes disjuntos y desacoplados (en lo posible),
+a fin de poder modificar un componente independientemente de los demás y que el resultado impacte poco o nada sobre los otros componentes.
+Por ejemplo, podríamos rediseñar completamente la parte gráfica de nuestra aplicación sin tener que modificar en absoluto 
+su funcionalidad subyacente: estamos modificando la vista sin necesidad de modificar el modelo o el controlador.
+
+Antes de seguir ahondando en la utilización del paradigma, veamos con detalle cada una de las partes que lo componen.
+
+El modelo
+Son componentes que representan la información con la cuál interactúa la aplicación. Usualmente son implementados con
+JavaBeans que contienen todo lo necesario para soportar la funcionalidad requerida por el sistema. Si la aplicación 
+consiste en una agenda de contactos, el modelo contendrá las personas, sus relaciones, etc.
+
+La vista
+Es la representación gráfica (y generalmente interactiva) de nuestra aplicación. En nuestro caso, esta representación 
+será finalmente una página HTML, pero podríamos diseñar aplicaciones que tengan varias vistas. Por ejemplo un sitio web 
+accesible desde un navegador con vista HTML y accesible desde un teléfono celular con vista WML.
+
+El controlador 
+Es el encargado del control de flujo de la aplicación, responde a los eventos generados en la vista e invoca las acciones 
+pertinentes (en el modelo) y devuelve el control al usuario (en la vista). 
+
+El funcionamiento de una aplicación (web en nuestro caso, pero puede ser de cualquier tipo) bajo este paradigma es el siguiente:
+
+(1) El usuario hace un pedido.
+(2) El controlador recibe el pedido, lo analiza y decide qué acción debe ejecutar
+(3) La acción se ejecuta y el modelo es modificado (o no) para ser consistente con el pedido del usuario.
+(4) El controlador recibe el control de vuelta del modelo y decide qué vista activar.
+(5) La vista se muestra, accediendo al modelo de ser necesario, para generarse.
+
+Struts
+Struts es un framework para el desarrollo de aplicaciones web bajo el paradigma MVC.
+
+En esencia, Struts es simplemente un Servlet. El Servlet está configurado para responder a una serie de pedidos. 
+Al invocar al servlet desde una página web, éste accede a su configuración que, según el pedido que se esté efectuando, 
+redirige el control a una acción particular. Esta acción (una Clase específica) se ejecuta y finalmente llama al controlador
+para que cree y devuelva la vista correspondiente. El controlador obtiene la vista que ha de mostrar (nuevamente mediante la configuración)
+y la muestra. Por lo general, al ser contenido dinámico, la vista necesita acceder al modelo para obtener los datos a mostrar. 
+
+Podemos ver que esta lógica de funcionamiento se adapta perfectamente al patrón Model-View-Controller. 
+
+[ Servlet Struts ] ------------------------> [ struts-config.xml ]
+|          |            |
+[ Acción 1]|            |
+    |    [ Acción 2 ]   |
+    [Vista1]    |       [Acción 3]
+                [Vista2]    |
+                            [Vista3]        [ MODELO ]
+
+Figura 2. La representación de componentes Struts como paradigma MVC.
+
+Hola Struts
+Veamos un ejemplo de Hola Mundo usando Struts, para luego discutir al respecto.
+
+En la dirección https://struts.apache.org/download.cgi podemos descargar Struts. Al momento de redactar este libro,
+la última versión era la 1.2.8 (actualmente 7.0.3). Hay tres distribuciones posibles de descarga:
+· Binaries: contiene la distribución completa de Struts en archivos compilados, documentación y aplicaciones de ejemplo.
+· Sources: contiene el código fuente de todo el framework y aplicaciones de ejemplo y documentación.
+· Library: contiene solamente los archivos JAR empaquetados para ser usados en aplicaciones web.
+
+La distribución Sources es ideal para indagar y entender el funcionamiento completo de Struts por dentro. 
+A los efectos de seguimiento del libro, utilizaremos la distribución Library.
+
+[] Instalar Struts en aplicaciones web
+[1] Cree un nuevo proyecto accediendo a File / New / Project en Eclipse. Elija el tipo de proyecto Tomcat Project
+
+[2] Copie todos los archivos de extensión JAR de la distribución de Struts en la carpeta WEB-INF/lib del proyecto.
+
+[3] Agregue los jars al classpath accediendo a las propiedades del proyecto (botón derecho del mouse sobre el nombre del proyecto / Properties) 
+y en la pestaña Libraries oprimiendo Add JARs.
+
+[4] Seleccione todos los acrhivos bajo WEB-INF/lib y presione OK. (Apply and Close)
+
+[5] Presione OK en el cuadro de propiedades del proyecto.
+
+[6] Copie todos los archivos de extensión TLD de la distribución de Struts en la carpeta WEB-INF del proyecto. 
+
+Con estos pasos ya tenemos todos los archivos de Struts necesarios para integrarlo a nuestra aplicación. 
+Veamos ahora cómo configurar la aplicación para que use Struts. 
+
+Recordemos que la configuración de una aplicación web se realizaba mediante el archivo web.xml, residente en la carpeta WEB-INF. 
+
+Veamos un archivo web.xml básico que incluye Struts: 
+
+Nota: ver el archivo:
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Hola Struts\WEB-INF\web.xml
+
+"
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+	PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
+	"http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
+	
+<web-app>
+
+	<display-name>Aplicación con Struts</display-name>
+	
+	<!-- Definimos el servlet con Strtus -->
+	
+	<servlet>
+		<servlet-name>action</servlet-name>
+		<servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+		
+		<!-- Indicamos a Struts dónde buscar el archivo de configuración -->
+		<init-param>
+			<param-name>config</param-name>
+			<param-value>/WEB-INF/strtus-config.xml</param-value>
+		</init-param>
+		
+		<!-- Esta directiva indica que el servlet ha de cargarse al inicializarse Tomcat -->
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	
+	<!-- Asociamos el servlet de Struts a todos los pedidos que terminen con .do -->
+	<servlet-mapping>
+		<servlet-name>action</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+	
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+	
+	<!-- Descriptores de la librería de tags de Struts -->
+	<taglib>
+		<taglib-uri>/tags/struts-bean</taglib-uri>
+		<taglib-location>/WEB-INF/strtus-bean.tld</taglib-location>
+	</taglib>
+	
+	<taglib>
+		<taglib-uri>/tags/struts-html</taglib-uri>
+		<taglib-location>/WEB-INF/struts-html.tld</taglib-location>
+	</taglib>
+	
+	<taglib>
+		<taglib-uri>/tags/struts-logic</taglib-uri>
+		<taglib-location>/WEB-INF/struts-logic.tld</taglib-location>
+	</taglib>
+	
+	<taglib>
+		<taglib-uri>/tags/struts-nested</taglib-uri>
+		<taglib-location>/WEB-INF/struts-nested.tld</taglib-location>
+	</taglib>
+	
+	<taglib>
+		<taglib-uri>/tags/struts-tiles</taglib-uri>
+		<taglib-location>/WEB-INF/struts-tiles.tld</taglib-location>
+	</taglib>
+	
+</web-app>
+"
+

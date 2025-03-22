@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+	PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
+	"http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
+	
+<web-app>
+
+	<display-name>Aplicación con Struts</display-name>
+	
+	<!-- Definimos el servlet con Strtus -->
+	
+	<servlet>
+		<servlet-name>action</servlet-name>
+		<servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+		
+		<!-- Indicamos a Struts dónde buscar el archivo de configuración -->
+		<init-param>
+			<param-name>config</param-name>
+			<param-value>/WEB-INF/strtus-config.xml</param-value>
+		</init-param>
+		
+		<!-- Esta directiva indica que el servlet ha de cargarse al inicializarse Tomcat -->
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	
+	<!-- Asociamos el servlet de Struts a todos los pedidos que terminen con .do -->
+	<servlet-mapping>
+		<servlet-name>action</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+	
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+	
+	<!-- Descriptores de la librería de tags de Struts -->
+	<taglib>
+		<taglib-uri>/tags/struts-bean</taglib-uri>
+		<taglib-location>/WEB-INF/strtus-bean.tld</taglib-location>
+	</taglib>
+	
+	<taglib>
+		<taglib-uri>/tags/struts-html</taglib-uri>
+		<taglib-location>/WEB-INF/struts-html.tld</taglib-location>
+	</taglib>
+	
+	<taglib>
+		<taglib-uri>/tags/struts-logic</taglib-uri>
+		<taglib-location>/WEB-INF/struts-logic.tld</taglib-location>
+	</taglib>
+	
+	<taglib>
+		<taglib-uri>/tags/struts-nested</taglib-uri>
+		<taglib-location>/WEB-INF/struts-nested.tld</taglib-location>
+	</taglib>
+	
+	<taglib>
+		<taglib-uri>/tags/struts-tiles</taglib-uri>
+		<taglib-location>/WEB-INF/struts-tiles.tld</taglib-location>
+	</taglib>
+	
+</web-app>
