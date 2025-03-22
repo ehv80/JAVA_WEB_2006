@@ -580,3 +580,146 @@ en el documento que lo incluye. La sintaxis para inclusiones del segundo tipo es
 Figura 3. El include del primer tipo suele ser más apropiado para contenido estático o que no dependa del entorno.
 
 Un ejemplo completo
+Vamos a desarrollar una aplicación con páginas JSP para ejemplificar los conceptos del capítulo. La aplicación 
+consiste en un calculador de intereses para plazos fijos. Dada la inversión inicial, la cantidad de meses que será
+depositado el dinero y la tasa nominal anual que el banco paga, podremos saber las ganancias obtenidas.
+
+Desarrollaremos la aplicación de la siguiente forma: un JavaBean contendrá la información (inversión, meses y tasa)
+y además será el encargado de efectuar el cálculo con los datos. Una página HTML (sin funcionalidad JSP) será la puerta
+de entrada a la aplicación. En ella se pedirán los datos y se reenviará la información al JSP. Éste recibirá el pedido,
+creará el JavaBean, escribirá los valores de sus propiedades según los valores del pedido y obtendrá el resultado (también 
+una propiedad, pero en este caso, sólo de lectura).
+
+Además, la página JSP definirá una página de error por si ocurriera una excepción en la entrada de datos (en este caso,
+si se ingresara un dato que no fuera un número).
+
+Nota: ver el archivo: 
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\html\intereses.html
+
+"
+<!-- Un ejemplo completo -->
+<html>
+	<head>
+		<title>Calculador de Intereses JSP</title>
+	</head>
+	<body>
+		<!-- Los datos del formulario los maneja la página JSP -->
+		<form action="E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\jsp\calculoIntereses.jsp" method="post">
+			Inversi&oacute;n: <input type="text" name="inversion"><br/>
+			Meses: <input type="text" name="meses"><br/>
+			Tasa Anual %: <input type="text" name="tasa"><br/>
+			
+			<input type="submit" value="Calcular">
+		</form>
+	</body>
+</html>
+"
+
+Nota: ver el archivo: 
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\src\InteresesBean.java
+
+"
+/**
+ * InteresesBean.java
+ * Para calcular la ganancia obtenida en un plazo fijo.
+ */
+//package capitulo3; //comentado para evitar error en tiempo de ejecución paquete y clase con encontrados
+
+public class InteresesBean
+{
+	private double inversion;
+	
+	private int meses;
+	
+	private double tasa;
+	
+	/** Constructor por defecto */
+	public InteresesBean()
+	{
+		this.inversion = 100000.0;
+		this.meses = 12;
+		this.tasa = 0.05;
+	}
+	
+	public void setInversion(double inversion)
+	{
+		this.inversion = inversion;
+	}
+	
+	public void setMeses(int meses)
+	{
+		this.meses = meses;
+	}
+	
+	public void setTasa(double tasa)
+	{
+		this.tasa = tasa;
+	}
+	
+	public double getInversion()
+	{
+		return this.inversion;
+	}
+	
+	public int getMeses()
+	{
+		return this.meses;
+	}
+	
+	public double getTasa()
+	{
+		return this.tasa;
+	}
+	
+	public double getGanancias()
+	{
+		return inversion * (tasa / 100.0) * (meses / 12.0);
+	}
+}
+
+"
+
+Nota: ver el archivo
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\jsp\calculoIntereses.jsp
+
+"
+<%@ errorPage="error.jsp" %>
+
+<html>
+	<head>
+		<title>Calculador de Intereses JSP</title>
+	</head>
+	<body>
+		<jsp:useBean id="intereses" class"InteresesBean">
+		<jsp:setProperty name="intereses" property="*"/>
+		</jsp:useBean>
+		
+		Inversi&oacute;n: <jsp:getProperty name="intereses" property="inversion"/><br/>
+		Meses: <jsp:getProperty name="intereses" property="meses" /><br/>
+		Tasa Anual %: <jsp:getProperty name="intereses" property="tasa" /><br/>
+		<br/>
+		Ganancias: <jsp:getProperty name="intereses" property="ganancias" /><br/> 
+	</body>
+
+</html>
+"
+
+Nota: ver el archivo:
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Servlets\jsp\error.jsp
+
+"
+<%@ page isErrorPage="true" %>
+
+<html>
+	<head>
+		<title>Error en página JSP</title>
+	</head>
+	<body>
+		Error en la entrada de datos: <br/>
+		<%= exception.getMessage() %>
+		<br/>
+		<a href="javascript:history.go(-1)">Volver</a>
+	</body>
+
+</html>
+"
