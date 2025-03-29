@@ -175,4 +175,219 @@ E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Hola Strut
 	
 </web-app>
 "
+Se define un servlet que es el controlador de Struts y se asocia todo pedido que termine con .do a ese servlet.
+Tradicionalmente, las aplicaciones Struts asocian esta extensión, pero podemos definir cualquier tipo que queramos.
 
+Notemos también que dicho servlet toma un parámetro. Este parámetro es la ubicación del archivo de configuración de Struts,
+que contiene toda la información necesaria para el funcionamiento de la aplicación. Más adelante volveremos con detalles 
+sobre este archivo.
+
+Finalmente, están las declaraciones de taglibs. Struts provee una serie de tags muy útiles para usar en las páginas JSP (la vista).
+Para poder usar dichos tags, los declaramos en el descriptor web. Veamos ahora un ejemplo minimalista del archivo de configuración de Struts
+(struts-config.xml) que nos permitirá ejecutar Hola Mundo como aplicación web con Struts.
+
+Nota: ver el archivo: 
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Hola Struts\WEB-INF\struts-config.xml
+
+"
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+	"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+	
+<struts-config>
+	<action-mappings>
+		<!-- Acción Hola Mundo -->
+		<action
+			path="/holamundo"
+			type="action.HolaMundoAction">
+			<!-- Una posible vista de la acción -->
+			<forward name="ok" path="/jsp/holamundo.jsp" />	
+		</action>
+	</action-mappings>
+</struts-config>
+"
+
+El archivo de configuración de una aplicación completa es inmensamente más grande y complejo que éste. En esta reducida y sencilla
+versión simplemente declaramos que nuestra aplicación tiene una única acción posible. La misma se activará cuando se acceda a la dirección
+holamundo y la acción a ejecutarse es la que define la clase action.HolaMundoAction. A su vez, esta acción tiene una sola vista asociada, 
+de nombre ok y asociada a la página JSP ubicada en /jsp/holamundo.jsp.
+
+Unos puntos a remarcar (sin entrar aún en detalles sobre este archivo). El path o punto de acceso de la aplicación determina la dirección que
+queremos asociar a la acción. Notemos que no estamos agregando la extensión .do al path, sin embargo, en el descriptor de la aplicación 
+definimos que asociamos todas las direcciones que terminan con .do al servlet de Struts. Esto implica que si queremos acceder a la acción 
+definida, asumiendo que estamos ejecutando Tomcat en la máquina local y que el proyecto se llama "Hola Struts", debemos acceder a la siguiente
+dirección web: http://localhost:8080/Hola Struts/holamundo.do 
+
+Veamos la implementación de la clase HolaMundoAction:
+
+Nota: ver el archivo: 
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Hola Struts\src\HolaMundoAction.java
+
+"
+package action;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+
+public class HolaMundoAction extends Action 
+{
+	// Debemos sobreescribir el método execute
+	public ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest req, HttpServletResponse res) throws Exception 
+	{
+		// Queremos ir a la vista de nombre "ok"
+		return map.findForward("ok");
+	}
+}
+"
+
+Una acción que defina una clase para ser ejecutada debe referirse a una clase que extienda org.apache.struts.action.Action.
+Típicamente sobreescribiremos el método execute, que es el método llamado por Struts. En el ejemplo simplemente le informamos al 
+controlador que devuelva la vista de nombre ok.
+
+A no preocuparse si esto no se entiende totalmente, simplemente estamos mostrando un pantallazo del funcionamiento de Struts, para 
+luego poder proseguir con más detalle y con ejemplos más complejos.
+
+Para terminar esta mini aplicación, nos falta la vista. Según el archivo de configuración de Struts, ésta se encuentra ubicada en 
+/jsp/holamundo.jsp. Creamos la carpeta jsp y dentro creamos la página JSP: 
+
+Nota: ver el archivo: 
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Hola Struts\jsp\holamundo.jsp
+
+"
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+
+<jsp:useBean id="hm" class="model.HolaMundoBean" />
+
+<b>
+<bean:write name="hm" property="saludo" />
+</b>
+"
+
+Esta página JSP declara que usaremos un conjunto de tags de Struts, instancia un JavaBean (esto es exactamente igual que en el capítulo 3)
+y finalmente utiliza un tag específico de Struts para imprimir el saludo en pantalla. En este ejemplo, el tag de Struts no aporta mayor
+funcionalidad a la que podríamos haber logrado usando <jsp:getProperty ... />, pero luego veremos que estos tags provistos por Struts son muy
+poderosos y útiles.
+
+Vemos que hemos instanciado un JavaBean. El código de dicho JavaBean es el siguiente: 
+
+Nota: ver el archivo: 
+E:\Users\ehv80\Documentos\Programacion_en_Lenguaje_Java\JAVA_WEB_2006\Hola Struts\src\HolaMundoBean.java
+
+"
+package model;
+
+public class HolaMundoBean
+{
+	//Una propiedad
+	private String saludo = "Hola Mundo con Struts";
+	
+	//La propiedad es de Lectura
+	public String getSaludo()
+	{
+		return this.saludo;
+	}
+}
+"
+
+Simplemente, un JavaBean con una Propiedad de Tipo String y un método accesor.
+
+Si arrancamos Tomcat y apuntamos el navegador a la dirección http://localhost:8080/Hola Struts/holamundo.do 
+veremos lo siguiente
+"
+Hola Mundo con Struts
+"
+
+O sea, ¡después de tanto trabajo obtenemos exactamente lo mismo que hubiésemos logrado con una sola línea de JSP!
+
+Struts no es muy eficiente para escribir aplicaciones del estilo Hola Mundo, pero prontamente veremos que, para aplicaciones
+que requieren un mínimo de complejidad, aporta mucho y simplifica el desarollo.
+
+Ahora que hemos visto un ejemplo concreto en Struts, vamos a identificar las componentes del modelo MVC.
+
+El modelo en este caso consiste simplemente en un JavaBean (HolaMundoBean) que contiene los datos a utilizar por la aplicación.
+
+La vista es una página JSP que no tiene funcionalidad propia, simplemente muestra los datos provistos por el modelo.
+
+El controlador es Struts, que provee el servlet, las clases necesarias para obtener la configuración, la lógica interna, etc. 
+y además la clase HolaMundoAction, encargada de definir las acciones y el flujo de nuestra aplicación. 
+
+Utilidad de Struts
+Struts nos va a ayudar mucho a desarrollar aplicaciones web. Algunas de las utilidades que provee son: 
+
+· Desarrollo en componentes de acuerdo con el paradigma MVC, separando la lógica del contenido
+· Utilidades para mapear JavaBeans con formularios (mediante ActionForms) y cargar los formularios con el contenido del JavaBean 
+· Internacionalización de la presentación. En base al lenguaje del navegador, Struts automáticamente puede mostrar el contenido apropiado
+· Validación. Para validar formularios enviados por el usuario, Struts provee el Validator Framework, muy útil para validaciones sin
+necesidad de escribir código. También podemos crear nuestros propios validadores o definir la validación específica de los formularios,
+si lo necesitamos.
+· Subclases de Action. No tenemos que limitarnos a extender la clase Action para cada acción que deseemos. Struts provee varias subclases
+con ciertas funcionalidades.
+· Manejo de excepciones. Podemos definir manejadores de excepciones a nivel global o por acción, de esta forma, cuando ocurra una excepción 
+podremos realizar acciones de contingencia, registrar lo ocurrido para depuración, etc.
+· Soporte para DataSources. En el archivo de configuración podemos declarar uno o más elementos data-source para definir accesos a bases de datos y utilizarlos desde acciones o servlets
+· Plugins. Podemos definir plugins que se enchufan en la aplicación para realizar diversas tareas en la inicialización o terminación de la 
+misma.
+· Upload de archivos. Struts provee una API sencilla para manejar casos en los que el usuario envía archivos al servidor como parte de un formulario.
+·Reusabilidad de componentes de vista usando Struts Tiles.
+
+Action y ActionForm
+Si bien en los próximos capítulos analizaremos con más profundidad estos componentes, es menester aquí hacer una pequeña explicación para
+poder entender el funcionamiento de Struts.
+
+Como vimos, Action es la clase madre de las acciones que se realizan en la aplicación. Los objetos Action son un adaptador entre un pedido HTTP y la lógica que ha de efectuarse en respuesta al pedido.
+
+Al recibir un pedido HTTP, Struts lo recibe y lo envía al Action correspondiente, proporcionando además objetos propios de Struts para
+su ejecución.
+
+La aridad es la signatura del método: qué parámetros toma y en qué orden.
+
+Recordemos la aridad del método execute:
+
+ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest request, HttpServletResponse response)
+
+Una clase a destacar en esta discusión es ActionForm. Un ActionForm es un JavaBean cuyas propiedades son relacionadas
+con parámetros del pedido. Al enviarse un formulario, se carga ActionForm con los valores establecidos por el usuario 
+y se envía a Action para su ejecución.
+
+Desarrollando aplicaciones con Struts
+Sabiendo cómo desarrollar aplicaciones con servlets y con JSP, veamos en qué se diferencia el desarrollo al utilizar Struts.
+
+Siguiendo con la temática del paradigma MVC, el desarrollo de aplicaciones web se reduce a escribir estos componentes.
+
+· Model: objetos por lo general JavaBeans, aunque puedens ser objetos de cualquier tipo que contienen la información
+y la lógica de lo que queremos representar
+
+Si bien los ActionForms por lo general contienen propiedades compartidas con objetos del modelo, son componentes del controlador.
+
+Los objetos del modelo idealmente deben estar completamente desacoplados del entorno web. Esto incrementa las chances de poder
+reutilizarlos en otros entornos. En concreto, no deberíamos depender de ninguna clase específica de Struts o Servlets.
+
+· View: la vista consiste en generar páginas HTML o crear componentes que las generen, como páginas JSP. Es importante recordar
+que Struts no se limita a usar JSP como capa de presentación. ¡Ni siquiera tenemos que generar HTML como resultado! Podríamos generar
+y devolver al usuario cualquier tipo de documento, si así lo quisiéramos.
+
+· Controller: escribir estos componentes consiste en desarrollar objetos Action, ActionForm y asociarlos entre sí en el archivo de 
+configuración. Los objetos ActionForm no se limitan a replicar las propiedades del formulario al cual están asociadas, sino que también
+desarrollan su validación.
+
+Los objetos Action son los encargados de procesar los pedidos e indicarle al controlador la vista a mostrar como resultado.
+
+En los próximos capítulos vamos a conocer cada uno de estos componentes, sus posibles variantes y su interacción.
+
+Model 2X
+Al poco tiempo de popularizarse Struts en el mercado, algunas personas notaron que el paradigma MVC implementado por Struts usando JSP
+como capa de presentación no terminar de aislar completamente el contenido de la presentación.
+
+Si bien las buenas prácticas dicen que debemos usar JSP únicamente como capa de presentación y acceder al modelo para el contenido, nada
+impide que escribamos código en los documentos JSP. Si esto ocurre, los beneficios del paradigma MVC se pierden, y la funcionalidad queda
+esparcida entre el modelo y la vista. Si encima ejecutamos lógica en las acciones ¡tendremos funcionalidad en el modelo, la vista y el controlador!
+
+Una alternativa planteada, llamada Model 2X, consiste en hacer que las clases Action generen documentos XML y luego éstos sean procesados
+mediante transformadores como XSLT o XLS:FO. Este acercamiento separa completamente el contenido de la presentación y tiene numerosas ventajas.
