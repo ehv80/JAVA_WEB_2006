@@ -1,0 +1,88 @@
+PROGRAMACIÓN WEB JAVA
+
+Capítulo 5: ActionForms
+
+En este capítulo trataremos acerca
+de los ActionForms. Veremos
+con detalle qué son, cómo programarlos
+y cuál es su importancia en el desarrollo
+de aplicaciones. Luego del enfoque
+tradicional, contemplaremos otras
+alternativas.
+
+Interactuando con el usuario
+
+Usualmente vamos a desarrollar aplicaciones web que interactúen con usuarios.
+Aunque también sería válido crear aplicaciones que simplemente muestren contenido 
+(dinámico) que vaya cambiando con el correr del tiempo, en general queremos que 
+el usuario pueda interactuar con la aplicación, de forma tal que podamos brindarle
+la información específica que necesita.
+
+En la programación web con páginas HTML, el usuario tiene diversas formas de
+interactuar con la aplicación. Cuando necesitamos que el usuario ingrese datos,
+usamos un formulario.
+
+Los formularios en HTML no son más que una aplicación gráfica que existe solamente
+en el cliente (en el navegador web) para ayudar a generar el pedido HTTP.
+En teoría, podríamos no usar formularios y dejar que el usuario cree el pedido él
+mismo, pero sería una aplicación muy poco amigable.
+
+Al ser los formularios la herramienta fundamental para recibir información del 
+usuario, las aplicaciones web trabajan con ellos intensamente. Struts provee 
+funcionalidad para ayudarnos a simplificar la tarea de escribir formularios, y sobretodo,
+para mantener su estado entre pedidos.
+
+¿A qué nos referimos con mantener el estado de un formulario?
+
+Es muy común en sitios web tener un formulario de registración donde se pide
+una gran cantidad de datos, como nombre, clave, confirmación de clave, dirección,
+teléfono, correo electrónico, etc.
+
+Supongamos (como suele suceder) que tenemos ciertas restricciones sobre ese 
+formulario: el campo clave y confirmación de clave deben contener el mismo valor,
+el nombre de usuario no debe existir ya en nuestra base de datos, etc. Imaginemos
+que el usuario ingresa algunos datos y envía el formulario pulsando el botón correspondiente.
+Estos datos llegan al servidor y son recibidos. El servidor, al procesar los datos, encuentra
+que el campo correo electrónico, que es un campo requerido, no contiene datos. Entonces
+agrega el mensaje de error correpondiente y devuelve el mismo formulario al usuario para
+que corrija el error.
+
+Siguiendo estos pasos aquí descriptos, todo parece estar correctamente; sin embargo, 
+el usuario recibirá el mensaje de error correspondiente, ¡y el formulario todo en blanco!.
+Deberá entonces volver a completar todos los datos además de realizar la corrección, algo 
+largo y tedioso.
+
+Aunque aún hoy se ven en Internet aplicaciones que funcionan de esa manera,
+debemos asegurarnos de devolver el formulario cargado con los datos que el usuario
+ya ingresó, y esto es a lo que nos referimos con mantenimiento del estado del formulario.
+Struts, entre otras cosas, nos provee lo necesario para no tener que implementar nosotros
+la funcionalidad de completar los campos que el usuario ya había ingresado al devolverle un formulario.
+
+ActionForms
+Un ActionForm representa un formulario en una página web. Las acciones en Struts (implementadas en la clase Action)
+rara vez interactúan directamente con HttpServletRequest o HttpServletResponse. 
+
+Implementar un ActionForm es sencillo, simplemente debemos crear un JavaBean que extienda a la clase
+org.apache.struts.action.ActionForm y definir sus propiedades y métodos de acceso como cualquier otro JavaBean.
+
+Una vez definido el ActionForm, debemos declararlo en el struts-config y asociarlo 
+con acciones. Al asociar un ActionForm con acciones, le estamos diciendo a Struts 
+que cuando llegue un pedido para una acción asociada, intente completar los datos del ActionForm 
+con los datos del pedido, y ese ActionForm es el que recibirá el método execute de la clase Action.
+
+Desarrollemos un ejemplo de aplicación web con un formulario donde el usuario
+debe ingresar nombre, sexo, edad y si es fumador o no. La página resultante se verá
+como en la Figura 1.
+
+Nombre [_______]
+Edad [_______]
+Sexo [_______]
+Fumador [_]
+[ Submit ]
+
+Figura 1. En entornos de producción deberíamos restringir el acceso directo a las páginas JSP;
+el usuario debería interactuar solamente con acciones de Struts.
+
+Luego nos dedicaremos a la parte de creación de la vista, que no es como en un JSP tradicional,
+sinó que se crea utilizando tags de Struts; mientras tanto, veamos como sería nuestro ActionForm.
+
