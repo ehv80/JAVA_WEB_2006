@@ -149,3 +149,60 @@ Nota: Eclipse nos muestra error porque no puede encontrar las Clases importadas:
 aunque estén todos los archivos "jar" de Struts importados dentro de la carpeta 
 ActionForms/WEB-INF/lib
 
+Nuestro ActionForm no es más que un JavaBean que extiende de la clase ActionForm de Struts.
+Vemos que usamos un Integer para representar la edad y un boolean para indicar su status de fumador.
+¿Porqué Integer y no el primitivo int?
+
+Recordemos que toda la comunicación cliente-servidor se realiza mediante el protocolo HTTP, 
+que en definitiva transmite cadena de caracteres.
+
+Struts recibe los datos e intenta hacer la conversión de tipos correspondiente entre los valores del
+pedido y las propiedades del ActionForm.
+
+Si en vez de Integer hubiésemos puesto Vector, por ejemplo, al enviar el formulario desde el navegador
+obtendríamos un error de tipo.
+
+Luego, le brindamos al usuario un campo de texto donde pueda ingresar la edad, y esperamos un número
+que represente una edad, pero el usuario puede ingresar cualquier texto. Si el usuario ingresa una cadena
+que no pueda ser transformada a un número, Struts nos devuelve el valor por defecto del objeto, en este caso,
+un número con valor cero. Esto funciona tanto para el primitivo int como para el objeto Integer, pero no podemos
+discernir si el usuario no ingresó valor o ingresó un valor incorrecto, o realmente ingresó el número 0.
+
+Si usamos como tipo de datos el primitivo int, no tendremos forma de saberlo.
+En cambio, utilizando Integer podemos indicarle a Strtus que, cuando no pueda realizar las conversiones de tipo,
+establezca null como valor de los objetos en lugar de su valor por defecto. De esta forma, si recibimos null 
+como valor, podremos aseverar que hubo un error de conversión de tipo y que el usuario no ingresó un número válido.
+
+Esta configuración se realiza asignando el parámetro de inicialización convertNull en el archivo web.xml.
+En nuestra aplicación, aplicando los cambios el fragmento que inicializa Struts quedaría:
+
+"
+<servlet>
+	<servlet-name>action</servlet-name>
+	<servlet-class>org.apache.strtus.action.ActionServlet</servlet-class>
+	<init-param>
+		<param-name>config</param-name>
+		<param-value>/WEB-INF/struts-config.xml</param-value>
+	</init-param>
+	<init-param>
+		<param-name>convertNull</param-name>
+		<param-value>true</param-value>
+	</init-param>
+	<load-on-startup>2</load-on-startup>
+</servlet>
+"
+Nota: Dentro de la carpeta del Projecto Web (Apache Tomcat) llamada: ActionForms no encontramos ningún archivo web.xml
+entonces le preguntamos a ChatGPT dentro de qué carpeta hay que ubicarlo y la respuesta es:
+hay que crearlo dentro de la carpeta: ActionForms/WEB-INF/
+el archivo sería ActionForms/WEB-INF/web.xml
+Se le consulta a ChatGPT: ¿Cómo crear el archivo web.xml en Eclipse, paso a paso? 
+y se siguen sus indicaciones: Click derecho sobre la carpeta WEB-INF, seleccionar New -> Other
+luego seleccionar XML -> XML File
+luego Next
+Se le pone el nombre: web.xml
+luego Finish
+Se edita y se le pone el contenido mostrado aquí arriba entre comillas.
+
+Configurando un ActionForm
+
+
