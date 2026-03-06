@@ -143,3 +143,9 @@ public class DatosForm extends ActionForm
 
 }
 "
+Nota: Eclipse nos muestra error porque no puede encontrar las Clases importadas:
+- ActionForm
+- ActionMapping
+aunque estén todos los archivos "jar" de Struts importados dentro de la carpeta 
+ActionForms/WEB-INF/lib
+
