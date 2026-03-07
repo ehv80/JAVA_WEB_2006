@@ -286,3 +286,24 @@ Nota: En Eclipse creamos la carpeta ActioForms/jsp
 y creamos el archivo ActioForms/jsp/datos.jsp
 
 ActionForm reset
+Un método importante que define la clase ActionForm es
+
+public void reset(ActionMapping map, HttpServletRequest req)
+
+Este método es invocado por Struts antes de repopular las propiedades del form.
+A priori, ¡este método no tiene sentido! Dado un form con propiedades, se llama
+a un método que reinicializa sus propiedades, volviéndolas a su valor por defecto,
+para luego establecerle los valores que vienen del cliente. Entonces, ¿para qué 
+volverlas a un valor por defecto si en definitiva se van a reescribir? En la práctica,
+hay un caso en el que este método es necesario.
+
+Si tenemos un form guardado en sesión (esto es, declarado en la acción que lo utiliza con scope="session")
+y este formulario tiene algún checkbox (casilla de selección binaria, como en el ejemplo, la propiedad fumador),
+es necesario reestablecer el valor de las propiedades asociadas con los checkboxes. Esto se debe a que 
+un checkbox, que tiene dos estados, sólo envía su estado cuando está marcado. Cuando se encuentra 
+desmarcado, no envía nada al servidor. Bajo este funcionamiento, si el form es reutilizado y el valor de 
+una propiedad booleana asociada con un checkbox era verdadero, nunca va a cambiar a falso aunque la opción
+esté desmarcada en el navegador, simplemente porque no se recibirá información alguna sobre esa propiedad
+y mantendrá su estado.
+
+Validación de ActionForms
