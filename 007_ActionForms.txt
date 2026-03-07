@@ -307,3 +307,13 @@ esté desmarcada en el navegador, simplemente porque no se recibirá informació
 y mantendrá su estado.
 
 Validación de ActionForms
+Por lo general, al interactuar con el usuario, necesitamos validar lo que éste ingresa en los formularios.
+Algunos datos son requeridos y el usuario no puede no completarlos, otros tienen un rango determinado que
+no puede excederse, otros deben pertenecer a cierto dominio, etc.
+
+La clase ActionForm posee un método apropiado para validar los datos ingresados por el usuario, su aridad es:
+
+public ActionErrors validate(ActionMapping map, HttpServletRequest req)
+
+Este método puede ser invocado cada vez que se realiza un pedido. Debemos proveer una implementación
+particular para cada uno de los ActionForms que creemos.
