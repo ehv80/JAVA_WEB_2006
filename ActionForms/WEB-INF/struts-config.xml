@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<form-beans>
+	<form-bean
+		name="datosForm"
+		type="DatosForm"/>
+</form-beans>
+
+<action
+	path="/ingresoDatos"
+	name="datosForm"
+	scope="request"
+	type="IngresoDatosAction"
+	
+	<forward name="ok" path="/jsp/datos.jsp" />
+</action>

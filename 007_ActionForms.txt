@@ -204,5 +204,85 @@ luego Finish
 Se edita y se le pone el contenido mostrado aquí arriba entre comillas.
 
 Configurando un ActionForm
+Una vez que tenemos definido un ActionForm, debemos asociarlo con determinadas acciones para que sea
+instanciado y cargado por Struts cuando dichas acciones sean accedidas.
 
+Los forms dentro del struts-config se definen como una serie de tags form-bean encerrados dentro de 
+un tag form-beans. Por ejemplo:
 
+<form-beans>
+	<form-bean ...>
+	<form-bean ...>
+	<form-bean ...>
+</form-bean>
+
+Cada elemento form-bean puede poseer tres atributos:
+
+· className define la clase que ha de configurar al bean que estamos definiendo
+(subclase de org.apache.struts.config.FormBeanConfig). Puede ser útil usar esta
+configuración cuando tenemos varios beans iguales. En vez de configurarlos uno por uno
+en el struts-config, creamos una clase FormBeanConfig y se la pasamos a cada bean para 
+que se configure, aunque por lo general es más práctico configurarlos en el struts-config.xml.
+
+· name es el nombre que queremos darle a este bean.
+
+· type es el nombre de la clase que instanciará el bean.
+
+En nuestro ejemplo, la configuración (del archivo ActioForms/WEB-INF/struts-config.xml) para 
+definir el bean en Strtus sería:
+"
+<?xml version="1.0" encoding="UTF-8"?>
+
+<form-beans>
+	<form-bean>
+		name="datosForm"
+		type="DatosForm"
+	</form-bean>
+</form-beans>
+"
+Nota: Se hace Click derecho sobre la carpeta WEB-INF, seleccionar New -> Other
+luego seleccionar XML -> XML File
+luego Next
+Se le pone el nombre: struts-config.xml
+luego Finish
+Se edita y se le pone el contenido mostrado aquí arriba entre comillas.
+
+Es un solo bean, de nombre datosForm y que hace utilización de la clase que definimos
+previamente: DatosForm.
+
+Declaremos ahora una acción que use el ActioForm:
+Nota: se agrega al archivo ActioForms/WEB-INF/struts-config.xml
+quedando así:
+"
+<?xml version="1.0" encoding="UTF-8"?>
+
+<form-beans>
+	<form-bean
+		name="datosForm"
+		type="DatosForm"/>
+</form-beans>
+
+<action
+	path="/ingresoDatos"
+	name="datosForm"
+	scope="request"
+	type="IngresoDatosAction"
+	
+	<forward name="ok" path="/jsp/datos.jsp" />
+</action>
+"
+
+Notamos dos atributos nuevos, relacionados con form-beans:
+
+· name define el nombre del form-bean que esta acción va a usar. Este nombre debe existir entre
+los form-beans declarados u obtendremos un error.
+
+· scope indica el contexto donde buscar el form-bean. Éste puede residir en request o en session.
+Si el form-bean es guardado en sesión, cada vez que accedamos a una página que lo use estaremos accediendo
+a una instancia, posiblemente con valores ya guardados de antes. Esto puede ser de utilidad si queremos
+dividir una carga de información en varias páginas. 
+
+Nota: En Eclipse creamos la carpeta ActioForms/jsp
+y creamos el archivo ActioForms/jsp/datos.jsp
+
+ActionForm reset
