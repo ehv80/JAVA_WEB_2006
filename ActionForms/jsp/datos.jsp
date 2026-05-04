@@ -1,12 +1,8 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
 
-</body>
-</html>
+    <%-- Simplemente mostramos los datos ingresados por el usuario, notar que los estamos tomando del objeto datosForm
+        que fue incluído por Struts en el contexto --%>
+
+        <bean:write name="datosForm" property="nombre" /> <br>
+        <bean:write name="datosForm" property="edad" /> <br>
+        <bean:write name="datosForm" property="fumador" /> <br>

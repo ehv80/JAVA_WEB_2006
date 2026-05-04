@@ -550,5 +550,48 @@ public class DatosForm extends ActionForm {
 
 "
 
+La acción que se ejecuta: ActionForms/WEB-INF/src/IngresoDatos.java 
 
+"
+//package ActionForms.WEB-INF.src;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+
+public class IngresoDatos extends Action {
+    @Override
+    public ActionForward execute(ActionMapping map, ActionForm form,
+            HttpServletRequest req, HttpServletResponse res) throws Exception {
+
+        // return map.findForward("success");
+        /* No hacemos nada aquí, simplemente redirigimos a la página de salida */
+        return map.findForward("ok");
+    }
+
+}
+
+"
+
+La página de salida: ActionForms/jsp/datos.jsp
+
+"
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+
+    <%-- Simplemente mostramos los datos ingresados por el usuario, notar que los estamos tomando del objeto datosForm
+        que fue incluído por Struts en el contexto --%>
+
+        <bean:write name="datosForm" property="nombre" /> <br>
+        <bean:write name="datosForm" property="edad" /> <br>
+        <bean:write name="datosForm" property="fumador" /> <br>
+"
+
+Vemos que en el formulario usamos tags propios de Struts para mantener el estado del formulario
+(entre otras cosas). En los próximos capítulos veremos todos los tags que Struts provee y sus explicaciones.
+
+ALTERNATIVAS 
 
