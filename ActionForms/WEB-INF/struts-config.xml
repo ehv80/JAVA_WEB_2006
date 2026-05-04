@@ -1,16 +1,34 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!DOCTYPE struts-config PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+	"http://struts.apache.org/dtds/struts-config_1_3.dtd">
+	<struts-config>
+	
 <form-beans>
+	<!-- Definimos un form-bean de nombre "datosForm", implementado por la clase "DatosForm" -->
 	<form-bean
 		name="datosForm"
 		type="DatosForm"/>
 </form-beans>
 
-<action
-	path="/ingresoDatos"
-	name="datosForm"
-	scope="request"
-	type="IngresoDatosAction"
-	
-	<forward name="ok" path="/jsp/datos.jsp" />
-</action>
+
+<action-mappings>
+	<!-- Definimos una acción que usa el form datosForm, 
+	que requiere validación y cuya página de salida, si la validación falla, es  jsp/formulario.jsp --> 
+	<action
+		path="/ingresoDatos"
+		name="datosForm"
+		scope="request"
+		validate="true"
+		input="/jsp/formulario.jsp"
+		type="IngresoDatosAction"
+	>
+		<forward name="ok" path="/jsp/datos.jsp" />
+	</action>
+</action-mappings>
+
+<!-- Configuramos el archivo con mensajes externos -->
+<message-resources parameter="MessagesResources"/>
+
+</struts-config>

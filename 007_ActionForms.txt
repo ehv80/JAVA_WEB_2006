@@ -361,3 +361,67 @@ Si queremos un mensaje de error global usamos la constante ActionErrors.GLOBAL_M
 Los objetos ActionMessage fueron diseñados para trabajar con internacionalización y 
 externalización de cadenas de caracteres, a fin de no tener que embeber texto en el código.
 
+Configurar la validación 
+Dijimos que el método validate puede ser invocado con cada pedido. La invocación o no
+del método es configurable para cada acción. Podemos querer que algunas acciones validen
+el contenido y otras que no, siempre refiriéndonos al mismo ActionForm. Para configurar
+las acciones con la validación, debemos establecer los valores de los atributos en cada elemento
+action del struts-config.xml.
+
+validate define si esta acción efectúa la validación del form (valores true / false).
+input define la página adonde redirigir al usuario cuando la validación falla.
+
+Configurar Struts con MessageResources
+Al respecto de textos externalizados, Struts necesita que definamos los archivos donde hallar estos textos
+(en varios idiomas). En los próximos capítulos ahondaremos sobre esos temas, pero es probable que Struts
+no funcione correctamente si falta esta definición. Para solucionar el problema, basta con agregar
+la siguiente línea en struts-config.xml, luego de los action-mappings.
+
+<message-resources parameter="MessageResources" />
+
+Esta línea indica que Struts debe buscar los mensajes en un archivo de nombre MessageResources.properties.
+Struts busca el archivo en las ubicaciones del classpath, por lo que una buena recomendación es ubicar este
+archivo en la carpeta WEB-INF/src. Por ahora este archivo puede estar en blanco, no lo usaremos.
+
+El resto del ejemplo
+Habiéndonos focalizado en el desarrollo del ActionForm, ahora veremos el código completo del ejemplo:
+
+El archivo de configuración ActionForms/WEB-INF/struts-config.xml 
+
+"
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE struts-config PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+	"http://struts.apache.org/dtds/struts-config_1_3.dtd">
+	<struts-config>
+	
+<form-beans>
+	<!-- Definimos un form-bean de nombre "datosForm", implementado por la clase "DatosForm" -->
+	<form-bean
+		name="datosForm"
+		type="DatosForm"/>
+</form-beans>
+
+
+<action-mappings>
+	<!-- Definimos una acción que usa el form datosForm, 
+	que requiere validación y cuya página de salida, si la validación falla, es  jsp/formulario.jsp --> 
+	<action
+		path="/ingresoDatos"
+		name="datosForm"
+		scope="request"
+		validate="true"
+		input="/jsp/formulario.jsp"
+		type="IngresoDatosAction"
+	>
+		<forward name="ok" path="/jsp/datos.jsp" />
+	</action>
+</action-mappings>
+
+<!-- Configuramos el archivo con mensajes externos -->
+<message-resources parameter="MessagesResources"/>
+
+</struts-config>
+"
+
