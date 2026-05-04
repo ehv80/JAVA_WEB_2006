@@ -317,3 +317,47 @@ public ActionErrors validate(ActionMapping map, HttpServletRequest req)
 
 Este método puede ser invocado cada vez que se realiza un pedido. Debemos proveer una implementación
 particular para cada uno de los ActionForms que creemos.
+
+ActionErrors es una clase que encapsula mensajes de error. 
+Cada mensaje de error (una instancia de la clase ActionMessage)
+puede ser global o estar asociado con un campo en particular.
+
+En nuestro ejemplo, si el usuario no escribe un nombre, el mensaje indicador 
+estará asociado con el campo nombre.
+
+En el ejemplo previo, asumamos que los campos nombre y edad son requeridos, 
+y que fumador puede ser verdadero sólo si la edad es mayor que 18. Entonces
+debemos implementar el método validate de la siguiente forma: 
+
+public ActionErrors validate(ActionMapping map, HttpServletRequest req) {
+	ActionErrors ret = new ActionErrors();
+
+	if(nombre == null || nombre.trim().equals("")) {
+		ret.add("nombre", new ActionMessage("Falta ingresar nombre", false));
+	}
+	if(edad == null) {
+		ret.add("edad", new ActionMessage("Falta ingresar edad", false));
+	}
+	else {
+		if(fumador && edad.intValue() < 18) {
+			ret.add("fumador", new ActionMessage("Peque&ntilde;o fumador!", false));
+		}
+	}
+	return ret;
+}
+
+Si no hay mensajes de error, podemos devolver un objeto ActionErrors vacío, 
+(como en el ejemplo) o bien null. Es conveniente devolver todos los errores juntos
+y no frenar al encontrar el primer error, si no el usuario tendría que hacer las
+correcciones unas por una.
+
+Es muy simple agregar un mensaje de error a un Actionerrors, invocando el método:
+
+add(String property, ActionMessage message)
+
+El primer parámetro es el nombre de la propiedad a la cual está asociada el mensaje de error.
+Si queremos un mensaje de error global usamos la constante ActionErrors.GLOBAL_MESSAGE.
+
+Los objetos ActionMessage fueron diseñados para trabajar con internacionalización y 
+externalización de cadenas de caracteres, a fin de no tener que embeber texto en el código.
+
