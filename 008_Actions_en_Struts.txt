@@ -10,3 +10,33 @@ y cómo interactúan con la vista, usando tags propios de Struts.
 
 PROGRAMAR EL CONTROLADOR
 
+En el capítulo anterior vimos que un ActionForm es como un Firewall entre el pedido
+que hace el cliente y el servidor: no deja pasar información no deseada, y la que pasa
+debe ser validada.
+
+Las clases Action hacen las veces de interfaces entre el pedido HTTP que efectúa el cliente
+y las clases que han de efectuar la lógica subyacente. Bien podríamos realizar todas las operaciones
+dentro del código en los Actions, pero esto implica mezclar responsabilidades: la lógica estará 
+altamente atada al entorno web (y en particular a Struts) y no podremos reutilizar componentes de software.
+
+Una buena práctica de programación web es programar los Actions como adaptadores entre objetos propios
+del entorno web y de Struts (HttpServletRequest, ActionForward, etc) y los JavaBeans. Deben recibir la información
+proveniente de las páginas, validarla, procesarla y enviársela a los JavaBeans para que hagan lo suyo. 
+Finalmente, envían el resultado a la vista, en donde ésta consultará a los beans su estado para mostrar 
+al cliente una página web.
+
+
+                                     [ JavaBean ]
+                                    /
+[ Cliente ] --pedido---> [ Action ] -> [ JavaBean ]
+                                    \
+                                      [ JavaBean ]
+
+Figura 1. Aislar los JavaBeans del entorno web nos permite su fácil reutilización en otros entornos.
+
+Struts reutiliza las instancias de las clases Action que definamos para manejar pedidos simultáneos, 
+por eso debemos programar las Action de forma segura a la ejecución concurrente: las variables 
+(tanto de instancia como de clase) no deben usarse para mantener información del estado actual del pedido,
+y el acceso a recursos externos debe estar sincronizado si dicho recurso lo requiriera. 
+
+Configurar un Action
