@@ -594,4 +594,98 @@ Vemos que en el formulario usamos tags propios de Struts para mantener el estado
 (entre otras cosas). En los próximos capítulos veremos todos los tags que Struts provee y sus explicaciones.
 
 ALTERNATIVAS 
+A medida que nuestra aplicación web va creciendo, también lo hace la cantidad de clases ActionForm. 
+Si usamos la funcionalidad de Struts para validación (Struts Validator, Capítulo 7), entonces 
+nuestras clases se convierten en objetos JavaBean que son meramente un repositorio de propiedades
+con métodos accesores y que no aportan funcionalidad. En estos casos, es conveniente buscar una alternativa,
+en vez de tener que crear una clase con sus propiedades y accesores por cada formulario que necesitemos.
 
+DynaActionForm
+Si no aportamos funcionalidad a los forms, éstos terminan cumpliendo con el papel de un diccionario o mapa: 
+una colección de campos con sus respectivos valores. Struts provee la clase DynaActionForm, que se comporta
+de esta manera, ahorrándonos el trabajo de escribir forms por doquier.
+
+Para usar este tipo de forms simplemente necesitamos definirlos en el archivo struts-config.xml y declarar sus propiedades.
+Por ejemplo: 
+
+<form-bean name = "datosForm" type = "org.apache.struts.action.DynaActionForm">
+	<form-property name = "nombre" type = "java.lang.String" />
+	<form-property name = "edad" type = "java.lang.Integer" />
+	<form-property name = "fumador" type = "java.lang.Boolean" />
+</form-bean>
+
+Esta definición podría reemplazar a la clase DatosForm que definimos al principio
+del capítulo, aunque con este DynaActionForm perdemos la validación. Si bién la clase DynaActionForm
+permite tipos primitivos en sus propiedades, si se intenta asignarles un valor nulo obtendremos una excepción,
+por lo que es conveniente usar siempre objetos.
+
+Las opciones del elemento form-property son:
+
+· className: nombre de la clase que configura este elemento. Es un atributo que funciona igual que en la definición
+de un form-bean. La superclase que deben extender las clases de definición de propiedades es org.apache.struts.config.FormPropertyConfig.
+
+· initial: valor inicial que tomará esta propiedad (representada por una cadena de texto). Si omitimos este valor,
+la propiedad será creada usando el constructor sin argumentos de la clase.
+
+· name: es el nombre de la propiedad.
+
+· size: es el número de elementos a crear si el tipo de esta propiedad es un arreglo y no se especificó un valor inicial de creación.
+
+· type: es el nombre de la clase que instanciará el bean.
+
+Los arreglos son necesarios cuando el usuario tiene que elegir una cantidad de items de una lista múltiple.
+
+Lo bueno de los DynaActionForm es que no necesitamos modificar nada de código para acceder a ellos
+en las páginas JSP. Si estamos migrando viejos ActionForm a DynaActionForm, sí tenemos que modificar 
+ligeramente la forma de acceder a las propiedades. El método para obtener los valores de los campos en un 
+DynaActionForm es
+
+public Object get(String name)
+
+El parámetro corresponde al nombre de la propiedad a acceder y el resultado es el valor de dicha propiedad.
+
+La ventaja principal de usar DynaActionForm es prescindir de escribir una clase completa para cada formulario web
+que necesitemos. Sin embargo, este cambio no es gratis. Entre sus desventajas podemos nombrar:
+
+· El método get devuelve un Object, lo cual implica que debemos castear el resultado.
+Al ser el casteo dinámico, no se lo puede predecir en tiempo de compilación, y si cometimos un error,
+nos enteraremos (eventualmente) en tiempo de ejecución.
+
+· Lo mismo ocurre con el nombre del campo. Podemos equivocarnos en el nombre y el compilador interpretará 
+una llamada a función totalmente válida, solamente al ejecutar nos enteraremos del error.
+
+Pese a estas dificultades, utilizar DynaActionForm es muy conveniente cuando el formulario precisa
+validaciones simples que pueden ser implementadas mediante el uso de Struts Validator.
+
+LazyValidatorForm
+Esta clase se basa en la clase LazyDynaBean, un bean dinámico como el usado por DynaActionForm, pero con 
+la posibilidad de agregarle y quitarle elementos en tiempo de ejecución, lo cual nos libera de tener que definir
+las propiedades del form en el archivo struts-config.xml.
+
+Aunque no es necesario, es conveniente declarar los arreglos que vallamos a usar, poruqe si no lo hacemos,
+puede haber complicaciones al usar esta clase en conjunto con el validador de Struts.
+
+Ante la ventaja de no tener que declarar las propiedades de los formularios, tenemos la desventaja de que
+LazyDynaBean no sabe los tipos que queremos asignarle, por lo que al recibir cadenas de texto, siempre tendremos
+cadenas de texto y no hará conversiones de tipo.
+
+Esto podría ser un inconveniente si no dependemos de las conversiones de tipo y usamos las propiedades de los
+forms siempre como objetos de tipo String.
+
+¿Lazy Validator?
+El lector habrá notado que las otras clases eran ActionForm, DynaActionForm y ahora esta clase no se llama,
+como podríamos asumir, LazyActionForm, sino LazyValidatorForm. ¿Porqué? De hecho, tanto ActionForm como DynaActionForm 
+tienen de sublcases a ValidatorForm y DynaActionForm respectivamente.
+
+Estas clases (adivinaron) están relacionadas con el uso del validador de Struts. En el 
+Capítulo dedicado a validación veremos que tendremos que usar ValidatorForm o DynaValidatorForm si queremos
+usar dicho paquete.
+
+El autor de LazyValidatorForm implementó directamente la versión que funciona con validador. 
+A causa de esto, es posible que un ejemplo que use LazyValidatorForm no funcione si no está definido 
+el plugin de Struts Validator.
+
+RESUMEN 
+Vimos en este Capítulo qué son los ActionForms, su importancia dentro de Struts y cómo son utilizados
+para obtener información del usuario en una form portable y elegante. También vimos la manera de validar
+los datos que el usuario ingresa y alternativas para no tener que escribir una clase por cada formulario.
