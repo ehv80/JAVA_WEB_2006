@@ -1,0 +1,12 @@
+PROGRAMACIÓN WEB JAVA
+
+CAPÍTULO 6
+
+Actions en Struts
+
+Habiendo visto ActionForms, el próximo paso es tratar los Actions en Struts.
+En este Capítulo veremos para qué sirven, cómo programarlos, diversas alternativas
+y cómo interactúan con la vista, usando tags propios de Struts.
+
+PROGRAMAR EL CONTROLADOR
+
