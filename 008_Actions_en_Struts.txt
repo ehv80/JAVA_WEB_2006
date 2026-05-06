@@ -116,3 +116,36 @@ Este ejemplo sirve para manejar todos los pedidos que Struts reciba y no tengan 
 y redirigirlos a una página JSP donde se muestre un mensaje de error.
 
 ActionForward
+Todo elemento Action puede tener opcionalmente un conjunto de elementos que describan ActionForward, 
+los cuales pueden ser accedidos desde el Action para comunicarle al controlador hacia dónde debe seguir
+el flujo de la acción. Un ActionForward es una clase que contiene información sobre hacia dónde debe enviár
+el pedido el controlador como resultado de una acción.
+
+Los tres atributos elementales para definir un ActionForward son:
+
+· name: nombre que queramos darle al ActionForward.
+
+· path: dirección de destino.
+
+· redirect: si este atributo toma valor true, entonces un nuevo pedido será emitido para acceder al
+destino de este ActionForward.
+
+Al emitirse un nuevo pedido para el destino del ActionForward, estamos perdiendo todos los datos
+que el pedido actual tenía. Datos de formularios, datos guardados por un Action, etc., se pierden.
+Esto puede ser beneficioso o perjudicial. Si necesitamos algo de esta información para poder construir
+la vista, obtendremos un error o bien la vista estará incompleta. El hecho de emitir un nuevo pedido es
+útil para cuando el usuario efectúa una acción con efectos colaterales y no queremos que la repita por error.
+Por ejemplo, transfirió una cantidad de plata entre cuentas de un banco. En este caso, la acción fue 
+"transferir X cantidad de dinero entre cuenta A y cuenta B", que como resultado final tuvo un 
+ActionForward a una página que confirmó la operación. Si el usuario, accidentalmente o no, presionara el 
+botón de recargar página en el navegador, estaría reenviando el pedido de transferir nuevamente el efectivo,
+algo que dudosamente sea lo que él quiera. Si el ActionForward de la operación de transferencia hacia la 
+página que muestra que se efectuó correctamente emite un nuevo pedido, entonces el último pedido será 
+"ir hasta la página de confirmación", y no habría problemas si el usuario recarga la página.
+
+Ejemplos de ActionForward:
+
+<forward name = "pedido" path = "/jsp/bla.jsp" />
+<forward name = "confirmacion" path = "/jsp/confirm.jsp" redirect = "true" />
+
+Actions para todos
