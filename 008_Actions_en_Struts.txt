@@ -149,3 +149,78 @@ Ejemplos de ActionForward:
 <forward name = "confirmacion" path = "/jsp/confirm.jsp" redirect = "true" />
 
 Actions para todos
+El paquete org.apache.struts.actions provee varias subclases de Action con diversas funcionalidades
+comunes ya implementadas. 
+
+Como ya vimos, Struts invoca el método execute dentro de los objetos Action.
+Esto implica que debemos crear una clase para cada acción. Sería más conveniente poder tener 
+varias acciones dentro de un mismo objeto Action, de forma de agrupar las acciones según lo
+que realicen. Las clases DispatchAction y sus subclases sirven exactamente para esto.
+
+DispatchAction
+DispatchAction llama al método según el valor de un parámetro del pedido, cuyo nombre es especificado
+por la propiedad parameter en el elemento action del archivo struts-config.xml. ¿Confuso?
+
+Veámoslo en la práctica. Recordemos que uno de los atributos del elemento action era parameter, 
+cuya función era ser de uso general para pasar información extra al objeto Action. En este caso vamos 
+a hacer uso de ese parámetro.
+
+Declaramos una acción en el archivo struts-config.xml 
+
+<action
+    path = "/cuentas"
+    type = "CuentaAction"
+    name = "cuentaForm"
+    scope = "request"
+    parameter = "metodo"
+/>
+
+Definimos la clase Actions/WEB-INF/src/CuentaAction.java
+
+"
+//package Actions.WEB-INF.src;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.DispatchAction;
+
+public class CuentaAction extends DispatchAction {
+
+    public ActionForward depositar(ActionMapping map, ActionForm form,
+            HttpServletRequest req, HttpServletResponse res)
+            throws Exception {
+        // Lógica para depositar dinero en la cuenta
+        return map.findForward("success");
+    }
+
+    public ActionForward extraer(ActionMapping map, ActionForm form,
+            HttpServletRequest req, HttpServletResponse res)
+            throws Exception {
+        // Lógica para retirar dinero de la cuenta
+        return map.findForward("success");
+    }
+}
+"
+
+Y he aquí una página JSP minimalista que interactúa con esta acción:
+Actions/jsp/Movimientos.jsp
+
+"
+<a href="cuentas.do?metodo=depositar">Depositar</a>
+<br />
+<a href="cuentas.do?metodo=extraer">Extraer</a>
+<br />
+<a href="cuentas.do">Error!</a>
+"
+
+Al acceder a esta acción, Struts buscará el parámetro de nombre metodo en el pedido,
+obtendrá su valor y llamará al método de ese nombre. Si el parámetro no existe o si el 
+valor del parámetro no coincide con ningún método, obtendremos una excepción. Es importante
+destacar que no alcanza con que el método coincida con el nombre, también debe coincidir con 
+los parámetros recibidos. Por eso, al implementar estos métodos debemos asegurarnos de respetar la 
+aridad del método execute.
+
