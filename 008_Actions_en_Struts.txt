@@ -40,3 +40,79 @@ por eso debemos programar las Action de forma segura a la ejecución concurrente
 y el acceso a recursos externos debe estar sincronizado si dicho recurso lo requiriera. 
 
 Configurar un Action
+Veamos las opciones que tenemos para configurar un Action. Los siguientes son algunos atributos posibles del
+elemento action en el archivo struts-config.xml:
+
+· attribute: es el nombre que queramos darle al ActionForm para ser guardado en el pedido o en la sesión.
+Si no especificamos este atributo, se usará el nombre del ActionForm tal como aparece en el atributo name.
+
+· forward: es la dirección del recurso (puede ser otro Action, un JSP, un Servlet o cualquier otro recurso 
+que pueda manejar el pedido) que se encargará de procesar este pedido.
+
+· include: es la dirección del recurso que se ha de incluir en la respuesta que genere este pedido.
+La diferencia de funcionalidad entre estos dos últimos atributos es en cierta forma similar a los distintos 
+tipos de inclusión que existen en las páginas JSP. Usando forward estamos creando una acción que envía el pedido
+al recurso que especifiquemos, y ese recurso se encargará de procesarlo y generar la respuesta.
+En cambio, si usamos include, estamos incluyendo en nuestra respuesta el resultado que genere el recurso especificado,
+pero no estamos derivando completamente el pedido a dicho recurso.
+
+· type: nombre completo de la subclase de org.apache.struts.action.Action que procesará los pedidos que este 
+elemento describe. 
+En cada elemento action los atributos forward, include, y type son excluyentes entre sí, sólo puede haber uno de ellos.
+
+· input: dirección del recurso a invocar si el ActionForm asociado al elemento (de existir) reporta errores de validación.
+
+· name: nombre del form-bean asociado (tal como fue definido dentro del elemento form-beans), si hubiere.
+
+· path: dirección que este elemento procesará.
+
+· parameter: parámetro de uso general, utilizado para pasar información extra al Action. 
+Podemos, por ejemplo, crear una clase llamada BDAction y que tome de este parámetro el nombre 
+de la conexión a la base de datos. Luego, las acciones que requieran conexión a una base simplemente extenderán a
+esta clase BDAction.
+
+· scope: contexto en donde reside el form-bean: request o session (Discutido en el Capítulo 5).
+
+· unknown: marcador (sólo puede tomar valores true o false) usado para configurar la acción ejecutada por defecto. 
+Si se recibe un pedido que no está asociado con ninguna acción, el usuario recibirá un error de parte de Struts.
+Si declaramos una acción con el atributo unknown en verdadero, será la acción por defecto en estos casos; esto es útil
+para mostrar al usuario un mensaje de error agradable o redirigirlo a una página de navegación. Sólo puede haber una acción
+con este atributo con valor true. 
+
+· validate: marcador (sólo puede tomar valores true o false) usado para indicar si el form-bean debe ser validado antes
+de ser enviado al objeto Action y éste, ejecutado. Por defecto, este atributo lleva valor true.
+
+En todos los atributos en los que hemos de especificar direcciones, éstas deben empezar con una barra (/).
+
+Veamos algunos ejemplos de configuraciones, con sus respectivas explicaciones:
+
+<action 
+    path = "/formulario"
+    forward = "/jsp/formulario.jsp">
+
+Un elemento simple que asocia una acción directamente con una página JSP. Este tipo de configuración 
+es útil para esconder las páginas JSP detrás de acciones, una buena práctica por temas de seguridad (que veremos luego).
+
+<action 
+    path = "/footer"
+    include = "/jsp/comun/footer.jsp">
+
+Similar al anterior pero usando include, este ejemplo es de utilidad para pies de página o 
+elementos que se repiten mucho, de nuevo esondiendo las páginas JSP de la interacción directa con el usuario.
+
+<action 
+    path = "/accionXYZ"
+    name = "xyzForm"
+    validate = "false"
+    input = "xyz.jsp"
+    type = "xyz.XYZAction">
+
+En este ejemplo, declaramos que el bean no debe ser validado, sin embargo, estamos definiendo la página 
+donde debe reenviarse en caso de que la validación falle. Si bien la página no será accedida nunca, esto es sintácticamente correcto.
+
+<action path = "/" unknown = "true" forward = "/jsp/error.jsp" />
+
+Este ejemplo sirve para manejar todos los pedidos que Struts reciba y no tengan asociados un elemento Action 
+y redirigirlos a una página JSP donde se muestre un mensaje de error.
+
+ActionForward
