@@ -224,3 +224,60 @@ destacar que no alcanza con que el método coincida con el nombre, también debe
 los parámetros recibidos. Por eso, al implementar estos métodos debemos asegurarnos de respetar la 
 aridad del método execute.
 
+MappingDispatchAction
+En este caso, no necesitamos de un parámetro en el pedido, el método a ser llamado
+simplemente es el valor del atributo parameter. El ejemplo anterior usando MappingDispatchAction sería así: 
+
+<action 
+    path = "/extraccionCuentas"
+    type = "CuentaAction"
+    name = "cuentaForm"
+    scope = "request"
+    parameter = "extraer"
+/>
+
+<action
+    path = "/depositoCuentas"
+    type = "CuentaAction"
+    name = "cuentaForm"
+    scope = "request"
+    parameter = "depositar"
+/>
+
+La clase no varía, sigue teniendo los dos métodos con los mismos nombres
+y la pequeña página JSP de movimientos sería así: 
+
+<a href="depositoCuentas.do">Depositar</a>
+<br/>
+<a href="extraccionCuentas.do">Extraer</a>
+<br/>
+
+ForwardAction, IncludeAction
+Estas dos clases proveen la misma funcionalidad que los atributos forward e include 
+en los elementos action. En ambos casos, el valor del atributo parameter indica el 
+recurso a redirigir o incluir (respectivamente).
+En concreto, los siguientes ejemplos son equivalentes:
+
+<action
+    path = "/verFormulario"
+    forward = "/jsp/formulario.jsp" >
+
+<action
+    path = "verFormulario"
+    type = "org.apache.struts.actions.ForwardAction"
+    parameter = "/jsp/fomulario.jsp" />
+
+
+Igualmente para el caso de IncludeAction:
+
+<action
+    path = "/footer"
+    include = "/jsp/comun/footer.jsp" >
+
+<action
+    path = "/footer"
+    type = "org.apache.struts.actions.IncludeAction"
+    parameter = "/jsp/comun/footer.jsp" >
+
+DownloadAction
+ 
