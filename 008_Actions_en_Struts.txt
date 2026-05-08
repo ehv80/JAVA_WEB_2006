@@ -280,4 +280,166 @@ Igualmente para el caso de IncludeAction:
     parameter = "/jsp/comun/footer.jsp" >
 
 DownloadAction
- 
+Esta clase brinda la funcionalidad básica para manejar la descarga de archivos por parte del usuario.
+Usar Struts en lugar de crear directamente un enlace al archivo que se descargará, nos sirve para no 
+revelarle al usuario la ubicación del archivo y, fundamentalmente, para poder realizar comprobaciones
+(típicamente permisos) antes de permitir la descarga, además del hecho de que un enlace es estático y,
+usando este enfoque, la ubicación del archivo (incluso el contenido mismo del archivo) se puede obtener dinámicamente.
+
+DownloadAction es una clase abstracta; nuestra subclase debe implementar el método abstracto getStreamInfo y, 
+opcionalmente, getBufferSize.
+
+· getBufferSize: simplemente devuelve un entero con el tamaño del buffer a ser usado por el Servlet 
+al transferir la información al cliente.
+
+· getStreamInfo: devuelve un objeto con la información sobre los datos a transferir. 
+Este método devuelve un objeto de tipo DownloadAction.StreamInfo, que es una Interfaz. 
+Los dos métodos que declara esta Interfaz son:
+
+String getContentType()
+Con este método le informamos al cliente (el navegador web) el tipo de archivo que estamos enviando.
+
+InputStream getInputStream()
+Aquí definimos la fuente de los datos a enviar.
+
+La clase DownloadAction provee dos clases estáticas que implementan esta Interfaz, listas para ser usadas.
+Veamos sus constructores que, fundamentalmente, son todo lo que necesitamos de ellas:
+
+DownloadAction.FileStreamInfo(String contentType, java.io.File file)
+
+DownloadAction.ResourceStreamInfo(String contentType, ServletContext context, String path)
+
+En el primer caso proveemos el contentType y luego, un objeto File con el archivo que se descargará.
+Esto es útil para archivos fijos y no variables, ya que debemos proveer una dirección absoluta.
+
+En el segundo caso, además del contentType, debemos proveer el contexto del Servlet y una dirección relativa.
+Este caso es más útil para devolver recursos de la aplicación web, ya que estamos limitados en las direcciones a usar.
+
+Veamos tres ejemplos, uno usando FileStreamInfo, otro con ResourceStreamInfo y uno implementando nosotros mismos la Interfaz.
+
+Archivo: Actions/WEB-INF/src/DownloadFileAction.java 
+"
+//package Actions.WEB-INF.src;
+
+import java.io.File;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.DownloadAction;
+
+public class DownloadFileAction extends DownloadAction {
+
+    @Override
+    protected StreamInfo getStreamInfo(ActionMapping map, ActionForm form, HttpServletRequest req,
+            HttpServletResponse res) throws Exception {
+        // String filePath = request.getParameter("filePath");
+        // File file = new File(filePath);
+        // if (!file.exists() || !file.isFile()) {
+        // throw new Exception("File not found: " + filePath);
+        // }
+        return new FileStreamInfo("image/gif", new File("C:/Users/ehv80/Desktop/logo.gif"));
+    }
+}
+
+"
+
+Archivo: Actions/WEB-INF/src/DownloadResourceAction.java 
+"
+//package Actions.WEB-INF.src;
+
+import java.io.File;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.DownloadAction;
+
+public class DownloadResourceAction extends DownloadAction {
+
+    @Override
+    protected StreamInfo getStreamInfo(ActionMapping map, ActionForm form, HttpServletRequest req,
+            HttpServletResponse res) throws Exception {
+        // String filePath = request.getParameter("filePath");
+        // File file = new File(filePath);
+        // if (!file.exists() || !file.isFile()) {
+        // throw new Exception("File not found: " + filePath);
+        // }
+        return new ResourceStreamInfo("application/pdf", getServlet().getServletContext(),
+                "C:/Users/ehv80/Desktop/mapreduce.pdf");
+    }
+
+    // Este archivo es grande, agrandamos el buffer
+    protected int getBufferSize() {
+        return 8192;
+    }
+}
+
+"
+
+Archivo: Actions/WEB-INF/src/DownloadCustomAction.java 
+"
+//package Actions.WEB-INF.src;
+
+import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.DownloadAction;
+
+public class DownloadCustomAction extends DownloadAction {
+    @Override
+    protected StreamInfo getStreamInfo(ActionMapping map, ActionForm form, HttpServletRequest req,
+            HttpServletResponse res) throws Exception {
+        // String content = "Este es un archivo de texto generado dinámicamente.";
+        // InputStream inputStream = new
+        // ByteArrayInputStream(content.getBytes("UTF-8"));
+        // return new InputStreamStreamInfo("text/plain", inputStream, "archivo.txt");
+
+        // Una clase interna que implemente la interfaz
+        return new StreamInfo() {
+            @Override
+            public String getContentType() {
+                return "text/plain";
+            }
+
+            @Override
+            public InputStream getInputStream() throws IOException {
+                String texto = "Texto a devolver";
+                // String content = "Este es un archivo de texto generado dinámicamente.";
+                return new ByteArrayInputStream(texto.getBytes());
+            }
+
+            // @Override
+            // public String getFileName() {
+            // return "archivo.txt";
+            // }
+        };
+    }
+
+    // Este archivo es pequeño, no necesitamos un buffer grande
+    // protected int getBufferSize() {
+    // return 1024;
+    // }
+
+}
+
+"
+
+Como vemos en estos ejemplos, con poco código podemos enviar al usuario directamente archivos que podrán ser guardados
+o manejados por el navegador y quizá mostrados directamente (muchos navegadores web modernos tienen funcionalidades para
+manejar archivos PDF, por ejemplo). En la práctica, las acciones de descarga de archivos van asociadas con restricciones
+al usuario y, además, por lo general el archivo o contenido a descargar es dinámico.
+
+LocaleAction
+
