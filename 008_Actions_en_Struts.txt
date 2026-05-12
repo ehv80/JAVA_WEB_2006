@@ -442,4 +442,35 @@ manejar archivos PDF, por ejemplo). En la práctica, las acciones de descarga de
 al usuario y, además, por lo general el archivo o contenido a descargar es dinámico.
 
 LocaleAction
+Esta acción nos permite cambiar el Locale del usuario. Por defecto, Struts configura un Locale basándose en propiedades enviadas
+por el navegador. En muchos casos, el usuario no configuró su navegador para elegir su idioma o está en otra máquina, 
+o simplemente quiere cambiar el idioma de navegación. Con esta acción, podemos cambiar fácilmente el objeto Locale que Struts
+guarda internamente, y si nuestra aplicación soporta internacionalización, cambiaremos el idioma en el que el usuario navega.
 
+Esta acción se define normalmente en el archivo struts-config.xml. Al ejecutarse, busca en el pedido los parámetros language, country y page.
+
+Los valores de language y country definen el nuevo Locale. El parámetro page define la página adonde dirigirse luego del cambio de Locale.
+Si el parámetro page no existiera, se redirecciona el ActionForward de nombre success. Dado este funcionamiento, es altamente recomendable
+definir un ActionForward de salida con ese nombre si pensamos usar esta acción: aunque siempre pasemos el parámetro page, nos resguarda de 
+posibles errores al hacer cambios o adpataciones.
+
+Un uso típico de esta clase es el siguiente. Definimos la acción en el archivo struts-config.xml: 
+
+<action
+    path = "/cambiarIdioma"
+    type = "org.apache.struts.actions.LocaleAction"
+    scope = "request">
+    <forward name = "success" path = "/index.jsp" />
+</action>
+
+Y la llamamos desde una página JSP:
+
+<a href = "cambiarIdioma.do?language=es">Espa&tilde;ol</a>
+<a href = "cambiarIdioma.do?language=en&country=za">South African English</a>
+<a href = "cambiarIdioma.do?language=en&country=uk">British English</a>
+
+En este caso, no usamos el parámetro page, y el cambio de idioma siempre vuelve a la página de inicio.
+Si estas opciones estuvieran en varios lados, volver siempre a la página de incio sería muy molesto para el
+usuario, y convendría mantener la páginca con el idioma cambiado.
+
+Envíos duplicados
