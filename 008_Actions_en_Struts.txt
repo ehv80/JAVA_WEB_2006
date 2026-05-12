@@ -474,3 +474,139 @@ Si estas opciones estuvieran en varios lados, volver siempre a la página de inc
 usuario, y convendría mantener la páginca con el idioma cambiado.
 
 Envíos duplicados
+En la programación web el tiempo de respuesta puede demorar bastante por el tráfico, congestiones, servidores saturados y demás 
+causas posibles. Esto trae a colación el problema del envío duplicado de un pedido. Este problema ocurre cuando el usuario 
+envía el pedido y, antes de que el servidor pueda responderle, vuelve a enviar el pedido. Típicamente, esto ocurre si hace 
+doble click en el botón para enviar un formulario, o si luego de enviarlo y no obtener respuesta por unos segundos, vuelve a presionar
+el botón pensando que primeramente no había sido enviado. Esta situación puede ser inofensiva en muchos casos, pero volviendo al ya clásico
+ejemplo de la transferencia bancaria, el usuario estará transfiriendo el doble (o más) de la suma que realmente quiere transferir.
+
+Del lado del cliente, podemos evitar esto usando JavaScript para deshabilitar el botón de envío una vez que fue presionado por primera vez.
+Es de utilidad, pero no todos los navegadores web soportan JavaScript, y además el usuario puede tener JavaScript deshabilitado en 
+su navegador web.
+
+Para una solución segura, debemos prevenir esta situación en el servidor, y Struts nos brinda la funcionalidad necesaria.
+
+La idea es grabar una marca en la sesión cuando mostramos la página que queremos proteger; luego, la acción que la procesa
+busca esa marca. Si está, la quita y sigue procesando. Bajo este protocolo, sólo la primera acción que procese la página podrá
+procesar los datos, los pedidos, subsiguientes no encontrarán la marca en la sesión.
+
+Un ejemplo puntual para ilustrar con código:
+
+Definimos dos acciones (el ActionForm no tiene mucha importancia en este ejemplo, puede ser un LazyValidatorForm). 
+Una muestra el formulario y la otra lo procesa.
+
+<action 
+    path = "/verFormulario"
+    type = "verFormularioAction"
+    name = "otroForm"
+    scope = "request">
+    <forward name = "ok" path = "/jsp/form.jsp" />
+</action>
+
+<action 
+    path = "/procesarFormulario"
+    type = "procesarFormularioAction"
+    name = "otroForm"
+    scope = "request">
+    <forward name = "ok" path = "/jsp/form_ok.jsp" />
+    <forward name = "mal" path = "/jsp/form_mal.jsp" />
+</action>
+
+En general usaríamos un ForwardAction o una definición con atributo forward para el primer caso,
+ya que todo lo que tiene que hacer es redirigir hacia el JSP. Pero en este caso no alcanza con eso,
+pues hay funcionalidad, tenemos que guardar la marca en la sesión.
+
+Archivo Actions/WEB-INF/src/verFormularioAction.java 
+
+"
+//package Actions.WEB-INF.src;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+//import org.apache.struts.action.DispatchAction;
+
+public class verFormularioAction extends Action {
+    @Override
+    public ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest req, HttpServletResponse res)
+            throws Exception {
+
+        /* Guardamos la marca en la sesión para proteger la página */
+        saveToken(req);
+
+        // Mostramos el JSP
+        return map.findForward("ok");
+    }
+
+}
+
+"
+
+Archivo Actions/WEB-INF/src/procesarFormularioAction.java
+
+"
+//package Actions.WEB-INF.src;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+// import org.apache.struts.action.DispatchAction;
+
+public class ProcesarFormularioAction extends Action {
+    @Override
+    public ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest req, HttpServletResponse res)
+            throws Exception {
+
+        /* La marca es válida */
+        if(isTokenValid(req)) {
+            // Invalidamos la marca para evitar reenvíos
+            resetToken(req);
+
+            // Procesamos el formulario
+            //String nombre = req.getParameter("nombre");
+            //String email = req.getParameter("email");
+
+            // Guardamos los datos en la sesión para mostrarlos en el JSP
+            //req.getSession().setAttribute("nombre", nombre);
+            //req.getSession().setAttribute("email", email);
+            return map.findForward("ok");
+        }
+        else {
+            // La marca no es válida, redirigimos a la página de error
+            return map.findForward("mal");
+        }
+    }
+
+}
+"
+
+La página JSP no necesita ninguna modificación para soportar esta funcionalidad. Sí es necesario que use 
+el tag <html:form> de Struts para crear el formulario. Struts automáticamente agregará un campo oculto con la marca
+guardada para luego poder ser revisada por la acción.
+
+Los métodos de la clase Action a destacar son: 
+
+void saveToken(HttpServletRequest request)
+guarda la marca en la sesión del usuario
+
+void resetToken(HttpServletRequest request)
+borra la marca de la sesión.
+
+boolean isTokenValid(HttpServletRequest request)
+Devuelve true si la marca está en la sesión y coincide con la que fue enviada previamente por el formulario.
+
+boolean isTokenValid(HttpServletRequest request, boolean reset)
+Ídem método anterior. El segundo parámetro indica que la marca debe borrarse instantáneamente luego de ser consultada.
+Este método es útil para evitar que dos pedidos accedan concurrentemente a una acción y ambos vean la marca en la 
+sesión antes de poder borrarla.
+
+Cancelación de la acción
