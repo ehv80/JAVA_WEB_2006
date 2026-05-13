@@ -610,3 +610,105 @@ Este método es útil para evitar que dos pedidos accedan concurrentemente a una
 sesión antes de poder borrarla.
 
 Cancelación de la acción
+En ocasiones es conveniente dar al usuario la opción de cancelar la acción que está realizando.
+En Struts, es muy fácil de desarrollar. En la Vista, generamos un botón de cancelación usando el tag <html:cancel>
+(explicado en el Capítulo 7). Al presionarse este botón, se envía el formulario sin validarse. Esto es lógico, ya que
+si el usuario quiere cancelar la acción, no vamos a obligarlo a completar todos los campos y con los formatos necesarios.
+
+Nuestra acción, sin embargo, seguramente dependerá de datos validados, por lo que tendremos que ser precavidos
+para manejar este tipo de casos.
+
+En la clase Action tenemos el método:
+
+boolean isCancelled(HttpServletRequest request)
+
+Dicho método devuelve verdadero si se llegó a esta acción por medio de un botón de cancelación. 
+Un ejemplo de esqueleto de Action que maneje cancelaciones es el siguiente:
+
+public ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest req, HttpServletResponse res) throws Exception {
+    if(iscancelled(req))
+    {
+        // Acción cancelada
+        return map.findForward("cancelado");
+    }
+    else
+    {
+        // Ejecutamos la acción
+        // ...
+    }
+}
+
+Errores y mensajes
+Desde nuestra acción podemos enviar mensajes al cliente. Estos mensajes pueden ser advertencias, errores de validación complejos, etc.
+Los métodos de la clase Action son:
+
+void addErrors(HttpServletRequest request, ActionMessages errors)
+void addMessages(HttpServletRequest request, ActionMessages messages)
+
+Agrega los mensajes/errores al pedido
+
+
+void saveErrors(HttpServletRequest request, ActionMessages errors)
+void saveMessages(HttpServletRequest request, ActionMessages messages)
+
+Guarda los mensajes/errores en el pedido, reemplazando lo que ya hubiera.
+
+
+void saveErrors(HttpSession session, ActionMessages errors)
+void saveMessages(HttpSession session, ActionMessages messages)
+
+Guarda los mensajes/errores en la sesión, reemplazando lo que ya hubiera.
+
+ActionMessages getErrors(HttpServletRequest request)
+ActionMessages getMessages(HttpServletRequest request)
+
+Devuelve los mensajes/errores que hay guardados en el pedido. Este método puede servir tanto para 
+usar al final de la acción y determinar la página adonde redirigir el pedido, como para ver si alguna
+acción anterior a ésta ha guardado mensajes.
+
+Veamos un ejemplo de uso: 
+
+public ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest req, HttpServletResponse res) throws Exception {
+
+    ActionErrors errores = new ActionErrors();
+
+    String param1 = form.getParam1();
+    String param2 = form.getParam2();
+
+    // Validamos el primer parámetro
+    if(param1 invalido)
+    {
+        ActionMessage errParam1 = new ActionMessage("param1.invalido");
+        errores.add("param1", errParam1);
+    }
+
+    // Validamos el segundo parámetro
+    if(param2 invalido)
+    {
+        ActionMessage errParam2 = new ActionMessage("param2.invalido");
+        errores.add("param2", errParam2);
+    }
+
+    // Vemos si tenemos algún error
+    if(errores.isEmpty())
+    {
+        // Realizamos operaciones en el modelo
+        // ...
+        // Devolvemos la Vista
+        return map.findForward("ok");
+    }
+    else
+    {
+        /* Hay errores, devolvemos la Vista a la página para que el usuario los corrija */
+        return map.getInputForward();
+    }
+}
+
+getInputForward es un método de la clase ActionMapping que devuelve un ActionForward con el valor del 
+atributo input de la acción. 
+
+
+RESUMEN 
+En este capítulo pudimos conocer a fondo los objetos Action, su funcionamiento, su función en el Modelo MVC y 
+su interacción con los demás componentes. Vimos cómo prevenir el problema del envío duplicado y cómo enviar 
+mensajes y errores desde la acción para validaciones complejas.
