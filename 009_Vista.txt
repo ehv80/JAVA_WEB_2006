@@ -1,0 +1,77 @@
+PROGRAMACIÓN WEB JAVA
+CAPÍTULO 7
+VISTA
+
+Ya sabemos cómo programar el controlador y configurarlo, ahora es momento de programar la vista.
+En las próximas páginas veremos cómo generar páginas JSP con tags de Struts y sus utilidades.
+
+HASTA LA VISTA, BABY
+
+Es momento de concentrarnos en la tercera pata del Modelo MVC: la Vista. En este caso, consiste en
+generar páginas HTML mediante el uso de JSP. Una vez más, recordemos que si bien Struts brinda muchas
+herramientas y funcionalidades para facilitar la creación de la Vista con JSP, no es la única forma
+de crear páginas HTML, ya que trae también soporte (aunque menor) para otras formas como Velocity, XSL, etc.
+
+Tags de Struts
+Struts define varios tags propios para la creación de la Vista. Dichos tags, además de agregar funcionalidad,
+también nos permiten completar automáticamente campos al cargar una página, cambiar el estilo a un formulario si ocurrió
+un error, cargar opciones de colecciones, etc.
+
+En el Capítulo 4 definíamos en el archivo web.xml un conjunto de descriptores de los tags de Struts, del estilo:
+
+<taglib>
+    <taglib-uri>/tags/struts-html</taglib-uri>
+    <taglib-location>/WEB-INF/struts-html.tld</taglib-location>
+</taglib>
+
+Esta configuración asocia la ubicación de los descriptores de los tags (que definen los posibles parámetros de entrada y la clase que los 
+implementa, entre otras cosas) con un identificador. Este identificador es el que debemos usar en las páginas JSP para indicarle al 
+motor JSP (en el caso de Tomcat, será Jasper 2) dónde buscar las definiciones y clases de los tags. Por ejemplo:
+
+<%@ taglib uri="/tags/struts-html" prefix="html" %>
+
+En este caso, el atributo uri debe coincidir con algún elemento taglib-uri definido en el archivo web.xml. 
+El atributo prefix indica el prefijo a usar dentro de la página.
+
+Errores en los tags:
+La mayoría de los tags de Struts están definidos para arrojar una Excepción del tipo JspException en caso de error.
+Por esa razón es muy importante declarar una página de error (en la directiva <%@ page %>) de la página JSP para poder 
+procesar estas excepciones cuando ocurran.
+
+BEAN TAGS 
+EStos tags son útiles para el manejo de JavaBeans. Si bien JSP provee por defecto tags para el manejo de beans, los tags de Struts 
+brindan funcionalidad extra que es de mucha utilidad en el manejo de componentes JavaBean.
+
+Acceso a propiedades de beans
+Los tags de beans de Struts poseen una sintaxis que permite el acceso a propiedades simples, anidadas e indexadas.
+
+(*) Las propiedades simples son las que ya conocemos, si estamos usando un tag accesor a una propiedad xyz, se traducirá en getxyz().
+
+(*) Las propiedades anidadas permiten descender en las propiedades del bean. Supongamos que tenemos un bean Persona que tiene una propiedad 
+mascota que a su vez tiene una propiedad raza, y ésta a su vez posee la propiedad nombre. Podemos hacer referencia al nombre de la raza de la mascota de la persona usando la propiedad mascota.raza.nombre, que se traducirá en getMascota().getRaza().getNombre(). 
+En los casos que estemos usando la propiedad para establecer valores (por ejemplo un setter), sólo el último método es llamado como setter y 
+los demás como getter. En este último ejemplo el código generado será: getMascota().getRaza().setNombre(valor).
+
+(*) Las propiedades indexadas sirven cuando tenemos propiedades con múltiples valores, es decir, una propiedad que es 
+un conjunto de elementos. En este tipo de casos, los métodos getter y setter deben además suministrar un parámetro entero indicando 
+a qué elemento de la colección se están refiriendo. Veamos un ejemplo:
+
+Archivo Vista/WEB-INF/src/Persona.java
+"
+//package Vista.WEB-INF.src;
+
+public class Persona {
+    private List mascotas;
+
+    public Mascota getMascota(int pos) {
+        return (Mascota) mascotas.get(pos);
+    }
+
+    public void setMascota(Mascota m, int pos) {
+        mascotas.set(pos, m);
+    }
+}
+"
+En estos casos, podemos suministrar la propiedad indexada mascotas[2] que se traducirá en getMascotas(2)
+
+bean:write
