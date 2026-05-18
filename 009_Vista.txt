@@ -75,3 +75,153 @@ public class Persona {
 En estos casos, podemos suministrar la propiedad indexada mascotas[2] que se traducirá en getMascotas(2)
 
 bean:write
+Vamos a comenzar por ver en detalle el tag más simple del paquete de los tags de beans. Este tag simplemente devuelve
+el contenido del bean o una de sus propiedades. En esencia este tag es igual a <jsp:getProperty>, pero con las mejoras
+que vimos previamente.
+
+Los atributos que podemos proveer son:
+
+name: especifica el nombre del bean al que estamos accediendo.
+
+property: la propiedad a la que estamos accediendo (soporta la sintaxis extendida de Struts, propiedades simples, anidadas e indexadas). 
+Si no especificamos propiedad, se devuelve el bean.
+
+scope: el scope donde buscar el bean.
+
+ignore: si este atributo es true y el bean que especificamos no existe en el scope indicado, entonces el tag no devuelve nada. 
+Caso contrario, obtendremos una excepción.
+
+filter: este atributo con valor true indica que el resultado de este tag será filtrado por los caracteres sensitivos HTML que contenga,
+y serán reemplazados por su entidad correspondiente. Esto es, si la evaluación del tag -consistente en una propiedad de determinado bean- 
+devuelve retoño, entonces si el atributo filter es verdadero, se filtrará la eñe y se reemplazará por &ntilde; de forma que el resultado
+sea compatible con HTML y visualizable en cualquier navegador web.
+
+formatkey: especifica la clave de los mensajes de aplicación (MessageResources) en donde buscar la cadena de formato 
+a aplicar al resultado del tag.
+
+format: especifica la cadena de formato que ha de aplicarse al resultado de este tag. 
+El resultado de la evaluación de este tag siempre es, a posteriori, un objeto de tipo String. Sin embargo, una gran cantidad de veces
+estamos accediendo a objetos que no son de tipo String y debe efectuarse una conversión. Struts evalúa el tipo del objeto accedido y,
+en ciertos casos, puede aplicar una transformación que implique formateo de los datos. Struts aplica el formato a objetos enteros, decimales y fechas.
+
+Veamos un ejemplo de uso de este tag. Para simplificar el ejemplo, vamos a hacer algunas cosas no muy acordes con las 
+buenas prácticas de programación web, como ser: usar código caduco y crear un objeto usando código en la página JSP; 
+pero a los efectos del ejemplo sirve, así no tenemos que crear una acción, definirla, etc.
+
+Archivo: Vista/jsp/bean_write.jsp
+"
+<!-- Declaramos que vamos a usar la librería de tags de beans y que la usaremos con el prefijo bean -->
+
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+
+    <h2>Fechas</h2>
+
+    <!-- Declaramos un objeto Date que hará las veces de bean -->
+    <jsp:useBean id="fecha" class="java.util.Date" />
+
+    <!-- Imprimimos el objeto -->
+
+    Fecha:
+    <bean:write name="fecha" /></br>
+
+    <!-- Imprimimos propiedades del objeto (¡este código es caduco!) -->
+    Día:
+    <bean:write name="fecha" property="date" /></br>
+    Mes:
+    <bean:write name="fecha" property="month" /></br>
+    A&ntilde;o:
+    <bean:write name="fecha" property="year" /></br>
+
+    <!-- Imprimimos la fecha pero dándole un formato -->
+    Fecha con formato:
+    <bean:write name="fecha" format="dd/MM/yyyy" /></br>
+
+    <!-- Imprimimos la fecha con formato pero usando el atributo formatKey -->
+    Fecha con formatKey:
+    <bean:write name="fecha" formatKey="fecha.formato" /></br>
+
+    <h2>N&uacute;meros</h2></br>
+
+    <% /* Declaramos un objeto de tipo Double y lo agregamos al scope de la página */ Double pi=Math.PI;
+        pageContext.setAttribute("pi", pi, PageContext.PAGE_SCOPE); %>
+
+        <!-- Imprimimos el númrero Pi -->
+        PI:
+        <bean:write name="pi" /></br>
+
+        <!-- Imprimimos el número Pi con formato -->
+        PI con 4 decimales:
+        <bean:write name="pi" format="##.####" /></br>
+
+        <!-- Uso del atributo ignore, el siguiente tag no arrojará una excepción pese a que el bean no existe -->
+        Bean inexistente:
+        <bean:write name="inexistente" property="prop" ignore="true" /></br>
+"
+
+Al acceder a la página mediante la URL: http://localhost:8080/Vista/jsp/bean_write.jsp
+obtendremos el siguiente resultado, que muestra la fecha y hora actual, claramente:
+[ Figura 1 ] Se obtiene una excepción porque no encuentra el archivo JAR [/tags/struts-bean]
+Figura 1. Usando el tag de Struts podemos dar formato a nuestros objetos sin necesidad de escribir código extra.
+
+Vemos que mostramos la fecha con formato dos veces, y con formatos distintos.
+En el primer caso, especificamos explícitamente el tipo de formato que queríamos, usando el atributo format. 
+Si esta página fuera a ser accedida por gente de distintas partes del mundo, deberíamos mostrarles las fechas en los 
+formatos que ellos mejor entiendan. Por ejemplo, en Estados Unidos es común poner primero el mes y luego el día (o sea, un formato MM/dd/yyyy).
+Usando formatKey, estamos diciéndole a Struts que, dada una clave, busque el tipo de formato en el archivo de recursos 
+(en nuestro caso, MessageResources.properties).
+
+Como vimos que podemos tener varias versiones del archivo de recursos, una para cada Locale que queramos soportar,
+usando este enfoque simplemente guardamos los distintos tipos de formatos en los archivos, y el usuario verá los objetos en su formato.
+
+En el ejemplo, escribimos el atributo formatKey con valor fecha.formato. Veamos unos ejemplos de archivos de recursos para esta clave:
+
+MessageResources.properties (el archivo por defecto):
+fecha.formato=dd/MM/yyyy
+
+MessageResources_en_us.properties (el archivo para el Locale Inglés de Estados Unidos)
+fecha.formato=MM/dd/yyyy
+
+MessageResources_ko.properties (el archivo para el Locale Coreano)
+fecha.formato=yyyy|MM|dd
+
+Podemos tener cuantos archivos de recursos queramos. Siempre debe haber un archivo de recursos por defecto, sin especificación de Locale.
+Los otros archivos se crean con el mismo nombre que definimos en el archivo struts-config.xml agregando antes de la extensión el Locale, como 
+se ve en los ejemplos.
+
+Usando esta configuración, si un usuario con su navegador web configurado con lenguaje coreano entra en nuestra aplicación,
+verá la fecha con el formato acorde, como por ejemplo: 2002|02|02
+
+Tener que especificar un formato o clave de formato cada vez que accedamos a objetos o propiedades de tipo fecha o numéricos
+es monótono y propenso a errores. Struts define unas claves por defecto para usar en el archivo de propiedades según el tipo de objeto
+que estemos accediendo en el tag. De esta forma, si no especificamos los atributos format o formatKey y estamos accediendo a, por ejemplo,
+un objeto de tipo java.util.Date, Struts busca en el archivo de recursos una clave por defecto, y, si existe, le aplica el formato.
+En la Tabla 1 tenemos la lista de claves por defecto y los objetos a los que se aplica.
+
+CLAVE ________________________________________________ TIPOS DE OBJETO 
+org.apache.struts.taglib.bean.format.sql.timestamp____ java.sql.timestamp
+org.apache.struts.taglib.bean.format.sql.date_________ java.sql.Date
+org.apache.struts.taglib.bean.format.sql.time_________ java.sql.Time 
+org.apache.struts.taglib.bean.format.date_____________ java.util.Date
+org.apache.struts.taglib.bean.format.int______________ java.lang.Byte
+______________________________________________________ java.lang.Short
+______________________________________________________ java.lang.Integer
+______________________________________________________ java.lang.Long
+______________________________________________________ java.lang.BigInteger
+org.apache.struts.taglib.bean.format.float____________ java.lang.float
+______________________________________________________ java.lang.Double
+______________________________________________________ java.lang.BigDecimal
+
+Tabla 1. Lista de claves por defecto.
+
+Un ejemplo de archivo de recursos MessageResource.properties podría ser 
+"
+org.apache.struts.taglib.bean.format.date=dd/MM/yyyy
+org.apache.struts.taglib.bean.format.sql.date=dd/MM/yyyy
+org.apache.struts.taglib.bean.format.sql.time=hh:mm:ss
+org.apache.struts.taglib.bean.format.float=##.###
+"
+
+Y de esta forma no necesitamos explicitar que deseamos una salida con formato para estos tipos de objetos 
+al usar el tag write.
+
+bean:message
