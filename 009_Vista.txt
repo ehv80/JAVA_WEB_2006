@@ -294,4 +294,63 @@ Nota: En nuestro navegador se obtiene el mensaje de la excepción:
 "Imposible obtener recurso JAR [/tags/struts-bean] conteniendo TLD: [java.io.FileNotFoundException]"
 
 bean:define
+Mediante este tag podemos definir un nuevo bean. Este tag es similar a <jsp:useBean> pero difiere en varios aspectos. 
+El primer caso se usa para crear objetos invocando a su constructor vacío. El caso de Struts se usa para introducir
+referencias a objetos sobre la base de valores constantes o expresiones y copiar beans o alguna de sus propiedades.
+Veamos en detalle los atributos que podemos definir en el bean y luego, los infaltables ejemplos.
+
+id: el nombre del bean que se creará.
+
+name: el nombre del bean al que accedemos para copiarlo (o alguna de sus propiedades).
+
+property: propiedad del bean especificado en name que queremos copiar en el bean que se va a crear.
+
+scope: el scope donde buscar el bean a copiar.
+
+toScope: el scope donde guardar el bean que se crea (por defecto, page).
+
+type: nombre completo de la clase que será el tipo del bean creado.
+
+value: valor con el que el nuevo bean será instanciado.
+
+Fundamentalmente tenemos dos formas de crear un nuevo bean. Pasando un valor (constante o una expresión) al atributo value o
+como cuerpo del tag -lo cual creará un bean de tipo String con el contenido que le pasamos- o definiendo otro bean y, 
+eventualmente, una propiedad de éste, y el bean que se creará será una referencia al bean (o propiedad).
+Estas dos formas son excluyentes y si definimos el atributo value y name a la vez, obtendremos una excepción. 
+Igualmente, si definimos el atributo value, y además el tag tiene cuerpo, (ya que estamos creando un bean String) estamos
+brindando dos veces el contenido.
+
+Pasemos a los ejemplos.
+Archivo: Vista/jsp/bean_define.jsp
+"
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+
+    <!-- Creamos un GregorianCalendar -->
+    <jsp:useBean: id="cal" class="java.util.GregorianCalendar" />
+
+    <!-- Copiamos el bean cal en otro bean y definimos su tipo -->
+    <bean:define id="cal2" name="cal" type="java.util.Calendar" />
+
+    <!-- Creamos un bean en base a una propiedad de otro bean -->
+    <bean:define id="tz" name="cal" property="timeZone" />
+
+    <!-- Diferentes formas de crear un bean de tipo String -->
+    <bean:define id="str1" value="Nuevo bean" toScope="request" />
+
+    <bean:define id="str2" value="<%= " hola pianola" %>"/>
+
+    </bean:define id="str3">Valor del Tercer String, en el cuerpo del tag</bean:define>
+
+    <!-- Mostramos los beans o propiedades de los beans recientemente creados -->
+    Timezone:
+    <bean:write name="tz" property="displayName" /> <br />
+    String 1:
+    <bean:write name="str1" /></br>
+    String 2:
+    <bean:write name="str2" /></br>
+    String 3:
+    <bean:write name="str3" /></br>
+"
+
+bean:size
 
