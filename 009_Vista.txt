@@ -225,3 +225,73 @@ Y de esta forma no necesitamos explicitar que deseamos una salida con formato pa
 al usar el tag write.
 
 bean:message
+Se trata de un tag usado para obtener una cadena de texto del archivo de recursos.
+Esto es útil para mostrar texto internacionalizado, ya que no escribimos el texto en sí a mostrar, sinó que 
+declaramos qué texto ha de mostrarse y luego, en base a las preferencias de idioma del navegador web del usuario, 
+se obtiene la cadena de texto correspondiente, en su idioma. Podemos obtener un mensaje especificando directamente la clave
+del mensaje, o indirectamente, usando un bean que contenga el valor de dicha clave.
+
+Los mensajes, además, pueden tener hasta 5 argumentos parametrizables.
+
+Veamos los atributos del tag:
+
+arg0, arg1, arg2, arg3, arg4: valor del argumento.
+
+key: clave del archivo de recursos que contiene el valor del mensaje que queremos mostrar.
+
+name: nombre del bean que contiene el valor o la propiedad de la clave del mensaje.
+
+property: la propiedad dentro del bean que contiene la clave del mensaje.
+
+scope: el scope donde buscar el bean.
+
+Si no especificamos directamente el atributo key, debemos especificar un bean (y opcionalmente, una propiedad del bean)
+donde ir a buscar la clave.
+
+Como siempre, un ejemplo clarificador:
+Archivo: Vista/jsp/bean_message.jsp 
+"
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+    <% 
+        /* Declaramos un objeto de tipo String y lo agregamos al scope de la página */ 
+        String clave="saludo.inicial" ;
+        pageContext.setAttribute("clave", clave, PageContext.PAGE_SCOPE); 
+    %>
+
+        <!-- Llamado directo -->
+
+        Saludo:
+        <bean:message key="saludo.inicial" /></br>
+
+        <!-- Llamado directo con parámetro -->
+        Saludo con par&aacute;metro:
+        <bean:message key="saludo.parametrico" arg0="Signore Rigoberto" /></br>
+
+        <!-- Llamado dinámico -->
+        Saludo din&aacute;mico:
+        <bean:message key="saludo.parametrico" arg0="<%= Double.toString(Math.PI * 10) %>" /></br>
+
+        <!-- Llamado indirecto -->
+        Saludo indirecto:
+        <bean:message name="clave" /></br>
+"
+
+Y al archivo de recursos por defecto le agregamos:
+"
+saludo.inicial=Hola!
+saludo.parametrico=Hola {0}!
+"
+
+Como se ve en saludo.parametrico, las cadenas {0}, {1}, {2}, {3}, y {4} serán reemplazadas por el valor del 
+argumento arg0, arg1, arg2, arg3, y arg4.
+
+En el ejemplo JSP vemos ejemplos de llamados directos e indirectos. El parámetro puede ser fijo o el resultado de 
+una expresión cualquiera. En la Figura 2 vemos la muestra del resultado:
+[ Figura 2 ] 
+Figura 2: El tag bean:message es ideal para internacionalizar aplicaciones web y mostrar al usuario contenido en su idioma.
+
+Nota: En nuestro navegador se obtiene el mensaje de la excepción:
+"Imposible obtener recurso JAR [/tags/struts-bean] conteniendo TLD: [java.io.FileNotFoundException]"
+
+bean:define
+
