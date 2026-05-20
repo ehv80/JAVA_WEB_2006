@@ -428,40 +428,40 @@ de cadena de caracteres. Si alguno de los valores es nulo, será reemplazado por
 Ejemplos de uso:
 Archivo: Vista/jsp/logic_tags.jsp
 "
-<%-- Declaramos que vamos a usar la librería de tags logic y que la usaremos con el prefijo logic --%>
+<!-- Declaramos que vamos a usar la librería de tags logic y que la usaremos con el prefijo logic -->
 
 <%@ taglig uri="/tags/struts-logic" prefix="logic" %>
 <%@ taglig uri="/tags/struts-bean" prefix="bean" %>
 
-<%-- Definimos dos variables --%>
+<!-- Definimos dos variables -->
 <bean:define id="dos" value="2" />
 <bean:define id="cadena" value="java" />
 
-<%-- Comparación por igualdad, numérica --%>
+<!-- Comparación por igualdad, numérica -->
 <logic:equal name="dos" value="2" >
     2 = 2
     <br/>
 </logic:equal>
 
-<%-- Comparación por desigualdad, numérica --%>
+<!-- Comparación por desigualdad, numérica -->
 <logic:notEqual name="dos" value="<%= Double.toString(Math.E) %>">
     2 != e
     <br/>
 </logic:notEqual>
 
-<%-- Comparación por menor, numérica --%>
+<!-- Comparación por menor, numérica -->
 <logic:lessThan name="dos" value="<%= Double.toString(Math.E) %>">
     2 < e
     <br/>
 </logic:lessThan>
 
-<%-- Comparación por mayor, texto --%>
+<!-- Comparación por mayor, texto -->
 <logic:greaterThan name="cadena" value="a">
     java > a
     <br/>
 </logic:greaterThan>
 
-<%-- Comparación por mayor, texto --%>
+<!-- Comparación por mayor, texto -->
 <logic:greaterThan name="cadena" value="2">
     java > 2
     <br/>
@@ -469,3 +469,96 @@ Archivo: Vista/jsp/logic_tags.jsp
 "
 
 logic:empty, logic:notEmpty
+Con estos tags podemos evaluar una variable para comprobar si tiene algún valor.
+Los atributos son los clásicos name, property y scope que ya tanto conocemos y usamos para 
+determinar un objeto sobre la base de un bean o una propiedad del mismo. Según el objeto que 
+determinemos usando estos atributos, la evaluación para determinar si su contenido es vacío o no
+(empty y notEmpty, respectivamente).
+El objeto será vacío si es nulo, si es una cadena de caracteres de tamaño 0, o si es una colección, mapa o arreglo sin elementos.
+Análogamente, para constatar su condición de no vacío.
+
+logic:iterate
+Mediante este tag podemos iterar sobre una colección y repetir el contenido del cuerpo del tag 
+tantas veces como elementos tenga la colección. Los atributos del tag para definir iteración son:
+
+collection: expresión que evalúe a una colección
+
+name, property, scope: atributos para determinar la collection
+
+id: nombre que le daremos al elemento actual de iteración
+
+type: nombre de la clase del elemento actual de iteración (el definido por el parámetro id). Si no especificamos este atributo,
+no se realizarán conversiones de tipo.
+
+indexId: nombre de la variable que contiene el índice de iteración actual.
+
+length: máximo número de iteraciones que haremos sobre esta colección. Puede ser un número directo o referencia a un bean de tipo Integer.
+
+offset: índice de inicio de iteración.
+
+Tenemos atributos para determinar el objeto a iterar y atributos propios de la iteración. Estos atributos pueden parecer confusos,
+pero son en realidad muy similares (si no idénticos) a una iteración común de Java. En un intento de aclarar la situación,
+veamos una iteración sobre una colección usando un ciclo for y veamos la analogía con los atributos de Struts.
+
+// La colección
+Collection col = ...
+
+// Iteramos 
+for (int indexId=offset; indexId < length; indexId++ ) {
+    [type] id = col.elementAt(indexId)
+    ...
+}
+
+Este pseudocódigo muestra la función de los atributos del tag iterate. Los atributos offset y length son usados para 
+paginación, cuando tenemos una colección muy grande y no queremos que el usuario reciba una página enorme de respuesta.
+En ese caso, usamos variables para ir mostrando páginas acotadas con algunos resultados. 
+No pueden faltar los bienamados ejemplos clarificadores: 
+
+Archivo: Vista/jsp/logic_iterate.jsp 
+
+"
+<!-- Importamos clases -->
+<%@ page import="java.util.*, java.net.URL" %>
+    <!-- Declaramos que vamos a usar la librería de tags logic y que la usaremos con el prefijo logic -->
+    <%@ taglib uri="/tags/struts-logic" prefix="logic" %>
+        <!-- Declaramos que vamos a usar la librería de tags bean y que la usaremos con el prefijo bean -->
+        <%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+
+            <% // Una Colección de direcciones webs Collection urls=new Vector(); urls.add(new
+                URL("http://www.google.com")); urls.add(new URL("http://onweb.tectimes.com")); urls.add(new
+                URL("http://java.sun.com")); urls.add(new URL("http://struts.apache.org")); urls.add(new
+                URL("http://java.sun.com/products/jsp/")); pageContext.setAttribute("colUrls", urls,
+                PageContext.PAGE_SCOPE); %>
+
+                <!-- Iteramos y mostramos todas las direcciones webs -->
+                <h3>Toda la colecci&oacute;n:</h3>
+                <logic:iterate id="url" name="colUrls">
+                    <bean:write name="url" /><br>
+                </logic:iterate>
+
+                <!-- Iteramos y mostramos la propiedad del host de los primeros dos elementos de la colección -->
+                <h3>Los primeros dos hosts:</h3>
+                <logic:iterate id="url" name="colUrls" offset="0" length="2">
+                    <bean:write name="url" property="host" /><br>
+                </logic:iterate>
+                <!-- Iteramos y mostramos la propiedad protocol de los primeros dos elementos de la colección y su posición -->
+                <h3>Las direcciones 3 y 4:</h3>
+                <logic:iterate indexId="i" id="url" name="colUrls" offset="2" length="2">
+                    <bean:write name="url" />
+                    (posici&oacute;n:
+                    <bean:write name="i" />)
+                    <br>
+                </logic:iterate>
+"
+
+[ Figura 3]
+Figura 3. Los tags del paquete logic se integran perfectamente con los otros tags de Struts
+y nos facilitan la creación de páginas webs complejas.
+Nota: se observa en el navegador web el mensaje de la excepción:
+"Imposible obtener recurso JAR [/tags/struts-logic] conteniendo TLD: [java.io.FileNotFoundException]"
+
+El lector de ojo agudo notará que en el último caso estamos accediendo al tercer y cuarto elemento de la 
+colección y, sin embargo, al imprimir su posición usando el bean indexId nos devuelve 2 y 3 respectivamente.
+La explicación queda como ejercicio para el lector (alcanza con recordar que el índice empieza en cero).
+
+HTML TAGS
