@@ -394,4 +394,78 @@ Recordemos que el hecho de escribir código Java en las páginas JSP no es recom
 y que en estos casos lo estamos haciendo solamente para mantener los ejemplos pequeños y focalizar
 en lo que queremos ver, que son los tags.
 
+LOGIC TAGS
 
+Este paquete contiene tags para acciones lógicas: condiciones, iteraciones, etc. La idea es, nuevamente,
+no embeber código Java en las páginas JSP sinó usar los tags de Struts para no mezclar la presentación con el contenido.
+
+logic:equal, logic:greaterEqual, logic:greaterThan, logic:lessEqual, logic:lessThan, logic:notEqual
+
+Estos tags son tags de comparaciones. En todos los casos, sus atributos y funciones son iguales y sólo cambia
+el tipo de comparación. La lógica de estos tags es proveer dos valores, y éstos son comparados. Si la evaluación
+es satisfactoria, se ejecuta el cuerpo del tag, caso contrario, se omite.
+
+Veamos primero los atributos posibles y luego explicaremos el funcionamiento.
+
+value: primer valor a ser comparado (constante o expresión).
+
+name, property, scope: nombre, propiedady scope del bean con el dato que será comparado.
+
+cookie: nombre de la cookie con el valor a ser comparado.
+
+parameter: nombre del parámetro con el valor a ser comparado.
+
+header: nombre del encabezado con el valor a ser comparado.
+
+Debemos proveer dos valores, uno es una constante o resultado de una expresión y se especifica con el atributo value.
+El otro valor puede ser especificado mediante un bean o una propiedad, el valor de una cookie, de un encabezado o un 
+parámetro del pedido. Debemos especificar sólo uno de estos atributos u obtendremos una excepción.
+
+Notemos que los valores pasados siempre serán cadenas de texto. Al hacer la comparación, primeramente se evalúa si los valores
+pueden ser convertidos a double o long. De ser así, la comparación será numérica; caso contrario, se realizará una comparación
+de cadena de caracteres. Si alguno de los valores es nulo, será reemplazado por una cadena vacía.
+
+Ejemplos de uso:
+Archivo: Vista/jsp/logic_tags.jsp
+"
+<%-- Declaramos que vamos a usar la librería de tags logic y que la usaremos con el prefijo logic --%>
+
+<%@ taglig uri="/tags/struts-logic" prefix="logic" %>
+<%@ taglig uri="/tags/struts-bean" prefix="bean" %>
+
+<%-- Definimos dos variables --%>
+<bean:define id="dos" value="2" />
+<bean:define id="cadena" value="java" />
+
+<%-- Comparación por igualdad, numérica --%>
+<logic:equal name="dos" value="2" >
+    2 = 2
+    <br/>
+</logic:equal>
+
+<%-- Comparación por desigualdad, numérica --%>
+<logic:notEqual name="dos" value="<%= Double.toString(Math.E) %>">
+    2 != e
+    <br/>
+</logic:notEqual>
+
+<%-- Comparación por menor, numérica --%>
+<logic:lessThan name="dos" value="<%= Double.toString(Math.E) %>">
+    2 < e
+    <br/>
+</logic:lessThan>
+
+<%-- Comparación por mayor, texto --%>
+<logic:greaterThan name="cadena" value="a">
+    java > a
+    <br/>
+</logic:greaterThan>
+
+<%-- Comparación por mayor, texto --%>
+<logic:greaterThan name="cadena" value="2">
+    java > 2
+    <br/>
+</logic:greaterThan>
+"
+
+logic:empty, logic:notEmpty
