@@ -353,4 +353,45 @@ Archivo: Vista/jsp/bean_define.jsp
 "
 
 bean:size
+Este sencillo tag crea un bean con la cantidad de elementos de una colección determinada. 
+Existe porque, si bien veremos luego tags para iterar sobre colecciones, sin este tag no habría forma
+(sin recurrir a código en el JSP) de obtener la cantidad de elementos de una colección. Su modo de utilización
+es sencillo y muy fácil de entender. Veamos los atributos:
+
+collection: expresión que evalúe a una colección.
+
+id: el nombre del bean de tipo Integer que se creará.
+
+name: nombre del bean que contiene la colección a ser evaluada.
+
+property: nombre de la propiedad (dentro del bean de nombre name) que devuelve la colección.
+
+scope: el scope donde buscar el bean de nombre name.
+
+Nuevamente, tenemos dos formas, o usando el atributo collection o definiendo un bean o una propiedad con los 
+atributos name, property y scope. Infaltablemente un pequeño ejemplo:
+
+Archivo: Vista/jsp/bean_size.jsp 
+"
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+
+<!-- Creamos una colección y la guardamos en el scope de la página -->
+
+<%
+    java.util.Vector v = new java.util.Vector();
+    v.addElement("s");
+    v.addElement("t");
+    v.addElement("z");
+    pageContext.setAttribute("v", v, PageContext.PAGE_SCOPE);
+%>
+
+<!-- Diferentes formas de acceder al tamaño de la colección -->
+<bean:size id="s" collection="<%= v %>" />
+<bean:size id="s2" name="v" />
+"
+
+Recordemos que el hecho de escribir código Java en las páginas JSP no es recomendable, 
+y que en estos casos lo estamos haciendo solamente para mantener los ejemplos pequeños y focalizar
+en lo que queremos ver, que son los tags.
+
 
