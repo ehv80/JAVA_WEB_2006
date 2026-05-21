@@ -617,3 +617,135 @@ target: ventana destino donde el formulario es enviado. Útil para aplicaciones 
 A medida que vayamos viendo campos de formularios, veremos también ejemplos de configuraciones y usos de este tag.
 
 html:text
+Este tag genera un campo de texto (en HTML un elemento <input type="text">). Este tag contiene una gran cantidad de atributos
+posibles. Nos concentraremos en algunos y otros simplemente los enunciaremos. Veamos algunos de los atributos:
+
+disabled: si es true, deshabilita este campo.
+
+style: estilos CSS a aplicar al elemento.
+
+styleClass: clase CSS a aplicar al elemento.
+
+errorStyle: estilo CSS a aplicar al campo si un error existe para la propiedad que define este campo.
+
+errorStyleClass: clase CSS a aplicar al campo si un error existe para la propiedad que define este campo.
+
+maxlength: número máximo de caracteres a aceptar en el campo.
+
+property: propiedad del form que se populará al enviar el formulario.
+
+size: tamaño del campo (en caracteres).
+
+value: valor inicial del campo.
+
+El tag soporta, además, una gran cantidad de atributos para compatibilidad con acciones JavaScript (onclick, onfocus, onmousedown, etc.).
+Algunos ejemplos:
+Archivo: Vista/jsp/html_text.jsp 
+"
+<!-- Declaramos el uso del paquete de tags HTML -->
+<%@ taglib prefix="html" uri="http://struts.apache.org/tags-html" %>
+
+    <html:html xhtml="true">
+
+        <!-- Foco en el campo edad -->
+        <html:form action="/procesarFormulario" focus="edad">
+            <!-- Un campo con estilo que cambia al haber un error -->
+            Nombre:
+            <html:text property="nombre" errorStyle="font-family:Verdana;font-size:12px;"
+                style="font-family:Verdana;font-size:12px;background-color:#FFFF00;color:#FF0000" />
+            <br />
+            <!-- Un campo acotado en tamaño -->
+            Edad:
+            <html:text property="edad" size="3" maxlength="3" />
+            <br />
+            <!-- Un campo deshabilitado -->
+            Campo deshabilitado:
+            <html:text property="deshabilitado" disabled="true" />
+            <br />
+            <!-- Un campo de solo lectura y con valor por defecto -->
+            Campo de s&oacute;lo lectura:
+            <html:text property="readonly" readonly="true" value="No soy modificable" />
+            <br />
+            <!-- Un botón de envío -->
+            <html:submit value="Enviar" />
+        </html:form>
+    </html:html>
+"
+
+[Figura 4]
+Figura 4. Estableciendo un estilo distinto en los campos cuando tienen un error facilitamos al usuario 
+visualizar en qué falló y dónde debe efectuar la corrección.
+Nota: accediendo en el navegador web a: http://localhost:8080/Vista/jsp/html_text.jsp
+se observa el mensaje arrojado por la excepción: 
+"La uri absoluta: [http://struts.apache.org/tags-html] no puede resolverse o en web.xml o el los archivos jar desplegados con esta aplicación"
+
+html:password 
+Casi igual a html:text, este tag genera un campo propicio para el ingreso de contraseñas y datos confidenciales. 
+Comparte todos los atributos con html:text y agrega uno:
+
+redisplay: por defecto, cuando una página con valores es mostrada, ya sea por valores de inicialización,
+por la vuelta a la página luego de una validación fallida, etc, los valores de los campos son completados automáticamente.
+En el caso de un campo de contraseña esto no es conveniente, porque por más que aparezcan asteriscos, el valor de 
+la contraseña es visible si accedemos al código de la página HTML. Si establecemos este atributo como false,
+el campo no se repopulará automáticamente.
+
+html:textarea
+En esencia, muy similar a html:text, sólo que este tag genera un campo de texto de más de una línea. 
+Tiene prácticamente los mismos atributos de html:text, a excepción de los atributos maxlength y size, éste último reemplazado por:
+
+rows: número de filas del campo.
+cols: número de columnas del campo.
+
+html:select
+Genera una lista de valores. La lista de valores puede ser múltiple o simple, permitiendo al usuario seleccionar muchos
+o sólo un valor de la lista. Sus atributos: 
+
+disabled, style, styleClass, errorStyle, errorStyleClass, property, value: misma función que en html:text.
+
+multiple: si es true, el usuario puede elegir varios elementos de la lista, si no, sólo podrá seleccionar uno.
+
+size: cantidad de elementos a mostrar a la vez.
+
+Este tag genera el elemento HTML <select>, pero todavía tenemos que generar las opciones (los elementos <option>), para ello,
+podemos usar cualquier combinación de los tags html:option, y html:options y html:optionsCollection, tags sólo válidos dentro del cuerpo
+de un html:select.
+
+html:option
+Genera una opción dentro de una lista. Para esta opción debemos especificar dos valores: el que se ha de enviar si esta opción es seleccionada
+y el que se muestra al usuario.
+
+disabled, style, styleId, styleClass: misma funcionalidad que la descrita antes.
+
+key: si especificamos este atributo, determina la clave dentro del archivo de recursos que se usará para el valor a mostrar para esta opción,
+caso contrario, dicho valor se obtendrá del cuerpo del tag.
+
+value: el valor a enviar si esta opción es la elegida.
+
+html:options
+Genera un conjunto de opciones, basándose en una colección. Este tag tiene dos formas de funcionamiento distintas en base a 
+si el atributo collection está seteado o no. Vamos a ver solamente un funcionamiento, ya que ambos tornarán confuso el asunto,
+y además, para el segundo caso, el tag html:optionsCollection es mas simple de usar. Veamos los atributos y su uso:
+
+style, styleClass: estilo y clase CSS del elemento.
+
+collection: asumiremos que este atributo no se especifica.
+
+filter: por defecto, filtra los caracteres sensitivos HTML, si no queremos que esto pase, debemos establecerle valor false.
+
+name; property: determinan un bean que contiene una colección de valores.
+
+labelName, labelProperty: determinan un bean con una colección de etiquetas.
+
+Una explicación es necesaria sobre el funcionamiento de este tag. Recordemos que cada opción tiene un valor, que es el enviado
+cuando la opción es elegida, y una etiqueta, que es la que es mostrada al usuario en la lista. Este tag genera un conjunto
+de opciones y toma los valores y las etiquetas de dos colecciones separadas. La primera opción será el valor del primer elemento de 
+la colección de valores, y la etiqueta del primer elemento de la colección de etiquetas, y así sucesivamente. Con los atributos
+name y property estamos determinando la colección de valores (property es opcional), y con labelName y labelProperty determinamos la 
+colección de etiquetas. En este caso, ambos atributos son opcionales. Si especificamos sólo labelProperty, la colección de etiquetas 
+será buscada como una propiedad del form. Si no especificamos ninguno de los dos, la etiqueta será el valor.
+
+¿Qué pasa si las dos colecciones tienen distinto número de elementos?
+Si tenemos más elementos en la colección de etiquetas, éstos simplemente son ignorados. Si tenemos más elementos en la colección
+de valores, éstos son agregados a la lista, y su etiqueta será el mismo valor.
+
+html:optionsCollection
