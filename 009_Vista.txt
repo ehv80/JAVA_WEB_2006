@@ -562,3 +562,58 @@ colección y, sin embargo, al imprimir su posición usando el bean indexId nos d
 La explicación queda como ejercicio para el lector (alcanza con recordar que el índice empieza en cero).
 
 HTML TAGS
+Este paquete de tags se utiliza para crear páginas HTML con más facilidad y, sobre todo, que puedan interactuar 
+con componentes de Struts para ahorrarnos trabajo, en especial formularios.
+Muchos de estos tags tienen una gran cantidad de atributos para ser compatibles con los tags estandar de HTML
+(atributos para métodos JavaScript, estilos CSS, etc).
+
+html:html
+Este tag es sencillo de usar y provee una funcionalidad muy poderosa. Su función es generar un tag <html>.
+Sus atributos son:
+
+lang: si su valor es verdadero (true), se generará el atributo lang, con el valor del idioma y país (el Locale)
+definido en la sesión, o el brindado por el navegador web o el Locale por defecto (en ese orden de prioridades).
+Este atributo es útil para el navegador para poder mostrar el contenido apropiadamente o para los motores buscadores
+que puedan catalogar el sitio con más precición.
+
+xhtml: estableciendo este valor como verdadero, todos los tags del paquete HTML generarán código compatible con XHTML.
+
+html:form
+Mediante este tag podemos generar un tag <form> de HTML. Todos los componentes del formulario deben estar encerrados dentro
+de un tag form. Con los atributos del formulario podemos aplicar funcionalidad a todos sus componentes. Vamos a ver sus atributos:
+
+action: la dirección donde es enviado este form. Este valor debe existir como atributo path en alguno de los elementos action del
+archivo struts-config.xml.
+
+acceptCharset: una lista de los posibles charsets (conjuntos de caracteres) que este formulario aceptará.
+
+disabled: si es true, deshabilita todos los campos de este formulario.
+
+enctype: la codificación del formulario cuando sea enviado. Generalmente no debemos modificar este valor excepto que 
+queramos incluir funcionalidad para que el usuario envíe archivos, en cuyo caso debemos especificar este atributo con valor
+multipart/form-data.
+
+focus: nombre del campo perteneciente a este formulario al que queremos darle foco cuando la página cargue.
+
+focusIndex: si especificamos un campo en el atributo focus y este campo contiene múltiples valores (una lista de opciones, por ejemplo),
+podemos especificar el elemento específico dentro del campo al que queremos dar foco mediante este atributo.
+
+method: el método HTTP que deseemos usar para enviar el formulario. Podemos especificar GET o POST (este último por defecto).
+
+onreset: código JavaScript a ejecutarse cuando el form es limpiado.
+
+onsubmit: código JavaScript a ejecutarse cuando el form es enviado.
+
+readonly: si es true, establece que todos los campos del formulario sean sólo de lectura, inmodificables por el usuario.
+
+style: estilos CSS a aplicar al elemento.
+
+styleClass: clase CSS a aplicar al elemento.
+
+styleId: identificador a asignar al elemento.
+
+target: ventana destino donde el formulario es enviado. Útil para aplicaciones que utilizan frames.
+
+A medida que vayamos viendo campos de formularios, veremos también ejemplos de configuraciones y usos de este tag.
+
+html:text
