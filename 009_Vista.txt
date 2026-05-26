@@ -749,3 +749,90 @@ Si tenemos más elementos en la colección de etiquetas, éstos simplemente son 
 de valores, éstos son agregados a la lista, y su etiqueta será el mismo valor.
 
 html:optionsCollection
+Este tag genera también una lista de opciones. A diferencia de html:options, este tag funciona con una única 
+colección de beans donde cada bean contiene el valor y, opcionalmente, la etiqueta. Veamos los atributos antes de la explicación 
+pertinente:
+
+filter, style, styleClass: misma funcionalidad que html:options.
+
+name, property: determinan la colección de beans que utilizaremos para generar las opciones.
+
+label: propiedad del bean que devuelve la etiqueta.
+
+value: propiedad del bean que devuelve el valor.
+
+Veamos un ejemplo integrador. Es importante destacar que dentro de un elemento html:select podemos incluir y mezclar cualquier
+cantidad de estos tags de opciones, y en cualquier orden.
+En el ejemplo creamos un elemento select y lo populamos con los tres tags posibles.
+
+Un simple bean que creamos ad hoc:
+Archivo: Vista/src/Pais.java 
+
+"
+//package Vista.src;
+
+public class Pais 
+{
+    private String codigo;
+
+    private String nombre;
+
+    public Pais(String codigo, String nombre) {
+        this.codigo = codigo;
+        this.nombre = nombre;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+}
+"
+
+Ahora la página JSP que muestra la lista y sus opciones:
+Archivo: Vista/jsp/html_select.jsp
+"
+<!-- Importamos clases -->
+<%@ page import="java.util.*, Vista.src.Pais" %>
+
+    <%@ taglib uri="/tags/struts-html" prefix="html" %>
+
+        <% //Una colección de países Collection paises=new Vector(); paises.add(new Pais("bo", "Bolivia" ));
+            paises.add(new Pais("co", "Colombia" )); paises.add(new Pais("cl", "Chile" )); paises.add(new
+            Pais("pe", "Perú" )); paises.add(new Pais("py", "Paraguay" )); paises.add(new Pais("ve", "Venezuela" ));
+            paises.add(new Pais("uy", "Uruguay" )); pageContext.setAttribute("paises", paises, PageContext.PAGE_SCOPE);
+            //Una colección de códigos Collection codigos=new Vector(); codigos.add("ec"); codigos.add("br");
+            codigos.add("mx"); codigos.add("bb"); /* Este código será etiqueta también */
+            pageContext.setAttribute("codigos", codigos, PageContext.PAGE_SCOPE); //Una colección de nombres Collection
+            nombres=new Vector(); nombres.add("Ecuador"); nombres.add("Brasil"); nombres.add("México");
+            pageContext.setAttribute("nombres", nombres, PageContext.PAGE_SCOPE); %>
+            <html:html xhtml="true">
+                <html:form action="procesarFormulario">
+                    <!-- Una Lista de elementos, mostramos 4 items por vez y es una lista de selección simple -->
+                    <html:select property="pepe" size="4" multiple="false">
+
+                        <!-- Primera opción fija -->
+                        <html:option value="ar">Argentina</html:option>
+
+                        <!-- Accedemos a distintas colecciones para obtener valores y etiquetas -->
+                        <html:options name="codigos" labelName="nombres" />
+
+                        <!-- Accedemos a una colección de beans, y especificamos las propiedades para obtener el valor y la etiqueta de cada elemento -->
+                        <html:optionsCollection name="paises" label="nombre" value="codigo" />
+                    </html:select>
+
+                </html:form>
+            </html:html>
+"
+
+[Figura 5]
+Figura 5. La posibilidad de darle tamaño a la lista es provechosa para el usuario; además
+nos permite aprovechar mejor el espacio en la página.
+Nota: Al acceder en el navegador web a la URL: http://localhost:8080/Vista/jsp/html_select.jsp
+Se obtiene el mensaje de error de la excepción:
+"Imposible obtener recurso JAR [/tags/struts-html] conteniendo TLD: [java.io.FileNotFoundException]"
+
+html:radio
