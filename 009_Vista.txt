@@ -1149,3 +1149,254 @@ Esta acción es sólo un esqueleto, para que veamos las diferentes formas de acc
 de los checkboxes como de los multiboxes (que en definitiva también son checkboxes)
 
 html:submit
+Para terminar el capítulo, un tag sencillo pero fundamental en la creación de formularios. 
+Este tag genera un botón de envío de formulario. Cuando este botón sea presionado, el formulario y sus datos 
+serán enviados a la dirección especificada por el atributo action del tag html:form. El uso de este tag es muy 
+sencillo, pero debemos recordar siempre agregar una forma de enviar los datos en cada formulario.
+
+El único atributo significativo es value, que determina la etiqueta a aplicar al botón.
+En el ejemplo de checkboxes usamos este tag.
+
+Un ejemplo integrador
+Después de tantos tags, tantos atributos, tantas configuraciones y modos de uso, es menester un ejemplo integrador 
+donde usemos todos los tags y, además, veamos cómo acceder a los datos desde el servidor. Vamos a crear una página 
+de ingreso de usuarios al sistema. Estamos acostumbrados a tener que ingresar nombre de usuario y contraseña para 
+ingresar a diversos sistemas. En este caso, vamos a tener que ingresar, además, una serie de combinaciones de datos 
+en diferentes formatos, ¡mucha seguridad!
+
+Primeramente declaramos en el archivo: Vista/WEB-INF/struts-config.xml 
+el form del tipo LazyValidatorForm que vamos a usar:
+
+"
+<form-bean
+    name="loginForm"
+    type="org.apache.struts.validator.LazyValidatorForm">
+    <form-property name="seleccionAves" type="java.lang.String[]" />
+</form-bean>
+"
+
+Sólo un atributo será de selección múltiple, y lo definimos como arreglo.
+
+Luego declaramos en el archivo: Vista/WEB-INF/struts-config.xml 
+las dos acciones, la que prepara el formulario y la que lo procesa:
+
+"
+<action path="/login"
+    type="Vista.src.VerLoginAction"
+    name="loginForm"
+    scope="request" />
+    <forward name="ok" path="/jsp/login.jsp" />
+</action>
+
+<action path="/procesarLogin"
+    type="Vista.src.ProcesarLoginAction"
+    name="loginForm"
+    scope="request" />
+    <forward name="ok" path="/jsp/portada.jsp" />
+    <forward name="denegado" path="/jsp/denegado.jsp" />
+</action>
+"
+
+La primera acción nos envía a la página que muestra el formulario de ingreso, la segunda acción
+tiene dos posibilidades, dependiendo de si el usuario ingresó correctamente los datos o no.
+
+Veamos la implementación de la primera acción en el
+Archivo: Vista/src/VerLoginAction.java
+"
+package Vista.src;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Vector;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.LabelValueBean;
+import org.apache.struts.action.LazyValidatorForm;
+
+public class VerLoginAction extends Action {
+    public ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest req, HttpServletResponse res)
+            throws Exception {
+        // Cast al tipo específico de objeto LazyValidatorForm
+        LazyValidatorForm dyna = (LazyValidatorForm) form;
+
+        // Una colección de bailes
+        Collection bailes = new HashSet();
+        bailes.add(new LabelValueBean("Tango", "t"));
+        bailes.add(new LabelValueBean("Merengue", "m"));
+        bailes.add(new LabelValueBean("Vals", "v"));
+        bailes.add(new LabelValueBean("Swing", "s"));
+
+        // Una colección de aves
+        Collection aves = new Vector();
+        aves.add(new LabelValueBean("Zorzal", "z"));
+        aves.add(new LabelValueBean("Colibri", "c"));
+        aves.add(new LabelValueBean("Golondrina", "g"));
+        aves.add(new LabelValueBean("Bencejo", "b"));
+        aves.add(new LabelValueBean("Chucao", "ch"));
+
+        // Una colección de letras griegas
+        Collection letras = new ArrayList();
+        letras.add(new LabelValueBean("alfa", "a"));
+        letras.add(new LabelValueBean("beta", "β"));
+        letras.add(new LabelValueBean("gama", "g"));
+        letras.add(new LabelValueBean("delta", "d"));
+        letras.add(new LabelValueBean("epsilon", "e"));
+
+        // Asignar las colecciones a los atributos del formulario
+        dyna.set("bailes", bailes);
+        dyna.set("aves", aves);
+        dyna.set("letras", letras);
+
+        // Queremos ir a la vista de nombre "ok"
+
+        return map.findForward("ok");
+    }
+}
+
+"
+
+Esta acción simplemente guarda unas colecciones en el formulario. En una aplicación más realista, 
+estos datos seguramente estarían guardados en una base de datos o en un archivo de propiedades y 
+nunca en el código.
+
+Notemos un detalle importante, las tres colecciones son implementadas por distintos tipos: HashSet, Vector y ArrayList.
+A la hora de mostrar las opciones o iterar, Struts itera sobre el tipo Collection sin importar qué clase específica es la que
+lo implementa. Este enfoque, sin embargo, necesita una precaución. En el primer caso, estamos usando un HashSet, que implementa un conjunto.
+La iteración sobre los elementos es desordenada, lo que implica que en diferentes accesos a la página podremos obtener los elementos en 
+diverso orden. Esto puede cofundir al usuario o ser proclive a errores si nuestra acción asume que los datos estaban en determinado orden.
+
+Veamos ahora la página JSP, donde hacemos extenso uso de los tags JSP que aprendimos en el capítulo
+y que muestra la página de ingreso de usuarios:
+Archivo: Vista/jsp/login.jsp 
+"
+<!-- Indicamos que vamos a usar tres paquetes de etiquetas tags de Struts: html, bean y logic -->
+<%@ taglib uri="/tags/struts-html" prefix="html" %>
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+<%@ taglib uri="/tags/struts-logic" prefix="logic" %>
+
+<html:html>
+
+    <br action="ProcesarLogin">
+
+    <!-- Un campo de texto para el nombre de usuario -->
+    Nombre de usuario:
+    <html:text property="usuario" size="10" /></br>
+    <!-- Un campo de texto para la contraseña -->
+    Contrase&ntilde;a:
+    <html:password property="clave" size="30" /></br>
+
+    <h3>Igualdades:</h3>
+
+    <!-- Dos CheckBoxes fijos -->
+    <html:checkbox property="e_i_pi" />e<sup>i &middot; &pi;</sup>=-1<br />
+    <html:checkbox property="abc" /> A<sup>2</sup>+B<sup>2</sup>=C<sup>2</sup><br />
+
+    <!-- Botones radio -->
+    <h3>Baile</h3>
+    <logic:iterate indexId="i" id="baileBean" name="loginForm" property="bailes">
+        <html:radio property="baile" idName="baileBean" value="value" />
+        <bean:write name="baileBean" property="label" /><br />
+
+        <!-- Un salto de línea luego del segundo elemento solamente-->
+        <logic:equal name="i" value="1">
+            <br />
+        </logic:equal>
+
+    </logic:iterate>
+
+    <!-- Un conjunto de checkboxes en base a una colección -->
+    <h3>Aves</h3>
+    <logic:iterate id="ave" name="loginForm" property="aves">
+        <html:multibox property="SeleccionAves"/>
+            <bean:write name="ave" property="value" />
+        </html:multibox>
+
+        <!-- Escribimos el nombre de la ave -->
+        <bean:write name="ave" property="label" /><br />
+    </logic:iterate>
+
+    <!-- Una lista de selección simple -->
+    <h3>Letras Griegas</h3>
+    <html:select property="letra" size="3" multiple="false">
+        <html:optionsCollection name="loginForm" property="letras" label="label" value="value" />
+    </html:select>
+                
+                    
+        </br>
+    <html:submit value="Enviar" />
+</html:form>
+
+</html:html>
+"
+
+El resultado de esta página lo vemos en la Figura 8.
+
+[ Figura 8 ]
+Figura 8. Todos los tipos de ingreso de datos posibles en una página, usando tags de Struts.
+Nota: Al acceder en el navegador web a la URL: 
+Se obtiene el mensaje de error de la excepción 
+"Imposible obtener recurso JAR [/tags/struts-html] conteniendo TLD: [java.io.FileNotFoundException]"
+
+Por último, vamos a ver la implementación de la clase que obtiene los datos del formulario los procesa y redirige 
+la acción según estos: 
+Archivo: Vista/src/ProcesarLoginAction.java 
+"
+package Vista.src;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+//import org.apache.struts.action.LabelValueBean;
+import org.apache.struts.action.LazyValidatorForm;
+
+public class ProcesarLoginAction extends Action {
+
+    public ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest req, HttpServletResponse res)
+            throws Exception {
+        // Cast al tipo específico de objeto LazyValidatorForm
+        LazyValidatorForm dyna = (LazyValidatorForm) form;
+
+        // Obtenemos todos los datos del formulario
+        String usuario = (String) dyna.get("usuario");
+        String clave = (String) dyna.get("clave");
+
+        boolean e_i_pi = "on".equals(dyna.get("e_i_pi"));
+        boolean abc = "on".equals(dyna.get("abc"));
+
+        String baile = (String) dyna.get("baile");
+        String[] aves = (String[]) dyna.get("SeleccionAves");
+        String letra = (String) dyna.get("letra");
+
+        // Comparamos los datos
+        if (usuario.equals("juan") && clave.equals("perez") && e_i_pi && !abc && baile.equals("s") && letra.equals("b")
+                && aves.length == 2 && aves[0].equals("z") && aves[1].equals("g")) {
+            // Si el login es correcto, ir a la vista de nombre "ok"
+            return map.findForward("ok");
+        } else {
+            // Si el login es incorrecto, ir a la vista de nombre "denegado"
+            return map.findForward("denegado");
+        }
+    }
+
+}
+
+"
+
+RESUMEN
+Este capítulo fue largo pero analizamos un aspecto fundamental del desarrollo web, la Vista. 
+Usamos JSP en conjunto con tags propios de Struts, vimos cómo crear formularios fácilmente sobre la base de 
+colecciones y atributos de aplicación, cómo usar los tags para evitar la necesidad de embeber código Java, y por último
+realizamos un ejemplo integrador.
+
+

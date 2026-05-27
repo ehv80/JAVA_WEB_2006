@@ -16,3 +16,24 @@
     name="checkboxForm"
     scope="request" />
 </action>
+
+<form-bean
+    name="loginForm"
+    type="org.apache.struts.validator.LazyValidatorForm">
+    <form-property name="seleccionAves" type="java.lang.String[]" />
+</form-bean>
+
+<action path="/login"
+    type="Vista.src.VerLoginAction"
+    name="loginForm"
+    scope="request" />
+    <forward name="ok" path="/jsp/login.jsp" />
+</action>
+
+<action path="/procesarLogin"
+    type="Vista.src.ProcesarLoginAction"
+    name="loginForm"
+    scope="request" />
+    <forward name="ok" path="/jsp/portada.jsp" />
+    <forward name="denegado" path="/jsp/denegado.jsp" />
+</action>
