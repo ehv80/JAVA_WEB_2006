@@ -941,3 +941,211 @@ y especificamos los atributos idName y value para obtener el valor de una propie
 Notemos cómo en este sencillo ejemplo hemos usado tags del paquete bean, html, y logic.
 
 html:checkbox 
+Este tag sirve para generar un checkbox (casilla de verificación). Cada uno de estos componentes, 
+a diferencia del botón radio, puede tomar dos valores (marcado o desmarcado, implicando verdadero o falso respectivamente),
+independientemente de los otros componentes checkbox que existan en la página. En el Capítulo 5 usamos un checkbox 
+que el usuario podía marcar según su condición de fumador. Los atrbutos principales del tag son muy sencillos:
+
+property: propiedad del form a enviar.
+
+value: valor a enviar si el checkbox es marcado. Este atributo, a diferencia de casi todos los otros tags, es opcional,
+si no se especifica, el valor por defecto es on.
+Antes de pasar a un ejemplo, veamos primero otro tag.
+
+html:multibox
+Si tenemos una larga lista de opciones que el usuario puede marcar, tendremos que crear una propiedad en el 
+form-bean para cada una de ellas, y luego, en la acción, preguntar una por una por su estado. Si la lista es larga,
+el proceso es ineficiente. Más importante aún, si no sabemos a priori la cantidad de elementos que tiene la lista, 
+no podremos realizar esta funcionalidad. El tag html:multibox nos sirve en estas ocasiones. Este tag genera el mismo código 
+html que html:checkbox, pero su forma de obtener los elementos y enviarlos al servidor es distinta. El tag html:checkbox genera un 
+checkbox y está asociado a una propiedad. Cuando el formulario se envía, esa propiedad tendrá el valor especificado en el atributo 
+value o el valor por defecto on. Con html:multibox se envía al servidor un arreglo (por lo general de objetos de tipo String) con los 
+valores seleccionados.
+Veamos la forma de utilizar el tag y luego, un ejemplo.
+Algunos de sus atributos:
+
+property: propiedad del form a enviar.
+
+value: valor a enviar si el checkbox es marcado. Si este atributo no se especifica, el valor es tomado del cuerpo del tag.
+
+Vamos a aprovechar y ver un ejemplo completo, donde usemos estos dos últimos tags.
+
+Definimos un form en el archivo Vista/WEB-INF/struts-config.xml 
+"
+<form-bean
+    name="checkboxForm"
+    type="org.apache.struts.validator.LazyValidatorForm">
+    <form-property name="paisesVisitados" type="java.lang.String[]" />
+</form-bean> 
+"
+
+Notemos que si bien el tipo del form-bean es LazyValidatorForm y a priori no necesitamos definir sus propiedades, 
+sí es necesario en este caso explicitar que paisesVisitados es un arreglo de tipo String. Si no lo hiciéramos, al enviar
+el formulario con varios items seleccionados, el form lo tomará como varios valores de la misma propiedad y sobreescribiría el 
+valor anterior, en definitiva, obteniendo a lo sumo un único valor seleccionado, que claramente no es lo que necesitamos.
+
+Definimos dos acciones en el archivo: Vista/WEB-INF/struts-config.xml 
+la primera se encargará de proveer los datos a la página para mostrar el formulario y la segunda procesará el formulario enviado.
+"
+<action path="/verCheckboxForm"
+    type="Vista.src.VerCheckboxAction"
+    name="checkBoxForm"
+    scope="request" />
+    <forward name="ok" path="/jsp/html_checkbox.jsp" />
+</action>
+
+<action path="/procesarCheckboxForm"
+    type="Vista.src.ProcesarCheckboxAction"
+    name="checkboxForm"
+    scope="request" />
+</action>
+"
+
+Veamos ahora la clase que implementa la primera acción:
+Archivo: Vista/src/VerCheckboxAction.java 
+"
+//package capitulo7.action
+
+import java.util.Collection;
+import java.util.Vector;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.LazyValidatorForm;
+
+import Vista.src.Pais;
+
+public class VerCheckboxAction extends Action 
+{
+    public ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest req, HttpServletResponse res) throws Exception 
+    {
+        // Cast al tipo específico de objeto
+        LazyValidatorForm dyna = (LazyValidatorForm) form;
+
+        // Una colección de países
+        Collection paises = new Vector();
+        paises.add(new Pais("bo", "Bolivia"));
+        paises.add(new Pais("co", "Colombia"));
+        paises.add(new Pais("cl", "Chile"));
+        paises.add(new Pais("pe", "Perú"));
+        paises.add(new Pais("py", "Paraguay"));
+        paises.add(new Pais("ve", "Venezuela"));
+        paises.add(new Pais("uy", "Uruguay"));
+
+        // Agregamos los países al form
+        dyna.set("paises", paises);
+
+        // Queremos ir a la vista de nombre "ok"
+        return map.findForward("ok");
+    }
+}
+"
+
+Vemos que se trata simplemente de crear una colección de objetos de tipo Pais y agregarla al form. 
+¡Finalmente estamos haciendo esta parte bien! No más inserciones en las páginas JSP.
+
+Ahora veamo la página JSP: Vista/jsp/html_checkbox.jsp
+"
+<!-- Usamos los tres paquetes de tags: html, bean y logic -->
+<%@ taglib uri="/tags/struts-html" prefix="html" %>
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+<%@ taglib uri="/tags/struts-logic" prefix="logic" %>
+
+<html:html>
+
+<html:form action="procesarCheckboxForm">
+    Condimentos: </br>
+    <!-- Objetos checkbox que envían un valor que definimos nosotros -->
+    <html:checkbox property="aceite" value="si"/>Aceite</br>
+    <html:checkbox property="vinagre" value="si"/>Vinagre</br>
+    <html:checkbox property="sal" value="si"/>Sal</br>
+
+    Pa&iacute;ses visitados:</br>
+
+    <!-- Iteramos sobre el conjunto de países para generar los otros checkbox -->
+    <logic:iterate id="itPais" name="checkboxForm" property="paises">
+        <html:multibox property="paisesVisitados">
+            <!-- El cuerpo del tag es el valor que enviará -->
+            <bean:write name="itPais" property="codigo" />
+        </html:multibox>
+        
+        <!-- Escribimos el nombre del pais para el usuario -->
+        <bean:write name="itPais" property="nombre" />
+        </br>
+    </logic:iterate>
+</br>
+<html:submit value="Enviar" />
+
+</html:form>
+
+</html:html>
+"
+
+El primer grupo de checkboxes tiene tres elementos fijos, mientras que el segundo tipo es una lista 
+de la que a priori no sabemos la cantidad de elementos.
+
+[ Figura 7
+Condimentos:
+[ ] Aceite
+[ ] Vinagre 
+[ ] Sal 
+
+Países Visitados:
+[ ] Bolivia
+[ ] Colombia 
+[ ] Chile 
+[ ] Perú 
+[ ] Paraguay 
+[ ] Venezuela 
+[ ] Uruguay
+[ Enviar ]
+
+]
+Figura 7. Distintos tipos de tags generan el mismo resultado.
+Nota: Al acceder con el navegador web a la URL: http://localhost:8080/Vista/jsp/html_checkbox.jsp
+Se obtiene el mensaje de error de la excepción: 
+"Imposible obtener recurso JAR [/tags/struts-html] conteniendo TLD: [java.io.FileNotFoundException]"
+
+Por último, veamos un bosquejo de la acción que procesa el formulario una vez que es enviado:
+Archivo: Vista/src/ProcesarCheckboxAction.java 
+"
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.LazyValidatorForm;
+
+//import Vista.src.Pais;
+
+public class ProcesarCheckboxAction extends Action 
+{
+    public ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest req, HttpServletResonse res) throws Exception 
+    {
+        LazyValidatorForm dyna = (LazyValidatorForm) form;
+
+        // Obtenemos los resultados de los checkboxes
+        boolean aceite = "si".equals(dyna.get("aceite"));
+        boolean vinagre = "si".equals(dyna.get("vinagre"));
+        boolean sal = "si".equals(dyna.get("sal"));
+
+        // Obtenermos los países 
+        String[] paisesVisitados = (String[]) dyna.get("paisesVisitados");
+
+        return null;
+    }
+}
+"
+
+Esta acción es sólo un esqueleto, para que veamos las diferentes formas de acceder a los valores tanto 
+de los checkboxes como de los multiboxes (que en definitiva también son checkboxes)
+
+html:submit

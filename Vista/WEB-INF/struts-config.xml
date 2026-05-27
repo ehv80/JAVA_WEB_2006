@@ -1,0 +1,18 @@
+<form-bean
+    name="checkboxForm"
+    type="org.apache.struts.validator.LazyValidatorForm">
+    <form-property name="paisesVisitados" type="java.lang.String[]" />
+</form-bean> 
+
+<action path="/verCheckboxForm"
+    type="Vista.src.VerCheckboxAction"
+    name="checkBoxForm"
+    scope="request" />
+    <forward name="ok" path="/jsp/html_checkbox.jsp" />
+</action>
+
+<action path="/procesarCheckboxForm"
+    type="Vista.src.ProcesarCheckboxAction"
+    name="checkboxForm"
+    scope="request" />
+</action>
