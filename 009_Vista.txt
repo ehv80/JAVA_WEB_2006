@@ -836,3 +836,108 @@ Se obtiene el mensaje de error de la excepción:
 "Imposible obtener recurso JAR [/tags/struts-html] conteniendo TLD: [java.io.FileNotFoundException]"
 
 html:radio
+Con este tag generamos un botón de exclusión mutua. También conocido como radio button. Al igual que en la lista, 
+el usuario elije una y sólo una opción, de ahí su nombre de exclusión mutua. Si hay una opción ya elegida y el usuario
+marca otra, se desmarcará la primera y se marcará la segunda, obligando a elegir solamente un valor.
+Veamos los atributos fundamentales del tag:
+
+property: propiedad del form correspondiente a este componente.
+
+idName: nombre del bean que contiene el valor que ha de devolver este componente. Por lo general se usa en conjunción
+con un iterador.
+
+value: valor constante a devolver o, en caso de existir el atributo idName, nombre de la propiedad del bean determinado
+por idName que contiene el valor.
+
+Vemos que este tag tiene dos formas de funcionamiento, dependiendo si especificamos o no el atributo idName.
+
+Si no especificamos el atributo idName, en value definimos el valor que se enviará al servidor si el botón actual 
+es el elegido por el usuario. Puede ser una constante o el resultado de una expresión. Caso contrario, si especificamos idName, 
+éste determina un bean que contiene el valor a usar y podemos opcionalmente especificar con el atributo value la propiedad de dicho
+bean que devolverá el valor.
+
+Una vez más, es preciso un ejemplo:
+Archivo: Vista/jsp/html_radio.jsp
+"
+<!-- Importamos clases -->
+<%@ page import="java.util.*, Vista.src.Pais" %>
+
+<!-- En este ejemplo usamos tres paquetes de tags -->
+<%@ taglib uri="/tags/struts-html" prefix="html" %>
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+<%@ taglib uri="/tags/struts-logic" prefix="logic" %>
+
+<%
+
+// Una Colección de países 
+Collection paises = new Vector();
+paises.add(new Pais("bo", "Bolivia"));
+paises.add(new Pais("co", "Colombia"));
+paises.add(new Pais("cl", "Chile"));
+paises.add(new Pais("pe", "Perú"));
+paises.add(new Pais("py", "Paraguay"));
+paises.add(new Pais("ve", "Venezuela"));
+paises.add(new Pais("uy", "Uruguay"));
+pageContext.setAttribute("paises", paises, PageContext.PAGE_SCOPE);
+
+%>
+
+<html:html xhtml="true">
+
+<!-- Le pasamos el foco al tercer componente del grupo de botones país -->
+<html:form action="procesarFormulario" focus="pais" focusIndex="2">
+    Sexo: </br>
+
+    <!-- Dos radios button con valor constante -->
+    <html:radio property="sexo" value="M" />Masculino</br>
+    <html:radio property="sexo" value="F" />Femenino</br>
+
+</br>
+
+Pa&iacute;s</br>
+
+<!-- Iteramos sobre el conjunto de países para generar los radios button -->
+<logic:iterate id="itPais" name="paises">
+    <!-- Cada radio button obtiene su valor de la propiedad codigo del bean itPais, el bean actual de la iteración -->
+    <html:radio property="pais" idName="itPais" value="codigo" />
+
+    <!-- Escribimos el nombre del país para el usuario -->
+    <bean:write name="itPais" property="nombre" />
+</br>
+
+</logic:iterate>
+
+</html:form>
+
+</html:html>
+"
+
+Este código en acción, en la Figura 6
+[ Figura 6 
+Sexo:
+() Masculino
+() Femenino
+
+País:
+() Bolivia
+() Colombia
+() Chile
+() Perú
+() Paraguay
+() Venezuela
+() Uruguay
+
+]
+Figura 6. Los botones radio cumplen la misma función que las listas de selección simple, pero son más claros para 
+cuando hay pocas opciones.
+
+Nota: Al acceder en el navegador web a la URL: http://localhost:8080/Vista/jsp/html_radio.jsp
+Se obtiene el mensaje de error de la excepción:
+"Imposible obtener recurso JAR [/tags/struts-html] conteniendo TLD: [java.io.FileNotFoundException]"
+
+En el  primer caso simplemente creamos dos opciones con un valor fijo. En el segundo caso, más complicado,
+nos valemos de un iterador para crear tantos botones radio como elementos tengamos en una colección dada, 
+y especificamos los atributos idName y value para obtener el valor de una propiedad del objeto iterado. 
+Notemos cómo en este sencillo ejemplo hemos usado tags del paquete bean, html, y logic.
+
+html:checkbox 
