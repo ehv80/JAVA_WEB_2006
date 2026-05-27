@@ -1398,5 +1398,3 @@ Este capítulo fue largo pero analizamos un aspecto fundamental del desarrollo w
 Usamos JSP en conjunto con tags propios de Struts, vimos cómo crear formularios fácilmente sobre la base de 
 colecciones y atributos de aplicación, cómo usar los tags para evitar la necesidad de embeber código Java, y por último
 realizamos un ejemplo integrador.
-
-
