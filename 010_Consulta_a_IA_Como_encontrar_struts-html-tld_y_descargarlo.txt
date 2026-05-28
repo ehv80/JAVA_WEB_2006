@@ -1,0 +1,59 @@
+Se le pregunta a la Inteligencia Artificial de Google:
+
+Pregunta: dónde puedo encontrar el archivo struts-html.tld y descargarlo?
+
+Respuesta: 
+El archivo struts-html.tld no requiere una descarga separada. 
+Se encuentra empaquetado dentro de la biblioteca central del framework Apache Struts.
+Para obtenerlo, descarga el archivo .jar correspondiente según la versión de Struts que utilices:
+
+Pasos para encontrar y extraer el archivo:
+Descarga el paquete principal de Struts desde el sitio oficial de Apache Struts o desde repositorios como Maven Central.
+Localiza el archivo JAR:
+En Struts 1, lo encuentras dentro del archivo struts-core.jar (o struts.jar).
+En Struts 2, la librería principal se llama struts2-core-x.x.x.jar
+
+Extrae el TLD: Abre el archivo .jar con cualquier gestor de archivos comprimidos 
+(como WinRAR, 7-Zip o desde la línea de comandos usando jar xf) 
+y navega hasta la carpeta META-INF. Allí encontrarás el archivo .tld.
+(Nota: Alternativamente, puedes visualizar y copiar el código fuente de referencia directamente desde repositorios públicos como GitHub HDIV).
+
+¿Estás utilizando Struts 1 o Struts 2 en tu proyecto?
+Si me cuentas cuál de las dos versiones necesitas, puedo guiarte sobre cómo mapear el archivo correctamente en tu archivo web.xml 
+o en tu entorno de desarrollo.
+
+Se le responde: estoy utilizando Struts 2
+
+Respuesta: 
+
+El archivo struts-html.tld no existe en Struts 2. 
+Ese archivo pertenece exclusivamente a la versión antigua Struts 1.
+Struts 2 rediseñó por completo el sistema de etiquetas, unificando todo en una sola librería. 
+Las antiguas etiquetas de HTML, Beans y Logic ahora se manejan juntas bajo un único archivo llamado struts-tags.tld.
+Cómo usar las etiquetas en Struts 2 (Sin descargar nada)
+No necesitas buscar ni descargar ningún archivo .tld por separado. 
+El contenedor de servlets (como Tomcat) lo detectará automáticamente 
+siempre y cuando tengas la librería principal struts2-core-x.x.jar en la carpeta WEB-INF/lib 
+de tu proyecto.
+Para empezar a usarlas, simplemente añade la siguiente directiva taglib en la parte superior de tus archivos .jsp:
+
+jsp
+<%@ taglib prefix="s" uri="/struts-tags" %>
+
+Equivalencia de etiquetas comunes
+Al cambiar a Struts 2, la sintaxis se simplifica utilizando el prefijo s::Formularios: 
+En lugar de <html:form>, ahora utilizas <s:form>.
+Campos de texto: En lugar de <html:text>, utilizas <s:textfield>.
+Botón de envío: En lugar de <html:submit>, utilizas <s:submit>.
+Un formulario básico en Struts 2 se ve así:
+
+jsp
+<s:form action="miAccion">
+    <s:textfield name="usuario" label="Nombre de usuario" />
+    <s:submit value="Enviar" />
+</s:form>
+
+Si necesitas verificar o extraer manualmente el archivo .tld por exigencias de tu entorno de desarrollo, 
+abre el archivo struts2-core.jar con un descompresor y búscalo en la ruta META-INF/struts-tags.tld.
+¿Estás haciendo una migración de Struts 1 a Struts 2 o estás configurando un proyecto desde cero? 
+Si te aparece algún error específico de "Tag library not found", compártelo conmigo para solucionarlo de inmediato.
