@@ -1,4 +1,7 @@
-<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+<!-- <%@ taglib uri="/tags/struts-bean" prefix="bean" %>  
+ Exclusivo de Struts 1 ya no se usa así -->
+
+<%@ taglib prefix="s" uri="/struts-tags" %>
 
     <!-- Creamos un GregorianCalendar -->
     <jsp:useBean: id="cal" class="java.util.GregorianCalendar" />
