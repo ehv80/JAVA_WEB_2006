@@ -1,0 +1,4 @@
+<plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
+    <set-property property="pathnames" value="/WEB-INF/validations/validator-rules.xml"/>
+    <set-property property="stopOnFirstError" value="true"/>
+</plug-in>

@@ -1,0 +1,84 @@
+PROGRAMACIÓN WEB JAVA
+CAPÍTULO 8
+VALIDACIÓN
+
+En el presente capítulo veremos
+el Struts Validator, un componente
+con funcionalidad para validar 
+automáticamente nuestros formularios.
+Manejaremos sus validaciones básicas 
+y aprenderemos a crear nuevas.
+
+VALIDAR LOS FORMULARIOS
+
+En el Capítulo 5 vimos cómo programar nuestros objetos ActionForm para que se validen los datos ingresados por el usuario.
+Este enfoque es útil para validaciones complejas; sin embargo, la mayoría de las veces las validaciones que necesitaremos realizar
+en los formularios son muy simples: que un campo no quede vacío, que un campo sea numérico, que un campo contenga una fecha válida, etc.
+En estos casos, implementar el método validate para repetir las mismas validaciones básicas es un proceso que podría simplificarse.
+Además, se suma el hecho de que probablemente querremos usar forms como DynaActionForm o LazyValidatorForm para evitar crear una clase
+por cada formulario, y en esos casos no tendremos dónde implementar el método validate.
+
+Para todos estos casos, Struts Validator es la herramienta a usar.
+
+El Struts Validator es un componente muy poderoso. Simple de usar para casos sencillos, sin embargo, provee funcionalidades como para 
+poder definir cualquier tipo de validador propio.
+Para empezar a usar el validador, primeramente 
+debemos declararlo en el archivo: Validacion/WEB-INF/struts-config.xml
+El validador es un plugin, esto es, un componente que Struts carga al iniciarse y destruye al finalizar su ejecución.
+
+Los elementos plugin son el último tipo de elemento que definimos en el archivo de configuración: Validacion/WEB-INF/struts-config.xml
+Veamos cómo definir el validador: 
+"
+<plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
+    <set-property property="pathnames" value="/WEB-INF/validations/validator-rules.xml"/>
+    <set-property property="stopOnFirstError" value="true"/>
+</plug-in>
+"
+Se crea el directorio: Validacion/WEB-INF/validations
+Se crea el archivo: Validacion/WEB-INF/validations/validator-rules.xml
+
+El elemento plug-in toma un atributo de nombre className que especifica la clase 
+(que ha de implementar la interfaz org.apache.struts.action.Plugin) a instanciar.
+Dentro del cuerpo del elemento podemos definir un conjunto de elementos set-property, 
+que establecen valores a propiedades de la clase al instanciarse.
+
+En el caso de la clase ValidatorPlugin, las propiedades a las que podemos establecer su valor son las siguientes:
+
+pathnames: una lista de nombres de archivo, separados por coma, que contienen las descripciones de las validaciones a realizar.
+Es muy importante no olvidar agregar los archivos xml que vayamos creando a esta lista, si no, por más que definamos el resto de 
+las configuraciones bien, la validación no se realizará.
+
+stopOnFirstError: si es true, el validador detendrá la validación JavaScript al primer error encontrado y mostrará dicho error. Caso contrario,
+si es false, se validarán todos los campos y se mostrarán todos los errores juntos.
+
+Como vemos, en principio estamos definiendo solamente un archivo de configuración de validación.
+El archivo: Validacion/WEB-INF/validations/validator-rules.xml
+(ubicado en la carpeta raíz de la distribución Library de Struts) 
+contiene las descripciones de las validaciones básicas que provee Struts en base al proyecto Commons Validator
+(URL: http://jakarta.apache.org/commons/validator). 
+Estas validaciones estándar usan ciertas claves del archivo de recursos para mostrar los errores, por eso para su correcto uso 
+es necesario que agreguemos al archivo de recursos las siguientes claves (los valores podemos cambiarlos a nuestro gusto o idioma):
+
+Archivo de recursos: Validacion/WEB-INF/MessageResources.properties 
+"
+errors.required={0} es requerido.
+errors.minlength={0} no puede ser menor de {1} caracteres.
+errors.maxlength={0} no puede ser mayor de {1} caracteres.
+errors.invalid={0} es inválido.
+errors.byte={0} debe ser un byte.
+errors.short={0} debe ser un short.
+errors.integer={0} debe ser un integer.
+errors.long={0} debe ser un long.
+errors.float={0} debe ser un float.
+errors.double={0} debe ser un double.
+errors.date={0} no esuna fecha.
+errors.range={0} no está en el rango {1} - {2}.
+errors.creditCard={0} es una tarjeta de crédito inválida.
+errors.email={0} no es una dirección de correo electrónico válida.
+errors.url={0} no es una dirección web válida.
+"
+
+En cuanto conozcamos mejor cada tipo de validación veremos cómo pueden ser utilizados estos mensajes.
+
+Definir un validador
+
