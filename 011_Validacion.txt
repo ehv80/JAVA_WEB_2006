@@ -81,4 +81,67 @@ errors.url={0} no es una dirección web válida.
 En cuanto conozcamos mejor cada tipo de validación veremos cómo pueden ser utilizados estos mensajes.
 
 Definir un validador
+Para definir validaciones sobre un formulario, debemos proveerle al validador un archivo xml. Técnicamente, 
+podríamos agregar al archivo: Validacion/WEB-INF/validations/validator-rules.xml 
+los elementos XML para las validaciones, pero es una práctica no recomendada.
+Una buena práctica es crear un archivo XML para cada formulario que deseemos validar.
+Veamos en qué consiste este archivo: Validacion/WEB-INF/validations/validator-rules.xml
+"
+<!DOCTYPE form-validation PUBLIC
+    "-//Apache Struts//XWork Validator 1.0.2//EN"
+    "http://struts.apache.org/dtds/xwork-validator-1.0.2.dtd">
 
+<!-- Antes se hacía así para la versión 1 de Struts  
+<!DOCTYPE form-validation PUBLIC
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1.3//EN"
+    "http://jakarta.apache.org/commons/dtds/validator-1.1.3.dtd">
+-->
+
+<!-- Elemento raíz -->
+<form-validation>
+
+<!-- Conjunto de formularios -->
+    <formset>
+    <!-- Agregamos nuestro formulario al conjunto -->
+        <form name="proyectoForm">
+
+            <!-- Primer Campo a validar -->
+            <field property="nombre" depends="required">
+                <arg position="0" key="proyecto.nombre"/>
+            </field>
+
+            <!-- Segundo Campo a validar -->
+            <field property="fecha" depends="date">
+                <arg position="0" key="proyecto.fecha"/>
+                <var>
+                    <var-name>datePattern</var-name>
+                    <var-value>MM-dd-yyyy</var-value>
+                </var>
+            </field>
+        </form>
+    </formset>
+</form-validation>
+
+"
+
+El validador internamente tiene un conjunto de objetos llamados formset, 
+cada elemento form dentro de este elemento agrega un formulario
+al conjunto de formularios que tendrán validación.
+
+Veamos elemento por elemento el archivo: Validacion/WEB-INF/validations/validator-rules.xml
+
+<form name="proyectoForm">
+Mediante este elemento declaramos que estamos definiendo la validación para el formulario de nombre proyectoForm.
+Este form tiene que existir con este nombre en el archivo: Validacion/WEB-INF/struts-config.xml.
+
+<field property="nombre" depends="required">
+    <arg position="0" key="proyecto.nombre"/>
+</field>
+En un formulario, podemos validar uno o más campos. Cada elemento field define un campo y las validaciones que han de 
+realizarse sobre él cuando el formulario sea enviado. El campo que validamos lo definimos con el atributo property. 
+Las validaciones que se efectuarán sobre el campo las definimos mediante el atributo depends. Si queremos realizar más
+de una validación, las escribimos separadas por comas. Un campo debe pasar todas las validaciones para que sea válido. 
+En el cuerpo del tag field insertaremos elementos y propiedades diversas, dependiendo del tipo de validación que estemos
+efectuando.
+
+Validaciones estándar
