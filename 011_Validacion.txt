@@ -145,3 +145,60 @@ En el cuerpo del tag field insertaremos elementos y propiedades diversas, depend
 efectuando.
 
 Validaciones estándar
+Vamos a ver las validaciones que Struts provee, su uso y cómo configurarlas. En todos los casos, los elementos arg dentro del
+elemento field definen la clave del archivo de recursos con la etiqueta del campo a ser usada por el mensaje de error.
+Por ejemplo, para el validador required el mensaje de error es:
+
+errors.required={0} es requerido.
+
+Si nuestro arg de posición 0 es, como en el ejemplo, proyecto.nombre y su valor en castellano es nombre, 
+entonces al producirse un error que es mostrado en la página veremos lo siguiente:
+
+nombre es requerido
+
+required
+Valida que el campo contenga un valor. Ejemplo de uso:
+
+<field property="nombre" depends="required">
+    <arg position="0" key="proyecto.nombre" />
+</field>
+
+minlength, maxlength
+Valida que el campo tenga un número mínimo o máximo de caracteres, respectivamente. 
+Este elemento toma una variable especificando el valor de mínimo o máximo, siendo minlength y maxlength.
+Ejemplo de uso:
+
+<field property="nombre" depends="minlength">
+    <arg position="0" key="form.nombre" />
+    <arg position="1" key="5">
+    <var>
+        <var-name>minlength</var-name>
+        <var-value>5</var-value>
+    </var>
+</field>
+
+Este es un ejemplo para validar un campo con un número mínimo de caracteres.
+Para validar por el máximo, el procedimiento es igual, pero reemplazando por maxlength en vez de minlength.
+
+Viendo este ejemplo notamos dos inconvenientes. El primero es que tenemos que repetir el valor mínimo (o máximo)
+tanto en la variable como en el argumento del mensaje. El segundo, y más importante, es que el segundo atributo de arg 
+es key, o sea, la clave del una entrada en el archivo de recursos por cada número que usemos en los validadores!
+
+Afortunadamente, podemos resolver estos dos inconvenientes. Para el primer problema, simplemente podemos establecer 
+una referencia al valor de la variable que definimos en el elemento var. Para el segundo problema, existe el atributo
+resource dentro de los elementos arg que especifica si el valor es una clave del archivo de recursos o es un valor literal.
+Veamos entonces el mismo ejemplo anterior pero con estas salvedades.
+
+<field property="nombre" depends="minlength">
+    <arg position="0" key="form.nombre" />
+    <arg position="1" name="minlength" key="${var:minlength}" resource="false" />
+    <var>
+        <var-name>minlength</var-name>
+        <var-value>5</var-value>
+    </var>
+</field>
+
+El atributo key del segundo elemento arg hace referencia al valor de la variable minlength, y a su vez define
+que dicho valor no es una clave del archivo de recursos sinó el valor en sí.
+
+mask
