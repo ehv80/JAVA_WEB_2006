@@ -202,3 +202,30 @@ El atributo key del segundo elemento arg hace referencia al valor de la variable
 que dicho valor no es una clave del archivo de recursos sinó el valor en sí.
 
 mask
+Valida el campo según una expresión regular. Si el valor del campo se ajusta a la expresión regular, entonces se lo 
+considera válido. Este validador es muy útil para validar formatos específicos en los campos. Veamos un ejemplo. 
+Supongamos que un campo del formulario pide al usuario el código postal de su residencia. Supongamos también que todo
+código postal válido consta de 3 letras y 4 dígitos. Entonces definimos el siguiente validador:
+
+<field property="cp" depends="mask" >
+    <msg name="mask" key="form.cp.msg" />
+    <arg key="form.cp" position="0" />
+    <var>
+        <var-name>mask</var-name>
+        <var-value>^[a-zA-Z]{3}[0-9]{4}$</var-value>
+    </var>
+</field>
+
+Este validador se encargará de validar la propiedad cp del formulario. En la variable mask definimos la expresión regular. 
+Ésta debe empezar con el signo ^ y debe terminar con el signo $.
+
+El validador mask es un validador genérico y, por consiguiente, no tiene un mensaje de error por defecto.
+En el ejemplo vemos el elemento msg. Dicho atributo especifica la clave, para el validador mask, del mensaje de error.
+Si el mensaje de error tuviera variables, además podemos especificar un elemento arg.
+
+Las entradas en el archivo de recursos correspondientes son:
+
+form.cp=Codigo postal
+form.cp.msg={0} debe ser de la forma ABC1234
+
+byte, short, integer, long, float, double
