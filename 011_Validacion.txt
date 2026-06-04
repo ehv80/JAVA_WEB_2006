@@ -229,3 +229,30 @@ form.cp=Codigo postal
 form.cp.msg={0} debe ser de la forma ABC1234
 
 byte, short, integer, long, float, double
+Estos validadores verifican que el valor del campo pueda ser convertido al tipo dado. 
+En todos los casos no se necesita otra variable más que el argumento para el mensaje de error.
+Veamos dos ejemplos:
+
+<field property="edad" depends="integer" >
+    <arg key="form.edad" position="0" />
+</field>
+
+<field property="sueldo" depends="double" >
+    <arg key="form.sueldo" position="0" />
+</field>
+
+date
+Verifica que el valor del campo represente una fecha, según el patrón de conversión dado. Las posibles variables
+son datePattern y datePatternStrict. La diferencia entre estos dos es que datePatternStrict, como su nombre lo indica, es 
+estricto en cuanto a la cantidad de caracteres. Por ejemplo, con un patrón dd/MM/yyyy la fecha 4/6/1979 fallará si el patrón es
+declarado como datePatternStrict. Para este caso la fecha correcta sería 04/06/1979.
+
+<field property="fecha_nacimiento" depends="date" >
+    <arg key="form.fecha_nacimiento" position="0" />
+    <var>
+        <var-name>datePattern</var-name>
+        <var-value>dd/MM/yyyy</var-value>
+    </var>
+</field>
+
+intRange, floatRange, doubleRange
