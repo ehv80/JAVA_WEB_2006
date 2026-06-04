@@ -323,3 +323,94 @@ ni ftp://sitio.ftp.com (esquema inválido)
 ni http://www.jengibre.com.ar//index.html (que tiene dos barras consecutivas).
 
 validwhen
+Cuando necesitamos validar un campo pero en función de otro campo, ninguna de las validaciones vistas hasta ahora nos sirve.
+Este validador sirve exactamente para estos casos. El ejemplo típico es cuando pedimos a un usuario que ingrese su clave en un campo y 
+la reingrese en otro campo, como confirmación. Ninguno de estos campos es válido o inválido por sí solo, sinó que su validez está dada por
+ambos valores. El validador toma solamente una variable de nombre test que debe contener una expresión booleana. Si la evaluación de la 
+expresión es verdadera, la validación es exitosa.
+
+La expresión booleana tiene algunas reglas sintácticas que debemos respetar:
+
+· Toda comparación debe estar encerrada entre paréntesis
+· Los conectores and y or sólo conectan dos elementos
+
+Los valores posibles son:
+
+· Nombre de un campo del formulario.
+· Cadenas de texto encerradas por comillas simples o dobles.
+· El literal null.
+· El literal *this*, que representa el valor del campo actual.
+
+Si los valores a ser comparados pueden ser convertidos a enteros, se realiza una comparación numérica,
+en otro caso, una comparación textual.
+
+Supongamos que tenemos dos campos. Estos campos son válidos si los dos contienen un valor o si ninguno contiene un valor.
+Esto sería una extensión al validador required. Dados los campos campo1 y campo2, la expresión que realiza esta validación es
+la siguiente:
+
+((( campo1 == null ) and (campo2 == null)) or ((campo1 != null ) and (campo2 != null)))
+
+Si logramos abstraer nuestra mente de la sopa de letras de paréntesis, vemos que la lógica es muy sencilla: ambos nulos o ambos no nulos.
+
+Veamos un ejemplo más complejo. Tenemos un checkbox que permite al usuario elegir realizar su pago en cuotas y un campo de texto donde 
+el usuario ingresa el número de cuotas solamente si marcó la opción de pagar en cuotas. Veamos un ejemplo donde además de usar validwhen lo 
+mezclamos con otros validadores para hacer un validador completo.
+
+Se crea el directorio: Validacion/jsp 
+
+La porción de código de la página JSP:
+Archivo: Validacion/jsp/cuotas.jsp 
+"
+<html:checkbox property="cuotas" />
+<bean:message key="form.cuotas" /></br>
+
+<bean:message key="form.cantCuotas" />:
+<html:text property="cantCuotas" size="4" />
+<html:errors property="cantCuotas" /><br>
+"
+Se añade en el archivo: Validacion/WEB-INF/validations/validator-rules.xml 
+el validador correspondiente: 
+"
+<!-- Fornulario del ejemplo del validador validwhen con el ejemplo de las cuotas -->
+        <form name="cuotasForm">
+            <!-- Validamos el campo cantCuotas con tres validadores -->
+            <field property="cantCuotas" depends="validwhen, integer, intRange">
+                <!-- Argumento para los mensajes de error, sirve tanto para integer como para intRange -->
+                <arg key="form.cantCuotas" position="0"/>
+
+                <!-- Argumento para el mensaje de error del validador intRange -->
+                <arg name="intRange" key="${var:min}" resource="false" position="1"/>
+                <arg name="intRange" key="${var:max}" resource="false" position="2"/>
+
+                <!-- Mensaje a mostrar si falla el validador validwhen -->
+                <msg name="validwhen" key="form.cantCuotas.msg"/>
+
+                <!-- Configuración de validwhen -->
+                <var>
+                    <var-name>test</var-name>
+                    <var-value>((cuotas == null) or (*this* != null))</var-value>
+                </var>
+
+                <!-- Variables para configurar el validador intRange -->
+                <var>
+                    <var-name>min</var-name>
+                    <var-value>2</var-value>
+                </var>
+                <var>
+                    <var-name>max</var-name>
+                    <var-value>12</var-value>
+                </var>
+            </field>
+        </form>
+"
+
+Vamos a repasar con detenimiento este validador. En primer lugar, estamos asignando al campo tres validadores:
+validwhen, integer e intRange. Esto significa que las tres validaciones deben ser exitosas para que el campo sea válido.
+En primer lugar se ejecutará validwhen:
+
+((cuotas == null) or (*this* != null ))
+
+Esto implica que la validación será exitosa si cuotas es nulo (o sea, no está marcado) o si cantCuotas no es nulo.
+Si esta validación fue exitosa, se procederá a validar que lo ingresado sea un número, y luego, que esté en el rango establecido.
+
+Validación en el cliente
