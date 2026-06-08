@@ -62,5 +62,15 @@
                 </var>
             </field>
         </form>
+
+        <form name="clienteForm">
+            <field property="nombre" depends="required">
+                <arg key="cliente.nombre" position="0" />
+            </field>
+            <field property="edad" depends="required, integer">
+                <arg key="cliente.edad" position="0" />
+            </field>
+        </form>
+
     </formset>
 </form-validation>

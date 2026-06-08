@@ -1,4 +1,29 @@
-<plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
-    <set-property property="pathnames" value="/WEB-INF/validations/validator-rules.xml"/>
-    <set-property property="stopOnFirstError" value="true"/>
-</plug-in>
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+	"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+	
+<struts-config>
+	<action-mappings>
+		<!-- Acción 1-->
+		<action
+			path="/cliente" name="clienteForm" scope="request" validate="false"
+            forward="/jsp/cliente.jsp" />	
+		</action>
+        <!-- Acción 2-->
+		<action
+			path="/cliente2"
+            type="action.ProcesarClienteAction" 
+            name="clienteForm" scope="request" validate="true"
+            input="/cliente.do" >	
+		</action>
+
+	</action-mappings>
+
+    <plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
+        <set-property property="pathnames" value="/WEB-INF/validations/validator-rules.xml"/>
+        <set-property property="stopOnFirstError" value="true"/>
+    </plug-in>
+
+</struts-config>

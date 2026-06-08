@@ -427,3 +427,207 @@ A fin de cuentas, la validación en el cliente es una importante herramienta que
 a aliviar su carga.
 
 Activar el código JavaScript
+Aplicar la validación en el cliente es muy sencillo. Veamos un pequeño ejemplo al que aplicaremos validación JavaScript.
+Dos acciones dentro del archivo: Validación/WEB-INF/struts-config.xml
+"
+<!DOCTYPE struts-config PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+	"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+	
+<struts-config>
+	<action-mappings>
+		<!-- Acción 1-->
+		<action
+			path="/cliente" name="clienteForm" scope="request" validate="false"
+            forward="/jsp/cliente.jsp" />	
+		</action>
+        <!-- Acción 2-->
+		<action
+			path="/cliente2"
+            type="action.ProcesarClienteAction" 
+            name="clienteForm" scope="request" validate="true"
+            input="/cliente.do" >	
+		</action>
+
+	</action-mappings>
+
+    <plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
+        <set-property property="pathnames" value="/WEB-INF/validations/validator-rules.xml"/>
+        <set-property property="stopOnFirstError" value="true"/>
+    </plug-in>
+
+</struts-config>
+"
+
+En el archivo XML que define las validaciones: Validacion/WEB-INF/validations/validator-rules.xml
+(recordar agregar este archivo a la lista de pathnames del Validator Plugin como se ve arriba)
+se agrega:
+"
+<!DOCTYPE form-validation PUBLIC
+    "-//Apache Struts//XWork Validator 1.0.2//EN"
+    "http://struts.apache.org/dtds/xwork-validator-1.0.2.dtd">
+
+<!-- Antes se hacía así para la versión 1 de Struts  
+<!DOCTYPE form-validation PUBLIC
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1.3//EN"
+    "http://jakarta.apache.org/commons/dtds/validator-1.1.3.dtd">
+-->
+
+<!-- Elemento raíz -->
+<form-validation>
+
+<!-- Conjunto de formularios -->
+    <formset>
+    <!-- Agregamos nuestro formulario al conjunto -->
+        <form name="proyectoForm">
+
+            <!-- Primer Campo a validar -->
+            <field property="nombre" depends="required">
+                <arg position="0" key="proyecto.nombre"/>
+            </field>
+
+            <!-- Segundo Campo a validar -->
+            <field property="fecha" depends="date">
+                <arg position="0" key="proyecto.fecha"/>
+                <var>
+                    <var-name>datePattern</var-name>
+                    <var-value>MM-dd-yyyy</var-value>
+                </var>
+            </field>
+        </form>
+
+        <!-- Fornulario del ejemplo del validador validwhen con el ejemplo de las cuotas -->
+        <form name="cuotasForm">
+            <!-- Validamos el campo cantCuotas con tres validadores -->
+            <field property="cantCuotas" depends="validwhen, integer, intRange">
+                <!-- Argumento para los mensajes de error, sirve tanto para integer como para intRange -->
+                <arg key="form.cantCuotas" position="0"/>
+
+                <!-- Argumento para el mensaje de error del validador intRange -->
+                <arg name="intRange" key="${var:min}" resource="false" position="1"/>
+                <arg name="intRange" key="${var:max}" resource="false" position="2"/>
+
+                <!-- Mensaje a mostrar si falla el validador validwhen -->
+                <msg name="validwhen" key="form.cantCuotas.msg"/>
+
+                <!-- Configuración de validwhen -->
+                <var>
+                    <var-name>test</var-name>
+                    <var-value>((cuotas == null) or (*this* != null))</var-value>
+                </var>
+
+                <!-- Variables para configurar el validador intRange -->
+                <var>
+                    <var-name>min</var-name>
+                    <var-value>2</var-value>
+                </var>
+                <var>
+                    <var-name>max</var-name>
+                    <var-value>12</var-value>
+                </var>
+            </field>
+        </form>
+
+        <form name="clienteForm">
+            <field property="nombre" depends="required">
+                <arg key="cliente.nombre" position="0" />
+            </field>
+            <field property="edad" depends="required, integer">
+                <arg key="cliente.edad" position="0" />
+            </field>
+        </form>
+
+    </formset>
+</form-validation>
+
+"
+
+Hasta ahora, todo como siempre. Suena muy lógico, y la parte que corresponde a la validación del cliente la realizaremos, 
+como es de esperarse, en el cliente.
+
+Veamos el código JSP de la página: Validacion/jsp/cliente.jsp
+"
+<!-- Ejemplo de Validación con Código JavaScript del lado del cliente en la página JSP -->
+
+<%@ taglib uri="/struts-tags" prefix="s" %>
+
+<!-- Antes se hacía así en la versión 1 de Struts 
+<%@ taglib uri="/tags/struts-html" prefix="html" %>
+-->
+
+<html:html>
+
+<head>
+    <!-- Agregamos validación en el cliente -->
+    <html:javascript forName="clienteForm" method="validar" />
+</head>
+
+<!-- Un método JavaScript para cuando el formulario es enviado -->
+<html:form action="cliente2" onsubmit="return validar(this);">
+    Nombre: <html:text property="nombre" /><html:errors property="nombre" /></br>
+    Edad: <html:text property="edad" /> <html:errors property="edad" /></br>
+
+    <html:submit value="Enviar" />
+    <html:cancel value="Cancelar" />
+
+</html:form>
+
+</html:html>
+"
+
+El tag html:javascript insertar el código JavaScript necesario para las validaciones.
+Sus atributos son:
+
+cdata: si es true (por defecto lo es), encierra el código JavaScript generado en una sección CDATA, de forma
+de ser compatible con XML.
+
+htmlComment: si es true (por defecto lo es), encierra el códigoo JavaScript entre comentarios
+
+forName: nombre del formulario a validar.
+
+method: nombre del método JavaScript que realizará la validación. Si no especificamos este parámetro, 
+el valor por defecto es validate[forName]. En el ejemplo hubiera sido: validateClienteForm.
+
+page: número de página que estamos validando, para validaciones multi-página.
+
+scriptLanguage: si es true (por defecto lo es), se agrega el atributo languaje al elemento <script>
+
+src: el atributo src del elemento <script>
+
+staticJavascript: si es true (por defecto lo es), el código JavaScript estático es agregado a la página JSP.
+
+dynamicJavascript: si es true (por defecto lo es), el código JavaScript dinámico es agregado a la página JSP.
+
+Los atributos staticJavascript y dynamicJavascript ameritan una explicación extra. El código estático se refiere
+a las funciones JavaScript genéricas validadoras. Funciones como validateRequired o validateInteger que son las asociadas 
+a los validadores. El código JavaScript dinámico es el que llama a estas funciones en base a lo que el formulario requiera. 
+En nuestro caso, el código dinámico será el encargado de llamar a las funciones que validen que los campos no sean vacíos y que 
+el campo edad además sea numérico.
+
+Por defecto, ambos códigos son generados. Podríamos crear una página que se use para generar el código estático y guardarlo como 
+un archivo o que las páginas con validaciones incluyan el contenido.
+
+Si generamos sólo el código estático, no es necesario especificar un form. Por ejemplo:
+
+<html:javascript dynamicJavascript="false" staticJavascript="true" />
+
+Así generamos el código JavaScritp estático que podremos incluir o referenciar desde cualquier página JSP.
+
+Además de incluir el código JavaScript, necesario para las validaciones en el cliente, debemos llamar al código cuando se envía el 
+formulario para que la validación efectivamente se ejecute. En el ejemplo hicimos:
+
+<html:form action="cliente2" onsubmit="return validar(this);">
+
+El atributo onsubmit especifica código JavaScript a ejecutar cuando el formulario es enviado. La función validar (que toma ese nombre porque así lo definimos usando el atributo method en el tag html:javascript) devuelve un resultado booleano, si el resultado es falso, el formulario no se envía al servidor. En la Figura 1 vemos el validador en acción.
+
+[ Figura 1 ]
+Figura 1. Con las validaciones JavaScript fácilmente mejoramos la validación de datos para el usuario.
+Nota: Al acceder con el navegador web a la URL: http://localhost:8080/Validacion/jsp/cliente.jsp
+Se obtiene el mensaje de error de la excepción: 
+"Imposible obtener recurso JAR [/tags/struts-html] conteniendo TLD: [java.io.FileNotFoundException]"
+
+Si incluimos en la página un botón de cancelación (como en el ejemplo), no necesitamos agregar código extra, 
+ya que el botón trae generado un código JavaScript para saltear la validación, ya que al estar cancelando el formulario lo 
+estamos enviando, pero no queremos que sea validado.
+
+Un validador propio
