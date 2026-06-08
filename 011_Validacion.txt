@@ -414,3 +414,16 @@ Esto implica que la validación será exitosa si cuotas es nulo (o sea, no está
 Si esta validación fue exitosa, se procederá a validar que lo ingresado sea un número, y luego, que esté en el rango establecido.
 
 Validación en el cliente
+Los validadores de Struts también traen consigo código JavaScript para agregar a las páginas JSP. De esta forma, en los casos en
+que se pueda, la validación se realizará del lado del cliente, mediante código JavaScript. Este enfoque tiene pros y contras.
+Su ventaja principal es que enviar la información al servidor, que sea validada y que vuelva en caso de error, toma su tiempo.
+Si la conexión es lenta o si hay mucho tráfico, pueden pasar varios segundos hasta que el servidor nos conteste que nos olvidamos de
+marcar una opción que no logramos ver. Usando código JavaScript y realizando la validación en el cliente, esto es practicamente instantáneo,
+ningún tipo de información viaja por la red. Como contras, tenemos varias aunque menores. En primer lugar, no podemos depender de este tipo
+de validaciones, ya que el usuario puede haber elegido deshabilitar el código JavaScript en su navegador web o simplemente puede tener un
+navegador web que no soporte este lenguaje. Agregar código JavaScript incrementa el tamaño de la página JSP. Este incremento suele ser despreciable, pero es algo a considerar. Además, muchas veces las validaciones necesitan intrínsecamente ser realizadas en el servidor.
+La corroboración de un nombre de usuario y contraseña claramente no podemos realizarla en el cliente.
+A fin de cuentas, la validación en el cliente es una importante herramienta que ayuda al cliente a ahorrar tiempos, y al servidor,
+a aliviar su carga.
+
+Activar el código JavaScript
