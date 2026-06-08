@@ -11,6 +11,23 @@
 <!-- Elemento raíz -->
 <form-validation>
 
+    <!-- El elemento global va antes que el elemento formset para definir un validador propio -->
+    <global>
+        <!-- Definimos un validador personalizado llamado primo -->
+        <validator name="primo" 
+            classname="validador.Validador"
+            method="validarPrimo"
+            methodParams="java.lang.Object,
+                org.apache.commons.validator.ValidatorAction,
+                org.apache.commons.validator.Field,
+                org.apache.struts.action.ActionMessages,
+                org.apache.commons.validator.Validator,
+                jakarta.servlets.http.HttpServletRequest"
+            depends="integer"
+            msg="errors.primo">
+        </validator>
+    </global>
+
 <!-- Conjunto de formularios -->
     <formset>
     <!-- Agregamos nuestro formulario al conjunto -->

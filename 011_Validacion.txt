@@ -631,3 +631,146 @@ ya que el botón trae generado un código JavaScript para saltear la validación
 estamos enviando, pero no queremos que sea validado.
 
 Un validador propio
+Mediante los validadores del proyecto Commons Validator -en conjunción con validwhen- podremos realizar una gran cantidad
+de validaciones de uso recurrente. Pero en el caso de necesitar una validación que no esté al alcance de estas herramientas,
+podremos fácilmente programarla y usarla como cualquier otra validación.
+
+En los archivos de configuración de validaciones, donde veníamos definiendo los validadores para los campos de formularios,
+(Archivo: Validacion/WEB-INF/validations/validator-rules.xml) podemos agregar nuestros propios validadores. Dentro del elemento
+global (que debe definirse antes que el elemento formset), el elemento validator especifica un validador. Si miramos el archivo
+validator-rules.xml que trae Struts, veremos que consta básicamente de las declaraciones de los validadores que hemos estado viendo
+durante el capítulo. Los atributos a definir en el elemento son: 
+
+name: nombre del validador.
+
+classname: clase que implementa la validación.
+
+method: nombre del método que implementa la validación.
+
+methodParams: parámetros que recibe el método.
+
+depends: validadores de los que depende este validador, separados por coma. Estos validadores son llamados antes que el actual.
+
+msg: clave del mensaje de error que se mostrará si la validación falla. 
+
+Si bien un validador puede definir por defecto una clave de mensaje a mostrar, siempre podemos redefinir el mensaje para cada validación
+particular mediante el elemento msg. Por ejemplo, el validador required define como clave errors.required, pero podemos definir
+un validador sobre un campo que use required y redefina el mensaje:
+
+<field property="nombre" depends="required" >
+    <arg position="0" key="proyecto.nombre" />
+    <msg key="mensaje.propio" />
+</field>
+
+Volviendo al tema de los validadores, veamos cómo es la definición de nuestro propio validador, encargado de verificar que el valor
+de un campo sea un número primo.
+
+(Recordar que el elemento global va antes del elemento formset dentro del archivo Validacion/WEB-INF/validations/validator-rules.xml)
+
+"
+<!DOCTYPE form-validation PUBLIC
+    "-//Apache Struts//XWork Validator 1.0.2//EN"
+    "http://struts.apache.org/dtds/xwork-validator-1.0.2.dtd">
+
+<!-- Antes se hacía así para la versión 1 de Struts  
+<!DOCTYPE form-validation PUBLIC
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1.3//EN"
+    "http://jakarta.apache.org/commons/dtds/validator-1.1.3.dtd">
+-->
+
+<!-- Elemento raíz -->
+<form-validation>
+
+    <!-- El elemento global va antes que el elemento formset para definir un validador propio -->
+    <global>
+        <!-- Definimos un validador personalizado llamado primo -->
+        <validator name="primo" 
+            classname="validador.Validador"
+            method="validarPrimo"
+            methodParams="java.lang.Object,
+                org.apache.commons.validator.ValidatorAction,
+                org.apache.commons.validator.Field,
+                org.apache.struts.action.ActionMessages,
+                org.apache.commons.validator.Validator,
+                jakarta.servlets.http.HttpServletRequest"
+            depends="integer"
+            msg="errors.primo">
+        </validator>
+    </global>
+
+<!-- Conjunto de formularios -->
+    <formset>
+    <!-- Agregamos nuestro formulario al conjunto -->
+        <form name="proyectoForm">
+
+            <!-- Primer Campo a validar -->
+            <field property="nombre" depends="required">
+                <arg position="0" key="proyecto.nombre"/>
+            </field>
+
+            <!-- Segundo Campo a validar -->
+            <field property="fecha" depends="date">
+                <arg position="0" key="proyecto.fecha"/>
+                <var>
+                    <var-name>datePattern</var-name>
+                    <var-value>MM-dd-yyyy</var-value>
+                </var>
+            </field>
+        </form>
+
+        <!-- Fornulario del ejemplo del validador validwhen con el ejemplo de las cuotas -->
+        <form name="cuotasForm">
+            <!-- Validamos el campo cantCuotas con tres validadores -->
+            <field property="cantCuotas" depends="validwhen, integer, intRange">
+                <!-- Argumento para los mensajes de error, sirve tanto para integer como para intRange -->
+                <arg key="form.cantCuotas" position="0"/>
+
+                <!-- Argumento para el mensaje de error del validador intRange -->
+                <arg name="intRange" key="${var:min}" resource="false" position="1"/>
+                <arg name="intRange" key="${var:max}" resource="false" position="2"/>
+
+                <!-- Mensaje a mostrar si falla el validador validwhen -->
+                <msg name="validwhen" key="form.cantCuotas.msg"/>
+
+                <!-- Configuración de validwhen -->
+                <var>
+                    <var-name>test</var-name>
+                    <var-value>((cuotas == null) or (*this* != null))</var-value>
+                </var>
+
+                <!-- Variables para configurar el validador intRange -->
+                <var>
+                    <var-name>min</var-name>
+                    <var-value>2</var-value>
+                </var>
+                <var>
+                    <var-name>max</var-name>
+                    <var-value>12</var-value>
+                </var>
+            </field>
+        </form>
+
+        <form name="clienteForm">
+            <field property="nombre" depends="required">
+                <arg key="cliente.nombre" position="0" />
+            </field>
+            <field property="edad" depends="required, integer">
+                <arg key="cliente.edad" position="0" />
+            </field>
+        </form>
+
+    </formset>
+</form-validation>
+
+"
+
+Los parámetros que recibe el método que implementa la validación deben respetar esta aridad. Struts asume que todo método 
+validador recibirá estos parámetros y así es como los invoca. 
+
+El validador depende de integer, ya que para verificar que el campo es un número primo, primeramente debe ser número.
+
+Veamos la clase Java que implementa el método que realiza la validación:
+Archivo: Validación/src/Validador.java
+"
+
+"
