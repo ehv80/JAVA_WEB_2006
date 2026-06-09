@@ -1030,13 +1030,17 @@ public class DatosWizard
 {
     private String nombre;
     private String apellido;
+    private String correo;
+    private String direccion;
 
 
     // Constructor con parámetros
-    public DatosWizard(String nombre, String apellido)
+    public DatosWizard(String nombre, String apellido, String correo, String direccion)
     {
         this.nombre = nombre;
         this.apellido = apellido;
+        this.correo = correo;
+        this.direccion = direccion;
     }
 
     public void setNombre(String nombre)
@@ -1059,11 +1063,122 @@ public class DatosWizard
         return this.apellido;
     }
 
+    public void setCorreo(String correo)
+    {
+        this.correo = correo;
+    }
+
+    public String getCorreo()
+    {
+        return this.correo;
+    }
+
+    public void setDireccion(String direccion)
+    {
+        this.direccion = direcccion;
+    }
+
+    public String getDirecccion()
+    {
+        return this.direccion;
+    }
+
 }
 "
 
 Mostrar errores con estilo 
- 
+Hemos visto en los ejemplos que usando el tag html:errors podemos mostrar los errores de validación ocurridos en la página 
+o respecto a un campo en particular. Este tag posee muchas opciones en cuanto al estilo y la forma de mostrar estos errores.
+Además del atributo property, que al usarlo devuelve sólo los errores para la propiedad dada, hay cuatro atributos extra asociados 
+con el estilo del error:
 
+header: clave de lo que se imprimirá antes de todos los errores.
 
+footer: clave de lo que se imprimirá después de todos los errores.
 
+prefix: clave de lo que se imprimirá antes de cada error.
+
+suffix: clave de lo que se imprimirá después de cada error.
+
+Si no especificamos estos atributos, los valores por defecto son: errors.header, errors.footer, errors.prefix y errors.suffix 
+respectivamente.
+
+Usando estos atributos, veamos un ejemplo no muy estético pero funcional de errores con estilos aplicados.
+Archivo: Validacion/jsp/errores-con-estilos.jsp
+"
+<%@ taglib uri="/struts-tags" prefix="s" %>
+
+<!-- Antes se hacía así en la versión 1 de Struts 
+<%@ taglib uri="/tags/struts-html" prefix="html" %>
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+-->
+
+<html:html>
+    <html:form action="cliente2">
+
+        <html:errors
+            header="errors.table.header"
+            footer="errors.table.footer"
+            prefix="errors.table.prefix"
+            suffix="errors.table.suffix" />
+        
+        <h2>Ingrese sus datos</h2>
+
+        Nombre: <html:text property="nombre" /><html:errors property="nombre" /></br>
+
+        Edad: <html:text property="edad" /><html:errors property="edad" /></br>
+
+        <html:submit value="Enviar" />
+
+    </html:form>
+    
+</html:html>
+"
+
+Este código es practicamente igual (excepto la parte de validación JavaScript) que antes, sólo agregamos un tag para 
+mostrar todos los errores juntos antes de los campos, y además, los campos mostrarán su error específico, si los hubiera.
+
+La porción correspondiente al archivo MessageResources.properties
+"
+errors.required={0} es requerido.
+errors.minlength={0} no puede ser menor de {1} caracteres.
+errors.maxlength={0} no puede ser mayor de {1} caracteres.
+errors.invalid={0} es inválido.
+errors.byte={0} debe ser un byte.
+errors.short={0} debe ser un short.
+errors.integer={0} debe ser un integer.
+errors.long={0} debe ser un long.
+errors.float={0} debe ser un float.
+errors.double={0} debe ser un double.
+errors.date={0} no esuna fecha.
+errors.range={0} no está en el rango {1} - {2}.
+errors.creditCard={0} es una tarjeta de crédito inválida.
+errors.email={0} no es una dirección de correo electrónico válida.
+errors.url={0} no es una dirección web válida.
+form.cp=Codigo postal
+form.cp.msg={0} debe ser de la forma ABC1234
+
+errors.table.header=<table style="background-color:yellow;color:red;border:1px solid #217C31;">
+errors.table.footer=</table>
+errors.table.prefix=<tr><td width="300" align="center"><b>
+errors.table.suffix=</b></td></tr>
+
+errors.header=<span style="background-color:yellow;color:red;border:1px solid #217C31;">
+errors.footer=</span>
+errors.prefix=&nbsp;&rarr;&nbsp;
+errors.suffix=&nbsp;&larr;&nbsp
+
+"
+
+El resultado de esta obra de arte post-moderno de diseño web, en la Figura 2.
+También podemos combinar esta técnica con los atributos errorStyle o errorStyleClass de los campos,
+resaltando aún más la ubicación del error.
+
+[ Figura 2 ]
+Usando atributos del tag, podemos resaltar más los errores y hacerlos visibles para el usuario.
+
+Nota: Al acceder a la URL: http://localhost:8080/Validacion/jsp/errores-con-estilos.jsp
+Se obtiene el mensaje de error de la excepción:
+"Imposible obtener recurso JAR [/tags/struts-html] conteniendo TLD: [java.io.FileNotFoundException]"
+
+El ejemplo completo
