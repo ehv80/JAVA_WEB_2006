@@ -1182,3 +1182,208 @@ Se obtiene el mensaje de error de la excepción:
 "Imposible obtener recurso JAR [/tags/struts-html] conteniendo TLD: [java.io.FileNotFoundException]"
 
 El ejemplo completo
+Veamos un ejemplo completo, usando todas las validaciones que vimos durante el capítulo, tanto las de Struts como 
+las propias.
+La página JSP:
+Archivo: Validacion/jsp/ejemplo-completo.jsp
+"
+<%@ taglib uri="/struts-tags" prefix="s" %>
+
+<!-- Antes se hacía así en la versión 1 de Struts 
+<%@ taglib uri="/tags/struts-html" prefix="html" %>
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+-->
+
+<html:html xhtml="true">
+
+<html:form action="procesarValidatorForm" focus="nombre">
+
+<bean:message key="form.nombre" />:<html:text property="nombre" /><html:errors property="nombre"/></br>
+
+<bean:message key="form.cp" />:<html:text property="cp" /><html:errors property="cp"/></br>
+
+<bean:message key="form.edad" />:<html:text property="edad" /><html:errors property="edad"/></br>
+
+<bean:message key="form.sueldo" />:<html:text property="sueldo" /><html:errors property="sueldo"/></br>
+
+<bean:message key="form.fecha_nacimiento" />:<html:text property="fecha_nacimiento" /><html:errors property="fecha_nacimiento"/></br>
+
+<bean:message key="form.litros" />:<html:text property="litros" /><html:errors property="litros"/></br>
+
+<bean:message key="form.tarjeta" />:<html:text property="tarjeta" /><html:errors property="tarjeta"/></br>
+
+<bean:message key="form.correo" />:<html:text property="correo" /><html:errors property="correo"/></br>
+
+<bean:message key="form.url" />:<html:text property="url" /><html:errors property="url"/></br>
+
+<html:checkbox property="cuotas" /><bean:message key="form.cuotas" /></br>
+
+<bean:message key="form.cantCuotas" />:<html:text property="cantCuotas" /><html:errors property="cantCuotas"/></br>
+
+Campos amigos:</br>
+<html:text property="campo1" />
+<html:text property="campo2" /><html:errors property="campo1" /></br>
+
+<bean:message key="form.n" />:<html:text property="n" size="4" /><html:errors property="n"/></br>
+
+<html:javascript formName="validatorForm" />
+
+<html:submit value="Enviar" >
+
+</html:form>
+
+</html:html>
+"
+
+Veamos el archivo con las validaciones: 
+Archivo: Validacion/WEB-INF/validations/validator-form.xml 
+"
+<!DOCTYPE form-validation PUBLIC
+    "-//Apache Struts//XWork Validator 1.0.2//EN"
+    "http://struts.apache.org/dtds/xwork-validator-1.0.2.dtd">
+
+<!-- Antes se hacía así para la versión 1 de Struts  
+<!DOCTYPE form-validation PUBLIC
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1.3//EN"
+    "http://jakarta.apache.org/commons/dtds/validator-1.1.3.dtd">
+-->
+
+<!-- Elemento raíz -->
+<form-validation>
+
+    <!-- El elemento global va antes que el elemento formset para definir un validador propio -->
+    <global>
+        <!-- Definimos un validador personalizado llamado primo -->
+        <validator name="primo" 
+            classname="validador.Validador"
+            method="validarPrimo"
+            methodParams="java.lang.Object,
+                org.apache.commons.validator.ValidatorAction,
+                org.apache.commons.validator.Field,
+                org.apache.struts.action.ActionMessages,
+                org.apache.commons.validator.Validator,
+                jakarta.servlets.http.HttpServletRequest"
+            depends="integer"
+            msg="errors.primo">
+        </validator>
+    </global>
+
+<!-- Conjunto de formularios -->
+    <formset>
+    <!-- Agregamos nuestro formulario al conjunto -->
+        <form name="validatorForm">
+
+            <!-- Primer Campo a validar -->
+            <field property="nombre" depends="required, minlength">
+                <arg key="form.nombre" position="0" />
+                <arg name="minlength" key="${var:minlength}" resource="false" position="1" />
+                <var>
+                    <var-name>minlength</var-name>
+                    <var-value>5</var-value>
+                </var>
+            </field>
+
+            <!-- Segundo Campo a validar -->
+            <field property="cp" depends="mask">
+                <msg name="mask" key="form.cp.msg" />
+                <arg key="form.cp" position="0" />
+                <var>
+                    <var-name>mask</var-name>
+                    <var-value>^[a-zA-Z]{3}[0-9]{4}$</var-value>
+                </var>
+            </field>
+
+            <field property="edad" depends="integer" >
+                <arg key="form.edad" position="0" />
+            </field>
+
+            <field property="sueldo" depends="double">
+                <arg key="form.sueldo" position="0" />
+            </field>
+
+            <field property="fecha_nacimiento" depends="date">
+                <arg key="form.fecha_nacimiento" position="0" />
+                <var>
+                    <var-name>datePattern</var-name>
+                    <var-value>dd/MM/yyyy</var-value>
+                </var>
+            </field>
+
+            <field property="litros" depends="integer, intRange">
+                <arg key="form.litros" position="0" />
+                <arg name="intRange" key="${var:min}" resource="false" position="1" />
+                <arg name="intRange" key="${var:max}" resource="false" position="2" />
+                <var>
+                    <var-name>min</var-name>
+                    <var-value>4</var-value>
+                </var>
+                <var>
+                    <var-name>max</var-name>
+                    <var-value>24</var-value>
+                </var>
+            </field>
+
+            <field property="tarjeta" depends="creditCard" >
+                <arg key="form.tarjeta" position="0" />
+            </field>
+
+            <field property="correo" depends="email" >
+                <arg key="form.correo" position="0" />
+            </field>
+
+            <field property="url" depends="url" >
+                <arg key="form.url" position="0" />
+                <var>
+                    <var-name>nofragments</var-name>
+                    <var-value>true</var-value>
+                </var>
+                <var>
+                    <var-name>schemes</var-name>
+                    <var-value>http,https</var-value>
+                </var>
+            </field>
+
+            <field property="cantCuotas" depends="validwhen, integer, intRange" >
+                <arg key="form.cantCuotas" position="0" />
+                <arg name="intRange" key="${var:min}" resource="false" position="1" />
+                <arg name="intRange" key="${var:max}" resource="false" position="2" />
+                <arg name="validwhen" key="form.cantCuotas.msg" />
+                <var>
+                    <var-name>test</var-name>
+                    <var-value>((cuotas == null) or (*this* != null ))</var-value>
+                </var>
+                <var>
+                    <var-name>min</var-name>
+                    <var-value>2</var-value>
+                </var>
+                <var>
+                    <var-name>max</var-name>
+                    <var-value>12</var-value>
+                </var>
+            </field>
+
+            <field property="campo1" depends="validwhen">
+                <msg name="validwhen" key="form.campos.amigos" />
+                <var>
+                    <var-name>test</var-name>
+                    <var-value>(((campo1 == null ) and (campo2 == null)) or 
+                    ((campo1 != null) and (campo2 != null)))</var-value>
+                </var>
+            </field>
+
+            <field property="n" depends="primo" >
+                <arg key="form.n" position="0" />
+            </field>
+
+        </form>
+
+    </formset>
+    
+</form-validation>
+
+"
+
+RESUMEN
+En este capítulo comprendimos el poder de las validaciones de Struts. Aprendimos a agregar validaciones predefinidas a nuestros campos,
+a definir validaciones más complejas usando validwhen y a implementar nuestras propias validaciones. Vimos también
+cómo agregar fácilmente validación del lado del cliente y cómo customizar los mensajes de error.
