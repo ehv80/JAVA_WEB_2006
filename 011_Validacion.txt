@@ -859,4 +859,211 @@ public class Validador {
 "
 
 Validaciones multi-página
+Si tenemos un formulario muy grande, podemos partirlo en varias páginas, mostrando sólo algunos campos en cada página
+para facilitar la navegación al usuario. Esto presenta un problema para la validación. Si validamos todo el formulario en cada 
+página, estaremos aplicando la validación a sólo una parte del form. Si separamos los campos en dos formularios distintos 
+podremos validar cada página correctamente, pero nos veremos obligados a partir también la acción en dos, cuando probablemente
+queramos todos los datos juntos.
+
+Para solucionar este inconveniente, contamos con el atributo page. En cada elemento field correspondiente a un campo del 
+formulario, podemos especificar a qué página de un formulario multi-página corresponde. Debemos, a su vez, proveer un atributo page 
+indicando el número de página para cada una. La validación se efectuará para todos los campos con número de página menor o igual a la 
+página actual. Esto implica que las primeras páginas serán validadas nuevamente en las siguientes páginas, ya que se validan 
+todos los atributos hasta la página actual.
+
+Veamos un ejemplo con un formulario en dos páginas. El form es un LazyValidatorForm. Definimos las tres acciones
+dentro del archivo: Validacion/WEB-INF/struts-config.xml 
+"
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+	"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+	
+<struts-config>
+	<action-mappings>
+		<!-- Acción 1-->
+		<action
+			path="/cliente" name="clienteForm" scope="request" validate="false"
+            forward="/jsp/cliente.jsp" />	
+		</action>
+        <!-- Acción 2-->
+		<action
+			path="/cliente2"
+            type="action.ProcesarClienteAction" 
+            name="clienteForm" scope="request" validate="true"
+            input="/cliente.do" >	
+		</action>
+
+		<!-- Ejemplo para la validación multi-página -->
+		<!-- Definimos tres acciones -->
+		<!-- Muestra la primera página -->
+		<action 
+			path="/wizard1" name="wizardForm" validate="false"
+			forward="/jsp/wizard1.jsp" />
+		
+		<!-- Valida la primera página y muestra la segunda página -->
+		<action 
+			path="/wizard2" name="wizardForm" scope="request" validate="true"
+			input="/jsp/wizard1.jsp" 
+			forward="/jsp/wizard2.jsp" />
+		
+		<!-- Valida la primera y segunda página y ejecuta la acción si la validación fue exitosa -->
+		<action
+			path="/procesarWizardForm"
+			type="action.ProcesarWizardAction"
+			name="wizardForm" scope="request" validate="true"
+			input="/jsp/wizard2.jsp" />
+		</action>
+
+	</action-mappings>
+
+    <plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
+        <set-property property="pathnames" value="/WEB-INF/validations/validator-rules.xml"/>
+        <set-property property="stopOnFirstError" value="true"/>
+    </plug-in>
+
+</struts-config>
+"
+
+Ahora veamos el código de la primera página JSP: 
+Archivo: Validacion/jsp/wizard1.jsp 
+"
+<%@ taglib uri="/struts-tags" prefix="s" %>
+
+<!-- Antes se hacía así en la versión 1 de Struts 
+<%@ taglib uri="/tags/struts-html" prefix="html" %>
+-->
+
+<html:html xhtml="true">
+
+<html:form action="wizard2">
+    Nombre: <html:text property="nombre" /><html:errors property="nombre"/></br>
+    Apellido:<html:text property="apellido" /><html:errors property="apellido"/></br>
+
+    <!-- Atributo importante para el validador -->
+    <html:hidden property="page" value="0" />
+
+    <html:submit />
+
+</html:form>
+
+</html:html>
+"
+
+Ahora veamos el código de la segunda página JSP: 
+Archivo: Validacion/jsp/wizard2.jsp 
+"
+<%@ taglib uri="/struts-tags" prefix="s" %>
+
+<!-- Antes se hacía así en la versión 1 de Struts 
+<%@ taglib uri="/tags/struts-html" prefix="html" %>
+<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+-->
+
+<html:html xhtml="true">
+
+<html:form action="procesarWizardForm">
+    Correo electr&oacute;nico: <html:text property="email" /><html:errors property="email"/></br>
+    Direcci&oacute;n:<html:textarea rows="3" cols="30" property="dir" /><html:errors property="dir"/></br>
+
+    <!-- Atributo importante para el validador -->
+    <html:hidden property="page" value="1" />
+
+    <html:hidden property="nombre" />
+    <html:hidden property="apellido" />
+
+    <html:submit />
+
+</html:form>
+
+</html:html>
+"
+
+Notemos cómo usamos el atributo page, que es enviado al servidor como un atributo más y es usado por el validador 
+para saber qué página es la que se necesita validar. Notemos también que en la segunda página guardamos los valores que 
+el usuario ingresó en la primera página (nombre y apellido). De no hacer eso, la segunda página sólo enviaría los atributos
+email, dir y page, y el validador, al recibir estos datos, intentará validar todos los campos con código de página menor o igual a 1,
+y esto incluye también a los atributos nombre y apellido, y la validación fallaría.
+
+La acción que maneje este pedido recibirá los 5 atributos. Una alternativa a ir guardando los valores en campos hidden sería,
+en las acciones intermedias, ir guardando los valores en sesión (dentro de un bean por ejemplo). Veamos cómo sería la acción 
+intermedia correspondiente al ejemplo:
+Archivo: Validacion/src/Wizard1Action.java 
+"
+package action;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.validator.LazyValidatorForm;
+
+public class Wizard1Action extends Action 
+{
+    public ActionForward execute(ActionMapping map, ActionForm form, HttpServletRequest req, HttpServletResponse res) throws Exception 
+    {
+        LazyValidatorForm dyna = (LazyValidatorForm) form;
+
+        String nombre = (String) dyna.get("nombre");
+        String apellido = (String) dyna.get("apellido");
+
+        // El bean donde guardamos los datos
+        DatosWizard dw = new DatosWizard();
+        dw.setNombre(nombre);
+        dw.setApellido(apellido);
+
+        req.getSession().setAttribute("DatosWizard", dw);
+
+        return map.findForward("ok");
+    }
+}
+"
+Veamos como sería el JavaBean donde se guardan los atributos nombre y apellido:
+Archivo: Validacion/src/DatosWizard.java
+"
+
+public class DatosWizard 
+{
+    private String nombre;
+    private String apellido;
+
+
+    // Constructor con parámetros
+    public DatosWizard(String nombre, String apellido)
+    {
+        this.nombre = nombre;
+        this.apellido = apellido;
+    }
+
+    public void setNombre(String nombre)
+    {
+        this.nombre = nombre;
+    }
+
+    public String getNombre()
+    {
+        return this.nombre;
+    }
+
+    public void setApellido(String apellido)
+    {
+        this.apellido = apellido;
+    }
+
+    public String getApellido()
+    {
+        return this.apellido;
+    }
+
+}
+"
+
+Mostrar errores con estilo 
+ 
+
+
 

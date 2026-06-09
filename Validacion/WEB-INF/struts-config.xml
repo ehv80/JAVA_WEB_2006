@@ -19,6 +19,27 @@
             input="/cliente.do" >	
 		</action>
 
+		<!-- Ejemplo para la validación multi-página -->
+		<!-- Definimos tres acciones -->
+		<!-- Muestra la primera página -->
+		<action 
+			path="/wizard1" name="wizardForm" validate="false"
+			forward="/jsp/wizard1.jsp" />
+		
+		<!-- Valida la primera página y muestra la segunda página -->
+		<action 
+			path="/wizard2" name="wizardForm" scope="request" validate="true"
+			input="/jsp/wizard1.jsp" 
+			forward="/jsp/wizard2.jsp" />
+		
+		<!-- Valida la primera y segunda página y ejecuta la acción si la validación fue exitosa -->
+		<action
+			path="/procesarWizardForm"
+			type="action.ProcesarWizardAction"
+			name="wizardForm" scope="request" validate="true"
+			input="/jsp/wizard2.jsp" />
+		</action>
+
 	</action-mappings>
 
     <plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
