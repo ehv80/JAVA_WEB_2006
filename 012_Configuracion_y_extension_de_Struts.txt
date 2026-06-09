@@ -1,0 +1,10 @@
+PROGRAMACION WEB JAVA
+CAPÍTULO 9
+
+Configuración y extensión de Struts
+
+En este capítulo configuraremos 
+Struts a fondo, definiremos un plug-in
+para adosar funcionalidad propia,
+y extenderemos esa funcionalidad.
+
