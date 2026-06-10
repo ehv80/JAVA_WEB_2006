@@ -26,7 +26,11 @@
         </data-source>
     </data-sources>
 
-    
+	<!-- Elemento form-beans que contiene elementos form-bean que definen los formularios de la aplicación -->
+    <form-beans>
+		<form-bean name="clienteForm" type="form.ClienteForm"/>
+		<form-bean name="wizardForm" type="form.WizardForm"/>
+	</form-beans>
 
 	<action-mappings>
 		<!-- Acción 1-->

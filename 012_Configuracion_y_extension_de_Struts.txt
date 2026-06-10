@@ -188,4 +188,34 @@ public class BDAction extends Action
 }
 "
 
+Si queremos definir más de un datasource, por ejemplo, para acceder a diferentes bases de datos, 
+lo hacemos especificando el atributo key en el elemento data-source 
+(dentro del archivo: Configuracion/WEB-INF/struts-config.xml).
+
+<data-sources>
+
+	<data-source key="epsilon" type="org.apache.commons.dbcp.BasicDataSource">
+		<!-- Propiedades de la conexión -->
+	</data-source>
+
+	<data-source key="gama" type="org.apache.commons.dbcp.BasicDataSource">
+		<!-- Propiedades de la conexión -->
+	</data-source>
+
+</data-sources>
+
+Luego en la implementación de las acciones dentro de la clase Java BDAction.java las referenciamos usando 
+la clave en el método getDataSource:
+"
+...
+DataSource epsilon = getDataSource(req, "epsilon");
+...
+DataSource gama = getDataSource(req, "gama");
+"
+
+form-beans
+Elemento que define los forms (elemento form-bean) que se usarán en la aplicación.
+Lo vimos con profundidad en el Capítulo 5.
+
+
 
