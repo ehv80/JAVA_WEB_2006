@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+	"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+	
+<struts-config>
+
+    <!-- Elemento display-name-->
+    <display-name>Ejemplo de validación con Struts</display-name>
+
+    <!-- Elemento description -->
+    <description>Ejemplo de validación con Struts</description>
+
+    <!-- Elemento data-sources que contiene elementos data-source que define una conexión a una base de datos -->
+    <data-sources>
+        <data-source type="org.apache.commons.dbcp.BasicDataSource">
+            <set-property property="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+            <set-property property="url" value="jdbc:mysql://localhost:3306/miBaseDeDatos"/>
+            <set-property property="username" value="andres"/>
+            <set-property property="password" value="malacate"/>
+            <set-property property="maxActive" value="10"/>
+            <set-property property="maxWait" value="5000"/>
+            <set-property property="defaultAutoCommit" value="false"/>
+            <set-property property="validationQuery" value="SELECT COUNT(*) FROM tutoriales"/>
+        </data-source>
+    </data-sources>
+
+    
+
+	<action-mappings>
+		<!-- Acción 1-->
+		<action
+			path="/cliente" name="clienteForm" scope="request" validate="false"
+            forward="/jsp/cliente.jsp" />	
+		</action>
+        <!-- Acción 2-->
+		<action
+			path="/cliente2"
+            type="action.ProcesarClienteAction" 
+            name="clienteForm" scope="request" validate="true"
+            input="/cliente.do" >	
+		</action>
+
+		<!-- Ejemplo para la validación multi-página -->
+		<!-- Definimos tres acciones -->
+		<!-- Muestra la primera página -->
+		<action 
+			path="/wizard1" name="wizardForm" validate="false"
+			forward="/jsp/wizard1.jsp" />
+		
+		<!-- Valida la primera página y muestra la segunda página -->
+		<action 
+			path="/wizard2" name="wizardForm" scope="request" validate="true"
+			input="/jsp/wizard1.jsp" 
+			forward="/jsp/wizard2.jsp" />
+		
+		<!-- Valida la primera y segunda página y ejecuta la acción si la validación fue exitosa -->
+		<action
+			path="/procesarWizardForm"
+			type="action.ProcesarWizardAction"
+			name="wizardForm" scope="request" validate="true"
+			input="/jsp/wizard2.jsp" />
+		</action>
+
+	</action-mappings>
+
+    <plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
+        <set-property property="pathnames" value="/WEB-INF/validations/validator-rules.xml"/>
+        <set-property property="stopOnFirstError" value="true"/>
+    </plug-in>
+
+</struts-config>

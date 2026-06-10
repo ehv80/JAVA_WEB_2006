@@ -68,5 +68,10 @@
 	<classpathentry kind="lib" path="E:/Users/ehv80/Documentos/Programacion_en_Lenguaje_Java/JAVA_WEB_2006/Configuracion/WEB-INF/lib/struts2-velocity-plugin-7.0.3.jar"/>
 	<classpathentry kind="lib" path="E:/Users/ehv80/Documentos/Programacion_en_Lenguaje_Java/JAVA_WEB_2006/Configuracion/WEB-INF/lib/velocity-engine-core-2.4.1.jar"/>
 	<classpathentry kind="lib" path="E:/Users/ehv80/Documentos/Programacion_en_Lenguaje_Java/JAVA_WEB_2006/Configuracion/WEB-INF/lib/xstream-1.4.21.jar"/>
+	<classpathentry kind="lib" path="E:/Users/ehv80/Documentos/Programacion_en_Lenguaje_Java/JAVA_WEB_2006/Configuracion/WEB-INF/lib/commons-dbcp2-2.14.0.jar"/>
+	<classpathentry kind="lib" path="E:/Users/ehv80/Documentos/Programacion_en_Lenguaje_Java/JAVA_WEB_2006/Configuracion/WEB-INF/lib/commons-dbcp2-2.14.0-javadoc.jar"/>
+	<classpathentry kind="lib" path="E:/Users/ehv80/Documentos/Programacion_en_Lenguaje_Java/JAVA_WEB_2006/Configuracion/WEB-INF/lib/commons-dbcp2-2.14.0-sources.jar"/>
+	<classpathentry kind="lib" path="E:/Users/ehv80/Documentos/Programacion_en_Lenguaje_Java/JAVA_WEB_2006/Configuracion/WEB-INF/lib/commons-dbcp2-2.14.0-tests.jar"/>
+	<classpathentry kind="lib" path="E:/Users/ehv80/Documentos/Programacion_en_Lenguaje_Java/JAVA_WEB_2006/Configuracion/WEB-INF/lib/commons-dbcp2-2.14.0-test-sources.jar"/>
 	<classpathentry kind="output" path="WEB-INF/classes"/>
 </classpath>

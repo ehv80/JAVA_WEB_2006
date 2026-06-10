@@ -8,3 +8,136 @@ Struts a fondo, definiremos un plug-in
 para adosar funcionalidad propia,
 y extenderemos esa funcionalidad.
 
+DESENTRAÑAR EL STRUTS-CONFIG 
+El archivo Configuracion/WEB-INF/struts-config.xml es la base de la configuración de Struts.
+En los capítulos previos hemos visto cómo usarlo para configurar nuestras acciones, formularios, validaciones, etc. 
+Además de todo eso, este archivo posee muchas otras variantes de configuraciones para ajustar su funcionamiento a nuestras necesidades.
+
+Al ser el struts-config un archivo XML, no sólo su contenido debe ser XML bien formado, sinó que además debe respetar un orden. 
+Sus posibles elementos son (manteniendo el orden):
+
+display-name?, description?, data-sources?, form-beans?, global-exceptions?, global-forwards?, action-mappings?, controller?, message-resources*, plug-in* 
+
+El signo ? representa un elemento opcional y 
+el signo * representa que puede haber cero o más elementos.
+
+display-name
+Este elemento se emplea para darle un nombre a la aplicación. Veremos que se utiliza en varias partes del archivo, generalmente por aplicaciones gráficas.
+
+description
+Al igual que display-name, provee una descripción de la aplicación. Estos dos elementos no tienen inferencia en la funcionalidad de la aplicación.
+
+data-sources
+Este elemento engloba cero o más elementos data-source. Cada elemento de este tipo define una conexión a una base de datos. Definir las
+conexiones en estos elementos permite a las acciones obtener fácilmente conexiones sin necesidad de tener que programar el código para 
+obtenerlas en cada acción.
+Una práctica recomendable es usar el patrón DAO: Data Access Object. Este patrón, resumidamente, indica que cada objeto es responsable de 
+su propia persistencia. De esta forma, las acciones interactúan con objetos que, cuando corresponde, se guardan a sí mismos en la base de datos,
+se actualizan, etc.
+
+El elemento data-source define muy pocos atributos. La configuración propia de la conexión se define mediante un conjunto de 
+atributos set-property del cuerpo del elemento.
+
+key: clave bajo la cual será guardado el objeto.
+
+type: nombre de la clase Java (debe implementar la interfaz javax.sql.DataSource) del datasource a definir.
+
+Veamos un ejemplo. Definimos una conexión a la base usando el proyecto Apache Commons DBCP. La clase org.apache.commons.dbcp.BasicDataSource implementa la interfaz javax.sql.Datasource. Es un Java Bean con muchas propiedades que debemos definir con elementos set-property para 
+poder establecer una conexión:
+Archivo: Configuracion/WEB-INF/struts-config.xml 
+"
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+	"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+	
+<struts-config>
+
+    <!-- Elemento display-name-->
+    <display-name>Ejemplo de validación con Struts</display-name>
+
+    <!-- Elemento description -->
+    <description>Ejemplo de validación con Struts</description>
+
+    <!-- Elemento data-sources que contiene elementos data-source que define una conexión a una base de datos -->
+    <data-sources>
+        <data-source type="org.apache.commons.dbcp.BasicDataSource">
+            <set-property property="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+            <set-property property="url" value="jdbc:mysql://localhost:3306/miBaseDeDatos"/>
+            <set-property property="username" value="andres"/>
+            <set-property property="password" value="malacate"/>
+            <set-property property="maxActive" value="10"/>
+            <set-property property="maxWait" value="5000"/>
+            <set-property property="defaultAutoCommit" value="false"/>
+            <set-property property="validationQuery" value="SELECT COUNT(*) FROM tutoriales"/>
+        </data-source>
+    </data-sources>
+
+    
+
+	<action-mappings>
+		<!-- Acción 1-->
+		<action
+			path="/cliente" name="clienteForm" scope="request" validate="false"
+            forward="/jsp/cliente.jsp" />	
+		</action>
+        <!-- Acción 2-->
+		<action
+			path="/cliente2"
+            type="action.ProcesarClienteAction" 
+            name="clienteForm" scope="request" validate="true"
+            input="/cliente.do" >	
+		</action>
+
+		<!-- Ejemplo para la validación multi-página -->
+		<!-- Definimos tres acciones -->
+		<!-- Muestra la primera página -->
+		<action 
+			path="/wizard1" name="wizardForm" validate="false"
+			forward="/jsp/wizard1.jsp" />
+		
+		<!-- Valida la primera página y muestra la segunda página -->
+		<action 
+			path="/wizard2" name="wizardForm" scope="request" validate="true"
+			input="/jsp/wizard1.jsp" 
+			forward="/jsp/wizard2.jsp" />
+		
+		<!-- Valida la primera y segunda página y ejecuta la acción si la validación fue exitosa -->
+		<action
+			path="/procesarWizardForm"
+			type="action.ProcesarWizardAction"
+			name="wizardForm" scope="request" validate="true"
+			input="/jsp/wizard2.jsp" />
+		</action>
+
+	</action-mappings>
+
+    <plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
+        <set-property property="pathnames" value="/WEB-INF/validations/validator-rules.xml"/>
+        <set-property property="stopOnFirstError" value="true"/>
+    </plug-in>
+
+</struts-config>
+"
+
+Recordemos que para que el ejemplo funcione debemos descargar la librería del proyecto Apache Commons DBCP 
+y agregarla a la aplicación en la carpeta Configuracion/WEB-INF/lib.
+Nota: URL de Apache Commons DBCP: https://commons.apache.org/dbcp/download_dbcp.cgi
+Archivo descargado: https://dlcdn.apache.org//commons/dbcp/binaries/commons-dbcp2-2.14.0-bin.zip
+Se descomprime en una carpeta de descargas y se copian los archivos *.jar :
+- commons-dbcp2-2.14.0.jar 
+- commons-dbcp2-2.14.0-javadoc.jar
+- commons-dbcp2-2.14.0-sources.jar
+- commons-dbcp2-2.14.0-test.jar
+- commons-dbcp2-2.14.0-test-sources.jar
+dentro de la carpeta: Configuracion/WEB-INF/lib.
+Luego se ejecuta el Eclipse IDE para agregar estas librerías de Apache Commons DBCP al Java Build Path (Classpath)
+(Properties -> Java Buidl Path -> [Add external jar])  se aplica y se cierra Eclipse IDE.
+
+Luego desde una acción podremos obtener la conexión de la siguiente forma: 
+Archivo: Configuracion/src/BDAction.java 
+"
+
+"
+
