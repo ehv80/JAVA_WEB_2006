@@ -58,8 +58,12 @@
 			path="/jsp/xyz.jsp"/>
 	</action>
 
-
-
+	<!-- Ejemplo de Elemento global-forwards -->
+	<global-forwards>
+		<forward 
+			name="mal" 
+			path="/jsp/form_mal.jsp" />
+	</global-forwards>
 
 
 	<action-mappings>

@@ -268,6 +268,23 @@ La excepción global hace que cada acción que arroje una excepción del tipo Nu
 no capturada se intercepte, se creee un mensaje de error con la clave dada y se redirija a la página.
 Lo mismo ocurre con las excepciones de tipo NumberFormatException, pero solamente cuando ocurren durante la ejecución de la acción XYZAction.
 
+global-forwards
+Al igual que con las excepciones, podemos definir forwards globales, además de los locales de cada acción.
+Esto es útil para definir un forward global de error, por ejemplo, y saber que todas las acciones podrán hacer
+uso de él sin necesidad de tener que definirlo en cada una de las acciones.
+Veamos un ejemplo (dentro del archivo: Configuracion/WEB-INF/struts-config.xml)
+"
+<!-- Ejemplo de Elemento global-forwards -->
+	<global-forwards>
+		<forward 
+			name="mal" 
+			path="/jsp/form_mal.jsp" />
+	</global-forwards>
+"
+
+action-mappings
+
+
 
 
 
