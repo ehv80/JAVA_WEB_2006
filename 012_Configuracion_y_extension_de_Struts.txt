@@ -217,5 +217,60 @@ form-beans
 Elemento que define los forms (elemento form-bean) que se usarán en la aplicación.
 Lo vimos con profundidad en el Capítulo 5.
 
+global-exceptions
+Elemento raíz de un conjunto de excepciones que se definen para ser manejadas en caso de que una acción
+las arroje. Cada elemento exception perteneciente a este elemento puede contener estos atributos:
+
+handler: nombre de la clase Java que manejará la excepción. 
+Por defecto es org.apache.struts.action.ExceptionHandler.
+
+key: clave del archivo de recursos (archivo: Configuracion/WEB-INF/MessageResources.properties) 
+que contiene el mensaje de error a mostrar. 
+El mensaje de la excepción será pasado como argumento.
+
+path: dirección adonde se redirigirá la acción cuando ocurra esta excepción.
+
+type: nombre de la clase Java de la excepción.
+
+En el elemento global-exceptions estamos definiendo excepciones globales, cada acción puede definir también
+su excepción local, que sobreescribirá la global eventualmente. 
+Veamos un ejemplo en donde definimos una excepción global y una local:
+(dentro del archivo. Configuracion/WEB-INF/struts-config.xml)
+"
+<!-- Elemento global-exceptions que contiene elementos exception que definen cómo manejar las excepciones en la aplicación -->
+	<!-- La excepción global -->
+	<global-exceptions>
+		<exception
+			key="excepcion.null"
+			path="/jsp/nullException.jsp"
+			type="java.lang.NullPointerException"
+			/>
+	</global-exceptions>
+
+	<!-- Acción con Excepción local -->
+	<action 
+		path="/accionXYZ" 
+		scope="request"
+		type="XYZAction"
+
+		<exception
+			key="excepcion.formato" 
+			path="/jsp/nfException.jsp" 
+			type="java.lang.NumberFormatException" />
+		/>
+		<forward 
+			name="ok" 
+			path="/jsp/xyz.jsp"/>
+	</action>
+"
+
+La excepción global hace que cada acción que arroje una excepción del tipo NullPointerException 
+no capturada se intercepte, se creee un mensaje de error con la clave dada y se redirija a la página.
+Lo mismo ocurre con las excepciones de tipo NumberFormatException, pero solamente cuando ocurren durante la ejecución de la acción XYZAction.
+
+
+
+
+
 
 

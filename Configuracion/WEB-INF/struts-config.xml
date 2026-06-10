@@ -32,6 +32,36 @@
 		<form-bean name="wizardForm" type="form.WizardForm"/>
 	</form-beans>
 
+	<!-- Elemento global-exceptions que contiene elementos exception que definen cómo manejar las excepciones en la aplicación -->
+	<!-- La excepción global -->
+	<global-exceptions>
+		<exception
+			key="excepcion.null"
+			path="/jsp/nullException.jsp"
+			type="java.lang.NullPointerException"
+			/>
+	</global-exceptions>
+
+	<!-- Acción con Excepción local -->
+	<action 
+		path="/accionXYZ" 
+		scope="request"
+		type="XYZAction"
+
+		<exception
+			key="excepcion.formato" 
+			path="/jsp/nfException.jsp" 
+			type="java.lang.NumberFormatException" />
+		/>
+		<forward 
+			name="ok" 
+			path="/jsp/xyz.jsp"/>
+	</action>
+
+
+
+
+
 	<action-mappings>
 		<!-- Acción 1-->
 		<action
