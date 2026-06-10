@@ -283,6 +283,76 @@ Veamos un ejemplo (dentro del archivo: Configuracion/WEB-INF/struts-config.xml)
 "
 
 action-mappings
+En este elemento definimos las acciones de la aplicación. Si bien hemos visto varios ejemplos en lo que 
+va del libro, vamos a ver ahora una posible configuración muy útil. Al definir los action-mappings podemos
+usar comodines para combinar mapeos similares y reducir el número de elementos action-mapping.
+Veamos primero un ejemplo y luego la explicación (dentro del archivo: Configuracion/WEB-INF/struts-config.xml):
+"
+<!-- Ejemplo de uso de comodines en la definición de acciones -->
+		<action
+			path="/ver*" 
+			type="paquete.Ver{1}Action" 
+			name="{1}Form" 
+			scope="request" 
+			validate="false" >
+			<forward name="ok" path="/jsp/{1}.jsp" />
+		</action>
+"
+
+En este caso, esta meta acción se define con el comodín * que permite manejar direcciones como verSaldo, verCuentas, etc. El contenido que se asocie al comodín será reemplazado luego en las variables {1}, {2}, etc.
+Como ejemplo, si ingresamos a la dirección URL: http://localhost:8080/Struts/verSaldo.do esta acción se comportará como si hubiese sido definida de la siguiente forma:
+(dentro del archivo: Configuracion/WEB-INF/struts-config.xml)
+"
+<action
+	path="/verSaldo"
+	type="paquete.VerSaldoAction"
+	name="SaldoForm"
+	scope="request"
+	validate="false" >
+	<forward name="ok" path="/jsp/Saldo.jsp" />
+</action>
+"
+
+Otro ejemplo más complejo, incluyendo varios comodines:
+(dentro del archivo: Configuracion/WEB-INF/struts-config.xml)
+"
+<!-- Otro ejemplo más complejo, incluyendo varios comodines en la definición de acciones -->
+		<action
+			path="/*/mostrar*" 
+			type="{1}.Mostrar{2}Action" 
+			name="{2}Form" 
+			scope="request" 
+			validate="false" >
+			<forward name="ok" path="/jsp/{1}/{2}.jsp" />
+		</action>
+"
+
+En este ejemplo, el contenido que aparece al primer * reemplazará luego a la variable {1}
+y el contenido que aparece al segundo * reemplazará a {2}. Si ingresamos en la URL 
+http://localhost:8080/Struts/finanzas/mostrarBolsa.do esta acción se comportará como si hubiese sido definida:
+(dentro del archivo: Configuracion/WEB-INF/struts-config.xml)
+"
+<action
+	path="/finanzas/mostrarBolsa"
+	type="finanzas.MostrarBolsaAction"
+	name="BolsaForm"
+	scope="request"
+	validate="false" >
+	<forward name="ok" path="/jsp/finanzas/Bolsa.jsp" />
+</action>
+"
+
+Recordemos que la porción /Struts de la dirección URL se refiere al contexto dentro del Apache Tomcat,
+y no es tomada en cuenta por Struts.
+
+Notemos en este segundo ejemplo que el comodín * no aparea cadenas de texto que incluyan el caracter /.
+Si queremos que incluya también los caracteres /, debemos usar el comodín **.
+
+Los atributos type, name, roles, parameter, attribute, forward, include e input del elemento action aceptan comodines.
+El atributo path del elemento forward también acepta comodines.
+
+controller
+
 
 
 

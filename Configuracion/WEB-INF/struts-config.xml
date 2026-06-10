@@ -65,7 +65,7 @@
 			path="/jsp/form_mal.jsp" />
 	</global-forwards>
 
-
+	<!-- Elemento action-mappings que contiene elementos action que definen las acciones de la aplicación -->
 	<action-mappings>
 		<!-- Acción 1-->
 		<action
@@ -101,7 +101,32 @@
 			input="/jsp/wizard2.jsp" />
 		</action>
 
+		<!-- Ejemplo de uso de comodines en la definición de acciones -->
+		<action
+			path="/ver*" 
+			type="paquete.Ver{1}Action" 
+			name="{1}Form" 
+			scope="request" 
+			validate="false" >
+			<forward name="ok" path="/jsp/{1}.jsp" />
+		</action>
+
+		<!-- Otro ejemplo más complejo, incluyendo varios comodines en la definición de acciones -->
+		<action
+			path="/*/mostrar*" 
+			type="{1}.Mostrar{2}Action" 
+			name="{2}Form" 
+			scope="request" 
+			validate="false" >
+			<forward name="ok" path="/jsp/{1}/{2}.jsp" />
+		</action>
+
 	</action-mappings>
+
+	<!-- Elemento controller que define el comportamiento del controlador -->
+	<controller>
+		<set-property property="inputForward" value="mal"/>
+	</controller>
 
     <plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
         <set-property property="pathnames" value="/WEB-INF/validations/validator-rules.xml"/>
