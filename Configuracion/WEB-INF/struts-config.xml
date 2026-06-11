@@ -147,4 +147,9 @@
         <set-property property="stopOnFirstError" value="true"/>
     </plug-in>
 
+	<!-- Ejemplo de Plugin de cronómetro -->
+	<plug-in class-name="CronometroPlugin">
+		<set-property property="formato" value="mm:ss"/>
+	</plug-in>
+
 </struts-config>

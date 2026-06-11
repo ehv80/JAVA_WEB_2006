@@ -431,3 +431,82 @@ parameter: parámetro que pasaremos al objeto fábrica para crear el objeto. En 
 
 
 plug-in
+Este elemento enchufa una clase en la aplicación. Un plug-in es notificado al iniciarse la aplicación y 
+al ser terminada. Típicamente enchufamos un plug-in para especificar configuración extra.
+El ValidatorPlugin, que hemos visto en el Capítulo 8, hace exactamente esto.
+Veamos cómo configurar un plug-in y luego haremos un ejemplo.
+El elemento plug-in sólo necesita de un atributo:
+
+className: nombre de la clase del plug-in.
+
+Al ser plug-in un elemento genérico, el resto de la configuración se brinda en base a elementos set-property 
+que acceden a las propiedades de la clase. Esta clase debe implementar a org.apache.struts.action.Plugin y 
+proveer un constructor vacío.
+
+Veamos un ejemplo. Definiremos un plug-in que servirá para informar cuánto tiempo estuvo la aplicación corriendo. Primero agregamos el elemento plug-in en el archivo: Configuracion/WEB-INF/struts-config.xml
+"
+<!-- Ejemplo de Plugin de cronómetro -->
+	<plug-in class-name="CronometroPlugin">
+		<set-property property="formato" value="mm:ss"/>
+	</plug-in>
+"
+Establecemos el valor de una propiedad, formato. Nuestra clase debe proveer métodos accesores para dicha 
+propiedad. Veamos la implementación de la clase Java: Configuracion/src/CronometroPlugin.java
+"
+//package Configuracion.src;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Timezone;
+import javax.servlet.ServletException;
+
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.action.PlugIn;
+import org.apache.struts.config.ModuleConfig;
+
+public class CronometroPlugin implements org.apache.struts.action.PlugIn {
+
+    private ActionServlet servlet;
+    private long inicio;
+
+    // Asignamos un valor por defecto al formato del cronómetro
+    private String formato = "dd HH:mm:ss";
+
+    // Método accesor para el formato del cronómetro
+    public String getFormato() {
+        return formato;
+    }
+
+    // Metodo mutador para el formato del cronómetro
+    public void setFormato(String formato) {
+        this.formato = formato;
+    }
+
+    // Método llamado al iniciarse la aplicación
+    public void init(ActionServlet servlet, ModuleConfig config) throws ServletException {
+
+        // Guardamos el servlet
+        this.servlet = servlet;
+
+        // Guardamos la fecha en que inició la aplicación
+        this.inicio = System.currentTimeMillis();
+    }
+
+    // Método llamado al finalizarse la aplicación
+    public void destroy() {
+
+        // Calculamos el tiempo transcurrido desde el inicio de la aplicación
+        long tiempo = System.currentTimeMillis() - this.inicio;
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(this.formato);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        // Lo imprimimos
+        servlet.log("Tiempo transcurrido desde el inicio de la aplicación: " + dateFormat.format(new Date(tiempo)));
+    }
+}
+"
+
+Módulos
+
+
