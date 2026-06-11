@@ -121,12 +121,26 @@
 			<forward name="ok" path="/jsp/{1}/{2}.jsp" />
 		</action>
 
+		<!-- Ejemplo de acción que muestra el atributo inputForward -->
+		<action 
+			path="/topoto"
+			type="paquete.TopotoAction"
+			scope="request"
+			validate="true"
+			input="error">
+			<forward name="ok" path="/jsp/topoto.jsp" />
+			<forward name="error" path="/jsp/error.jsp" />
+		</action>
+
 	</action-mappings>
 
 	<!-- Elemento controller que define el comportamiento del controlador -->
 	<controller>
 		<set-property property="inputForward" value="mal"/>
 	</controller>
+
+	<!-- Elemento message-resources que define los recursos de mensajes -->
+	<message-resources parameter="messages"/>
 
     <plug-in class-name="org.apache.struts.validator.ValidatorPlugin">
         <set-property property="pathnames" value="/WEB-INF/validations/validator-rules.xml"/>

@@ -352,12 +352,82 @@ Los atributos type, name, roles, parameter, attribute, forward, include e input 
 El atributo path del elemento forward también acepta comodines.
 
 controller
+Con este elemento podemos configurar a medida el controlador, o sea, el ActionServlet que recibe los pedidos
+y se encarga de manejarlos y redirigirlos a las acciones correspondientes. Muchos atributos de la configuración se refieren al envío de archivos de parte del usuario, veámoslos:
+
+bufferSize: tamaño del buffer de entrada que maneja la subida de archivos.
+
+maxFileSize: tamaño máximo aceptable para los archivos que se suban. Expresado en bytes, si le agregamos el 
+sufijo K, M o G expresa kilobytes, megabytes o gigabytes respectivamente. Por defecto: 250M.
+
+memFileSize: tamaño máximo que será guardado en memoria cuando se está subiendo un archivo. 
+Una vez alcanzado este valor, se procederá a guardar el contenido (por lo general en el disco). 
+Expresado en bytes, también podemos agregar el sufijo K, M o G. Por defecto: 256K.
+
+tempDir: carpeta temporaria donde se guardará el archivo que se está subiendo.
+
+multipartClass: nombre de la clase que manejará los pedidos que incluyan archivos (pedidos multipart).
+Por defecto: org.apache.struts.upload.CommonsMultipartRequestHandler.
+
+contentType: tipo de contenido MIME (opcionalmente también el mapa de caracteres) que se devolverá
+por defecto en cada respuesta. Este valor puede ser redefinido particularmente por cada acción o página JSP.
+Por defecto, text/html.
+
+forwardPattern: patrón que especifica cómo transformar el valor del atributo path del elemento forward 
+a una dirección web (relativa al contexto). Este patrón puede contener los siguientes valores:
+	$M el nombre del módulo actual 
+	$P el atributo path del elemento forward
+	$$ se traduce al signo $, usado como secuencia de escape.
+Este atributo rara vez necesita ser modificado. Por defecto, $M$P.
+
+pagePattern: patrón que especifica cómo transformar el valor del atributo page de los tags que lo usen 
+(por ejemplo, html:link). Su formato es el mismo que en forwardPattern. Por defecto: $M$P.
+
+inputForward: si es true, el valor del atributo input de los elementos action será tomado como referencia 
+a un elemento forward, local o global. Si es false (por defecto), dicho valor será tomado como una dirección web relativa al módulo.
+Veamos el siguiente ejemplo:
+(dentro del archivo: Configuracion/WEB-INF/struts-config.xml)
+"
+<!-- Ejemplo de acción que muestra el atributo inputForward -->
+		<action 
+			path="/topoto"
+			type="paquete.TopotoAction"
+			scope="request"
+			validate="true"
+			input="error">
+			<forward name="ok" path="/jsp/topoto.jsp" />
+			<forward name="error" path="/jsp/error.jsp" />
+		</action>
+"
+Si configuramos el elemento inputForward con valor true, al ocurrir un error de validación, 
+el atributo input está indicando el nombre de un elemento forward. En este caso, lo encontrará localmente
+y entonces redirigirá la acción a la página /jsp/error.jsp.
+
+locale: si es true (por defecto lo es), se guardará en la sesión del usuario un objeto de tipo Locale.
+
+nocache: si es true, se agregará en cada respuesta encabezados para impedir que el navegador del usuario guarde
+páginas en su caché. Por defecto es false.
+
+processorClass: nombre de la clase que realiza la lógica de procesamiento de cada pedido. Esta clase es 
+muy importante y luego veremos ejemplos de cómo extender la clase que brinda Struts para agregar funcionalidad.
+Por defecto es: org.apache.struts.action.RequestProcessor.
 
 
+message-resources
+Este elemento lo usamos para agregar a nuestra aplicación archivos de recursos (como objetos de tipo MessageResources). Podemos definir cualquier número de message-resources.
+Veamos sus atributos:
+
+factory: nombre de la subclase de org.apache.struts.util.MessageResourcesFactory que usaremos como fábrica
+del objeto MessageResources. Por defecto: org.apache.struts.util.PropertyMessageResourcesFactory, que asume 
+nuestro archivo de recursos es un archivo de propiedades (o sea, de la forma clave=valor).
+
+key: nombre del atributo donde el objeto será guardado en el ServletContext. Por defecto, la constante definida
+por org.apache.struts.Globals.MESSAGES_KEY
+
+null: si es true (por defecto lo es), al buscar una clave en el archivo de recursos que no exista,
+nos devolverá null. Si no, al buscar una clave inexistente, obtendremos un error.
+
+parameter: parámetro que pasaremos al objeto fábrica para crear el objeto. En el caso de PropertyMessageResourcesFactory, el nombre del archivo de recursos (pero sin la extensión ".properties").
 
 
-
-
-
-
-
+plug-in
