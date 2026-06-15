@@ -508,5 +508,55 @@ public class CronometroPlugin implements org.apache.struts.action.PlugIn {
 "
 
 Módulos
+En aplicaciones muy grandes, muchos desarrolladores a la vez estarán continuamente modificando el archivo struts-config.xml. Con el uso de controladores de versión, las chances de sobreescribir cambios que haya hecho
+otro desarrollador son mínimas. Sin embargo, hay alternativas mas eficaces.
 
+La primera alternativa consiste en definir varios archivos de configuración. Esto se hace simplemente especificando varios archivos, separados por comas, como parámetro de inicialización al ActionServlet 
+dentro del archivo Configuracion/WEB-INF/web.xml Por ejemplo:
+"
+<!-- Primer alternativa: muchos archivos de configuración -->
+<servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <init-param>
+        <param-name>config</param-name>
+        <param-value>/WEB-INF/struts-config.xml, /WEB-INF/struts-config-otro.xml, /WEB-INF/struts-config-base.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+</servlet>
+"
 
+Otra alternativa es partir la aplicación en módulos. Cada módulo es una subaplicación con su propio 
+archivo de configuración. Esta alternativa es preferible a solamente especificar varios archivos de 
+configuración. Cada módulo es independiente del resto. Si usamos muchos archivos de configuración en un
+sólo módulo, algunas aplicaciones podrían tener el mismo nombre y pisarse. Separando en módulos, podemos
+tener equipos de desarrollo trabajando por separado sin necesidad de preocuparse por la configuración global.
+
+Al definir módulos, debemos especificar un módulo por defecto (que es lo que veníamos haciendo hasta ahora)
+y cero o más módulos. La configuración de módulos se realiza en el archivo Configuracion/WEB-INF/web.xml 
+definiendo parámetros de inicialización de la forma config/[modulo]. Por ejemplo:
+"
+<!-- 
+Segunda alternativa: se separa la aplicación en módulos, cada uno con su propio archivo de configuración -->
+<servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <!-- R1 módulo por defecto -->
+    <init-param>
+        <param-name>config</param-name>
+        <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <!-- El módulo de nombre usuarios -->
+    <init-param>
+        <param-name>config/usuarios</param-name>
+        <param-value>/WEB-INF/struts-config-usuarios.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+</servlet>
+"
+
+Esto define el módulo por defecto y otro módulo de nombre usuarios con su respectivo archivo de configuración.
+El nombre del módulo no es meramente una etiqueta, sinó que define las direcciones web asociadas al módulo.
+Si nuestro contexto es Struts (como los ejemplos hasta ahora) la dirección http://localhost:8080/Struts/usuarios/accion.do pertencerá al módulo usuarios; si tal acción no existiera en el archivo de configuración del módulo, obtendremos una excepción por más que sí exista en el del módulo por defecto.
+
+Cambiar de módulo

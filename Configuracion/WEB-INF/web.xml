@@ -1,0 +1,28 @@
+<!-- Primer alternativa: muchos archivos de configuración -->
+<servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <init-param>
+        <param-name>config</param-name>
+        <param-value>/WEB-INF/struts-config.xml, /WEB-INF/struts-config-otro.xml, /WEB-INF/struts-config-base.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+</servlet>
+
+<!-- 
+Segunda alternativa: se separa la aplicación en módulos, cada uno con su propio archivo de configuración -->
+<servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <!-- R1 módulo por defecto -->
+    <init-param>
+        <param-name>config</param-name>
+        <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <!-- El módulo de nombre usuarios -->
+    <init-param>
+        <param-name>config/usuarios</param-name>
+        <param-value>/WEB-INF/struts-config-usuarios.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+</servlet>
