@@ -560,3 +560,50 @@ El nombre del módulo no es meramente una etiqueta, sinó que define las direcci
 Si nuestro contexto es Struts (como los ejemplos hasta ahora) la dirección http://localhost:8080/Struts/usuarios/accion.do pertencerá al módulo usuarios; si tal acción no existiera en el archivo de configuración del módulo, obtendremos una excepción por más que sí exista en el del módulo por defecto.
 
 Cambiar de módulo
+Si tenemos módulos en nuestra aplicación, seguramente querremos poder acceder a todos desde la navegación.
+Como por lo general las direcciones son relativas al contexto y al módulo, necesitamos una forma de poder cambiar de módulo fácilmente. La clase SwitchAction cambia el módulo en base a parámetros que haya en el pedido. El valor del parámetro page indica la dirección relativa al módulo adonde dirigir la acción luego 
+del cambio de módulo, y con el parámetro prefix especificamos el nombre del módulo al que queremos cambiar.
+
+Si prefix es una cadena vacía (no confundir con que no exista el parámetro), cambiaremos al módulo por defecto.
+
+Si definimos una acción genérica de tipo SwitchAction:
+
+<action path="/cambiarModulo" type="org.apache.struts.action.SwitchAction" />
+
+podemos invocarla accediendo a, por ejemplo:
+
+http://localhost:8080/Struts/cambiarModulo.do?prefix=/usuarios&page=/index.do 
+
+En este caso estamos cambiando al módulo usuarios y queremos acceder a la página index.do de dicho módulo.
+
+Otra forma de cambiar de módulo es usando el atributo module del elemento forward, sea éste local o global.
+Este atributo simplemente indica el módulo adonde dirigir la acción, a ser usado en conjunto con los demás atributos. Veamos un ejemplo con dos forwards, uno local y otro global, que usen este atributo:
+(Dentro del archivo: Configuracion/WEB-INF/struts-config.xml)
+"<!-- Forward global que cambia al módulo usuarios -->
+	<global-forwards>
+		<forward 
+			name="aModuloUsuarios"
+			module="usuarios"
+			path="/index.do" />
+	</global-forwards>
+
+	<action-mappings>
+	<!-- Forward local ejemplo de módulos -->
+		<action
+			path="/ingresoDatos"
+			scope="request"
+			name="datosForm"
+			type="IngresoDatosAction" />
+
+			<!-- Forward local que envía la acción a la página datos.jsp del módulo usuarios -->
+			<forward name="ok" module="usuarios" path="datos.jsp" />
+		</action>
+	</action-mappings>
+"
+
+Por último, varios tags del paquete html tienen el atributo module, que indica el módulo que se utilizará.
+Por ejemplo, en el siguiente ejemplo se crea un enlace hacia otro módulo:
+
+<html:link module="/usuarios" path="verDatos.do" />
+
+Registro de mensajes

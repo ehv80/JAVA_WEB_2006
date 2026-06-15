@@ -65,8 +65,28 @@
 			path="/jsp/form_mal.jsp" />
 	</global-forwards>
 
+	<!-- Forward global que cambia al módulo usuarios -->
+	<global-forwards>
+		<forward 
+			name="aModuloUsuarios"
+			module="usuarios"
+			path="/index.do" />
+	</global-forwards>
+
 	<!-- Elemento action-mappings que contiene elementos action que definen las acciones de la aplicación -->
 	<action-mappings>
+
+		<!-- Forward local ejemplo de módulos -->
+		<action
+			path="/ingresoDatos"
+			scope="request"
+			name="datosForm"
+			type="IngresoDatosAction" />
+
+			<!-- Forward local que envía la acción a la página datos.jsp del módulo usuarios -->
+			<forward name="ok" module="usuarios" path="datos.jsp" />
+		</action>
+
 		<!-- Acción 1-->
 		<action
 			path="/cliente" name="clienteForm" scope="request" validate="false"
