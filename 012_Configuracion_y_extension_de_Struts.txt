@@ -690,7 +690,7 @@ Define que para todos los loggers de nombre org.apache el nivel de registro sea 
 Esto hace que efectivamente todas las clases de los proyectos de Apache tengan ese nivel de registro.
 
 Desde las aplicaciones, es muy sencillo acceder al logger, veamos el siguiente código Java:
-Archivo: Configuracion/WEB-INF/src/ejemplo-logger.java 
+Archivo: Configuracion/WEB-INF/src/ejemploLogger.java 
 "
 //package Configuracion.WEB-INF.src;
 package configuracion;
@@ -699,17 +699,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
 
-public class ejemplo-logger extends Action 
+public class EjemploLogger extends Action 
 {
 
-    private static final Log log = LogFactory.getLog(ejemplo-logger.class);
+    private static final Log log = LogFactory.getLog(EjemploLogger.class);
 
     public ActionForward execute(ActionMapping map, ActionForm form,
             HttpServletRequest req, HttpServletResponse res)
             throws Exception 
     {
-        log.trace("Inicia la acción ejemplo-logger");
+        log.trace("Inicia la acción EjemploLogger");
         
         try
         {
@@ -729,6 +731,16 @@ Es conveniente crear el logger con el nombre de la clase que lo invocará, como 
 para poder aprovechar su estructura jerárquica.
 
 La jerarquía de los loggers es una organización a nivel sintáctico solamente. El logger no accede a las clases 
-para comprobar su existencia. En el ejemplo, el nombre del logger será configuracion.ejemplo-logger; si no existe tal configuración buscará para "configuración", y si tampoco existe, usará la configuración por defecto.
+para comprobar su existencia. En el ejemplo, el nombre del logger será configuracion.EjemploLogger; si no existe tal configuración buscará para "configuración", y si tampoco existe, usará la configuración por defecto.
 
 Extender la funcionalidad de Struts
+Struts es un proyecto de código abierto. Cualquiera puede descargar gratuitamente el código fuente de su página
+web y modificarlo para ajustarlo a las necesidades propias. Si bien esto es perfectamente factible, recordemos que Struts es un proyecto en constante desarrollo por una comunidad internacional, y nuevas versiones son publicadas periódicamente. Si modificamos directamente el código de Struts, probablemente tengamos complicaciones si queremos actualizar a una nueva versión, ya que perderemos nuestro código al actualizar Struts y debamos volver a hacer los cambios cada vez, incluso con el riesgo de que nuestros cambios no sean compatibles con nuevas versiones.
+
+Pero Struts también está hecho en Java, y su orientación a objetos hace que sea fácil extender su funcionalidad. Más aun, hemos visto que muchas veces la configuración nos permite definir qué clase queremos 
+usar para realizar determinadas tareas. Por defecto, estas clases son las que provee Struts, pero nada nos impide crear nuestras propias clases y usarlas.
+
+Hemos visto que podemos definir plug-ins para ejecutar código al iniciarse y finalizarse la aplicación. 
+Esta es una forma de extender la funcionalidad de Struts, veamos de qué otra forma podemos extenderlo.
+
+RequestProcessor
