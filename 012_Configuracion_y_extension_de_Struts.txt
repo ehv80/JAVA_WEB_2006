@@ -607,3 +607,128 @@ Por ejemplo, en el siguiente ejemplo se crea un enlace hacia otro módulo:
 <html:link module="/usuarios" path="verDatos.do" />
 
 Registro de mensajes
+Si nuestra aplicación necesita escribir mensajes, sea para auditoría de acciones realizadas, para depuración,
+etc., podemos usar el proyecto Commons Logging que ya viene incluído en la distribución de Struts. Con este 
+proyecto de Apache, muy sencillo de utilizar, podemos controlar los mensajes que son escritos por la aplicación
+de manera muy sencilla.
+
+La idea es que cada mensaje tiene un nivel de prioridad o importancia, y podemos configurar qué nivel de importancia queremos mostrar.
+
+La configuración del logger (la implementación que queramos usar) tiene muchas posibilidades según la que 
+elijamos. Vamos a ver un pequeño ejemplo usando SimpleLog, el logger básico de Apache Commons Logging.
+
+Necesitamos crear archivos. Uno para decirle a Commons Logging qué implementación vamos a usar, y uno 
+propio para configurar tal implementación (de ahora en más, logger).
+
+Ambos archivos deben estar en el CLASSPATH. Una buena ubicación es la carpeta Configuracion/WEB-INF/src.
+Veamos cómo configurar Commons Logging para usar SimpleLog. 
+En el archivo Configuracion/WEB-INF/src/commons-logging.properties 
+definimos la implementación a usar de la siguiente forma:
+"
+org.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog
+"
+Esa clave define el logger que se utilizará, 
+y de valor le proporcionamos el nombre completo de la clase SimpleLog.
+
+Ahora debemos configurar el logger SimpleLog. Esto lo haremos también mediante otro archivo. 
+Las propiedades que acepta SimpleLog son:
+
+org.apache.commons.logging.simplelog.defaultlog: nivel de registro para todos los loggers. Por defecto, info.
+
+org.apache.commons.logging.simplelog.log.[xyz]: nivel de registro para el logger de nombre [xyz].
+
+org.apache.commons.logging.simplelog.showlogname: si es true muestra el nombre del Log junto con el mensaje.
+Por defecto es false.
+
+org.apache.commons.logging.simplelog.showShortLogname: si es true (por defecto) muestra el último componente 
+del nombre del Log junto con el mensaje, o sea, una representación corta del nombre.
+
+org.apache.commons.logging.simplelog.showdatetime: si es true muestra la hora y fecha del mensaje. Por defecto es false.
+
+org.apache.commons.logging.simplelog.dateTimeFormat: el patrón que se usará para formatear la fecha.
+Por defecto, yyyy/MM/dd HH:mm:ss:SSS zzz.
+
+Hay 6 niveles de registro, en orden creciente de importancia o prioridad:
+trace, debug, info, warn, error, fatal.
+
+Si el nivel del registro por defecto es, por ejemplo info, y nuestra clase registra mensajes de nivel debug,
+éstos no serán mostrados porque son de un nivel menor al que queremos ver.
+
+Sólo los mensajes de la importancia del nivel de registro o mayor se mostrarán.
+
+Veamos un ejemplo concreto de configuración de SimpleLog:
+
+El otro Archivo de Configuración del logger: Configuracion/WEB-INF/src/simplelog.properties
+ "
+org.apache.commons.logging.simpleLog.defaultlog=trace
+ "
+Con esta configuración estamos especificando que queremos ver todos los mensajes de nivel trace y, por 
+consiguiente, todos los mensajes para todas las clases.
+
+Con esta configuración, si iniciamos Tomcat veremos una cantidad gigantesca de mensajes, arrojados por Struts,
+Tomcat, etc. al iniciarse.
+
+Lo que queremos hacer entonces es mantener un nivel de registro para nuestras clases, y restringir el nivel 
+de registro para el resto de las clases. Esto lo podemos hacer fácilmente de la siguiente forma:
+(Archivo: Configuracion/WEB-INF/src/simplelog.properties)
+"
+org.apache.commons.logging.simpleLog.defaultlog=warn
+org.apache.commons.logging.simplelog.log.configuracion=trace
+"
+Estamos definiendo que por defecto sólo se registren los mensajes de nivel warn o más, y que para el 
+logger de nombre configuracion, se registren todos los mensajes.
+
+Los logger tienen un nivel jerárquico. Si creamos los loggers basados en el nombre de las clases, podremos
+agruparlos en base a paquetes y establecer el nivel de registro jerárquicamente, por ejemplo:
+(Archivo: Configuracion/WEB-INF/src/simplelog.properties)
+"
+org.apache.commons.logging.simpleLog.defaultlog=warn
+org.apache.commons.logging.simplelog.log.org.apache=info
+org.apache.commons.logging.simplelog.log.configuracion=trace
+"
+Define que para todos los loggers de nombre org.apache el nivel de registro sea info. 
+Esto hace que efectivamente todas las clases de los proyectos de Apache tengan ese nivel de registro.
+
+Desde las aplicaciones, es muy sencillo acceder al logger, veamos el siguiente código Java:
+Archivo: Configuracion/WEB-INF/src/ejemplo-logger.java 
+"
+//package Configuracion.WEB-INF.src;
+package configuracion;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class ejemplo-logger extends Action 
+{
+
+    private static final Log log = LogFactory.getLog(ejemplo-logger.class);
+
+    public ActionForward execute(ActionMapping map, ActionForm form,
+            HttpServletRequest req, HttpServletResponse res)
+            throws Exception 
+    {
+        log.trace("Inicia la acción ejemplo-logger");
+        
+        try
+        {
+            int edad = Integer.parseInt(req.getParameter("edad"));
+        }
+        catch (NumberFormatException nfe)
+        {
+            log.warn("Edad inválida", nfe);
+        }
+
+        return map.findForward("ok");
+    }
+    
+}
+"
+Es conveniente crear el logger con el nombre de la clase que lo invocará, como por ejemplo LoggerAction, 
+para poder aprovechar su estructura jerárquica.
+
+La jerarquía de los loggers es una organización a nivel sintáctico solamente. El logger no accede a las clases 
+para comprobar su existencia. En el ejemplo, el nombre del logger será configuracion.ejemplo-logger; si no existe tal configuración buscará para "configuración", y si tampoco existe, usará la configuración por defecto.
+
+Extender la funcionalidad de Struts
