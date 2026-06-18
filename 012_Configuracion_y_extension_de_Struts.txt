@@ -744,3 +744,157 @@ Hemos visto que podemos definir plug-ins para ejecutar código al iniciarse y fi
 Esta es una forma de extender la funcionalidad de Struts, veamos de qué otra forma podemos extenderlo.
 
 RequestProcessor
+Esta clase es la encargada de realizar toda la lógica de cada pedido. Al recibir un pedido, la clase ActionServlet invoca a una instancia de esta clase pasándole los objetos HttpServletRequest y HttpServletResponse. 
+
+El método principal de RequestProcessor llama a varios métodos más pequeños. Esta modularidad nos facilita la 
+tarea de extender la clase, ya que podemos redefinir solamente los métodos que necesitemos sin necesidad de 
+modificar el método principal.
+
+Un esqueleto del código del método process() el (el método principal llamado por ActionServlet) 
+de la clase RequestProcessor vemos a continuación:
+"
+/* Se obtiene la dirección para obtener la acción a ejecutar */
+String path = processPath(request, response);
+
+/* Obtiene el Locale y lo guarda en sesión (si la configuración así lo indica) */
+processLocale(request, response);
+
+/* Obtiene el tipo de contenido a devolver de la configuración */
+processContent(request, response);
+
+/* Agrega encabezados para evitar la caché de los navegadores (si la configuración así lo indica) */
+processNoCache(request, response);
+
+/* Llamado a un método genérico, ideal para redefinir en una subclase */
+if(!processPreprocess(request, response))
+{
+	return;
+}
+
+/* Quita de la sesión los ActionMessages que fueron accedidos al menos una vez */
+this.processCachedMessages(request, response);
+
+/* Obtiene el ActionMapping que procesará el pedido */
+ActionMapping mapping = processMapping(request, response, path);
+if(mapping == null)
+{
+	return;
+}
+
+/* Verifica que el usuario tenga los roles de seguridad necesarios para acceder al recurso */
+if(!processRoles(request, response, mapping))
+{
+	return;
+}
+
+/* Obtiene el form asociado al mapping */
+ActionForm form = processActionForm(request, response, mapping);
+
+/* Llena los atributos del form, en base al pedido */
+processPopulate(request, response, form, mapping);
+
+/* Llama al método validate del form, y en caso de haber errores redirige a la página de error */
+if(!processValidate(request, response, form, mapping))
+{
+	return;
+}
+
+/* Si hay un atributo forward en el mapping, se lo invoca */
+if(!processForward(request, response, mapping))
+{
+	return;
+}
+
+/* Si hay un atributo include en el mapping, se lo invoca */
+if(!processInclude(request, response, mapping))
+{
+	return;
+}
+
+/* Crea u obtiene la clase Action que va a procesar este pedido */
+Action action = porcessActionCreate(request, response, mapping);
+if(action == null)
+{
+	return;
+}
+
+/* Invoca la instancia de la acción y obtiene el ActionForward a donde redirigir el pedido */
+ActionForward forward = processActionPerform(request, response, action, form, mapping);
+
+/* Redirige el pedido a donde especifique el objeto ActionForward */
+processForwardConfig(request, response, forward);
+"
+
+Algunos de estos métodos interactúan con muchos objetos del framework, y debemos ser muy cuidadosos
+si queremos modificarlos o extenderlos.
+
+Esta clase es básicamente todo Struts desde adentro. Aquí se comprende en concreto el funcionamiento de
+todo lo que vimos en los capítulos anteriores.
+
+El método processPreprocess() es un método creado específicamente para extensibilidad. Este método es 
+llamado, pero su definición en la clase RequestProcessor es vacía. Fácilmente podemos extender la clase 
+redefiniendo este método. El método debe devolver un valor booleano. Si devolvemos true, indicamos que el 
+procesamiento debe continuar, caso contrario estamos indicando que ya hemos procesado el pedido.
+
+Vamos a un ejemplo. Queremos que la aplicación esté disponible a los usuarios sólo en determinado horario. 
+Extendemos la clase RequestProcessor: 
+Archivo: Configuracion/WEB-INF/src/RequestProcessorHorario.java 
+"
+//package Configuracion.WEB-INF.src;
+package configuracion;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.RequestProcessor;
+
+public class RequestProcessorHorario extends RequestProcessor {
+    protected static Log log = LogFactory.getLog(RequestProcessorHorario.class);
+
+    @Override
+    /**
+     * Verificamos estar dentro de un rango horario. Si lo estamos, dejamos que
+     * RequestProcessor
+     * siga con el procesamiento del pedido, sino, reenviamos a una página que
+     * muestre un mensaje.
+     * 
+     * @param request
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    protected boolean processPreprocess(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        GregorianCalendar gc = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+
+        int hora = gc.get(Calendar.HOUR_OF_DAY);
+
+        if (hora < 9 || hora > 15) {
+            try {
+                // Reenviamos a una página que muestre un mensaje
+                response.sendRedirect(response.encodeRedirectURL("fueraDeHorario.html"));
+            } catch (IOException ioe) {
+                // Registramos el error
+                log.error("Error al redirigir por fuera de horario", ioe);
+            }
+
+            // Cortamos el procesamiento
+            return false;
+        } else {
+            // Que siga el procesamiento normal
+            return true;
+        }
+    }
+}
+"
+
+Recordemos que para usar una clase distinta a RequestProcessor debemos configurarlo en el elemento 
+controller del archivo Configuracion/WEB-INF/struts-config.xml 
+
+ActionServlet
