@@ -898,3 +898,69 @@ Recordemos que para usar una clase distinta a RequestProcessor debemos configura
 controller del archivo Configuracion/WEB-INF/struts-config.xml 
 
 ActionServlet
+Esta clase es la que recibe todos los pedidos. La lógica de manejo de pedidos vimos que la delega a RequestProcessor. La funcionalidad de ActionServlet está en los métodos de inicialización, donde se leen 
+los archivos de configuración, se interpretan, etc.
+
+En general, no vamos a necesitar extender a ActionServlet a no ser que queramos interactuar directamente 
+con elementos propios de Struts en profundidad. Si necesitamos agregar funcionalidad al iniciar la aplicación,
+podemos usar un plug-in y para funcionalida en la ejecución, extendemos a RequestProcessor. Si nos encontramos
+con una situación en que necesitamos agregar la funcionalidad sí o sí en ActionServlet, podemos extender la 
+clase e invocarla directamente desde el archivo Configuracion/WEB-INF/web.xml; recordemos que ActionServlet no deja de ser un servlet.
+
+Supongamos que queremos una aplicación que sólo responda a métodos HTTP GET. Podríamos hacer esto fácilmente 
+con una subclase de RequestProcessor, usando el método getMethod() de la clase HttpServletRequest y filtrando 
+todo pedido que no sea del tipo que queremos. Pero supongamos que por alguna razón no podemos resolver el problema con ese enfoque. Desarrollemos una subclase de ActionServlet. ActionServlet define los métodos 
+doGet() y doPost(). Los otros métodos correspondientes a los otros tipos de pedido (doDelete(), doPut(), etc.) 
+no son redefinidos y la implementación por defecto no devuelve nada. Debemos entonces redefinir doPost() para que este método no sea atendido por el servidor:
+Archivo: Configuracion/WEB-INF/src/GetActionServlet.java 
+"
+//package Configuracion.WEB-INF.src;
+package configuracion;
+
+import java.io.IOException;
+
+//import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.ActionServlet;
+
+/**
+ * Subclase de ActionServlet que sólo atiende pedidos HTTP GET
+ */
+
+public class GetActionServlet extends ActionServlet {
+    @Override
+    /**
+     * Sobreescribimos este método para que la superclase no lo atienda
+     * 
+     * @param request
+     * @param response
+     * @throws IOException
+     * @throws ServletException
+     */
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        // No hacemos nada, sólo atendemos GET
+    }
+}
+"
+
+Luego en el archivo Configuracion/WEB-INF/web.xml definimos que queremos nuestra versión GetActionServlet:
+"
+<!-- Ejemplo de configuración para usar GetActionServlet -->
+<servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>configuracion.GetActionServlet</servlet-class>
+    <init-param>
+        <param-name>config</param-name>
+        <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+</servlet>
+"
+
+RESUMEN 
+En este capítulo revisamos a fondo las posibilidades de configuración a medida de Struts. Recorrimos todas 
+las opciones que brinda el archivo struts-config.xml, cómo configurar nuestras acciones, formularios, y además,
+el controlador mismo. Vimos también cómo extender la funcionalidad de Struts creando plug-ins y extendiendo las clases RequestProcessor y ActionServlet.

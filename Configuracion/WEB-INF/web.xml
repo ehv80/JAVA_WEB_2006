@@ -26,3 +26,14 @@ Segunda alternativa: se separa la aplicación en módulos, cada uno con su propi
     </init-param>
     <load-on-startup>2</load-on-startup>
 </servlet>
+
+<!-- Ejemplo de configuración para usar GetActionServlet -->
+<servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>configuracion.GetActionServlet</servlet-class>
+    <init-param>
+        <param-name>config</param-name>
+        <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+</servlet>
